@@ -1,33 +1,48 @@
 "use client";
 
-import { Inter } from "next/font/google";
-import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import { useState } from "react";
+
+import "./globals.css";
+
+import { Inter } from "next/font/google";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+
 import { BiUser } from "react-icons/bi";
 import { AiOutlineHome } from "react-icons/ai";
 import { TbActivityHeartbeat } from "react-icons/tb";
 import { LuBatteryCharging } from "react-icons/lu";
 import { FaRegMap } from "react-icons/fa";
 import { IoLogInOutline } from "react-icons/io5";
-import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-  const pathname = usePathname();
 
   const pageNames: Record<string, string> = {
-    "/": "Home (Biometric Monitoring)",
-    "/biometric-monitor": "Predictive Analysis",
+    "/": "Home",
+    "/predictive-analysis": "Predictive Analysis",
     "/battery-tracker": "Battery Tracker",
-    "/location": "Location",
-    "/login": "Login",
+    "/location": "Location"
   };
 
+  const pathname = usePathname();
   const currentPageName = pageNames[pathname] || "Page Not Found";
+
+  if (pathname === "/login") {
+    return (
+      <html lang="en">
+        <body className={inter.className}>
+          <div className="login-content">{children}</div>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">
@@ -63,26 +78,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               {/* Navigation Links */}
               <nav className="nav-links">
-                <a href="/">
+                <Link href="/" className={`nav-links ${pathname === "/" ? "active" : ""}`} style={{ textDecoration: "none" }}>
                   <AiOutlineHome size={34} />
                   {collapsed ? "" : "Home"}
-                </a> {/* Biometric Monitor */}
-                <a href="/biometric-monitor">
+                </Link> 
+                <Link href="/predictive-analysis" className={`nav-links ${pathname === "/predictive-analysis" ? "active" : ""}`} style={{ textDecoration: "none" }}>
                   <TbActivityHeartbeat size={34}/>
                   {collapsed ? "" : "Predictive Analysis"}
-                </a> {/*Biometric monitor page is now predictive analysis page*/}
-                <a href="/battery-tracker">
+                </Link>
+                <Link href="/battery-tracker" className={`nav-links ${pathname === "/battery-tracker" ? "active" : ""}`} style={{ textDecoration: "none" }}>
                   <LuBatteryCharging size={34}/>
                   {collapsed ? "" : "Battery Tracker"}
-                </a>
-                <a href="/location">
+                </Link>
+                <Link href="/location" className={`nav-links ${pathname === "/location" ? "active" : ""}`} style={{ textDecoration: "none" }}>
                   <FaRegMap size={34}/>
                   {collapsed ? "" : "Location"}
-                </a>
-                <a href="/login"> 
+                </Link>
+                <Link href="/login" className={`nav-links ${pathname === "/login" ? "active" : ""}`} style={{ textDecoration: "none" }}> 
                   <IoLogInOutline size={34}/> 
-                  {collapsed ? "" : "Login"}
-                </a>
+                  {collapsed ? "" : "Sign Out"}
+                </Link>
               </nav>
             </div>
 
