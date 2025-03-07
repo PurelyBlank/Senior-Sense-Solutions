@@ -131,8 +131,16 @@ html, body {
   flex-direction: column; /* Stack the icon and text vertically */
   align-items: center; /* Center the items horizontally */
   position: relative;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, font-weight 0.1s ease,;
   border-bottom: 1px solid white; /* Horizontal separator */
+}
+
+.nav-links a:hover {
+  font-weight: bold;
+}
+
+.nav-links.active {
+  font-weight: bold;
 }
 
 /* Remove left arrows before links */
@@ -185,6 +193,13 @@ html, body {
 
 .sidebar.collapsed + .main-content {
   margin-left: 0px;
+}
+
+/* Login Content */
+.login-content {
+  margin-left: 20px;
+  margin-top: 4.5rem;
+  padding: 20px;
 }
 
 /* Responsive styles for mobile */
