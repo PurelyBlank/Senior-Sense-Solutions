@@ -177,6 +177,38 @@ html, body {
   border-bottom: 0.5px solid white; /* Thinner line when collapsed */
 }
 
+.nav-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  padding: 24px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: background-color 0.3s ease, font-weight 0.1s ease;
+  border-bottom: 1px solid white; /* Same separator */
+  cursor: pointer;
+  width: 100%; /* Ensure full width like links */
+}
+
+.nav-button:hover {
+  font-weight: bold;
+}
+
+.sidebar.collapsed .nav-button {
+  padding: 12px 0; /* Adjust padding */
+  font-size: 12px;
+}
+
+/* Adjust icon size when sidebar is collapsed */
+.sidebar.collapsed .nav-button svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* Main Content */
 .main-content {
   margin-left: 20px;
@@ -195,12 +227,6 @@ html, body {
   margin-left: 0px;
 }
 
-/* Login Content */
-.login-content {
-  margin-left: 20px;
-  margin-top: 4.5rem;
-  padding: 20px;
-}
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {

@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 import "./globals.css";
 
@@ -23,18 +22,23 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-
-  const pageNames: Record<string, string> = {
-    "/": "Home",
-    "/predictive-analysis": "Predictive Analysis",
-    "/battery-tracker": "Battery Tracker",
-    "/location": "Location"
-  };
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  const router = useRouter();
   const pathname = usePathname();
-  const currentPageName = pageNames[pathname] || "Page Not Found";
 
-  if (pathname === "/login") {
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const allowedRoutes = ["/login", "/register"];
+    setIsAuthenticated(!!token);
+
+    if (!token && !allowedRoutes.includes(window.location.pathname)) {
+      router.push("/login");
+    }
+  }, [pathname, router]);
+
+  // If on login or register page, don't show the layout
+  if (pathname === "/login" || pathname === "/register") {
     return (
       <html lang="en">
         <body className={inter.className}>
@@ -42,6 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </body>
       </html>
     );
+  }
+
+  if (!isAuthenticated && pathname !== "/login") {
+    return null; // Prevent flickering before redirect
   }
 
   return (
@@ -61,14 +69,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Golden top bar */}
-          <div className="page-name-bar">
-            {currentPageName} {/* Display dynamic page name */}
-          </div>
+          <div className="page-name-bar">{pathname === "/" ? "Home" : "Dashboard"}</div>
 
           <div className="flex flex-1">
-            {/* Sidebar - Below the top bar */}
+            {/* Sidebar */}
             <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-              {/* Collapsible Button */}
               <button
                 onClick={() => setCollapsed(!collapsed)}
                 className="collapsible-button"
@@ -76,28 +81,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {collapsed ? "▸" : "◂"}
               </button>
 
-              {/* Navigation Links */}
               <nav className="nav-links">
-                <Link href="/" className={`nav-links ${pathname === "/" ? "active" : ""}`} style={{ textDecoration: "none" }}>
-                  <AiOutlineHome size={34} />
-                  {collapsed ? "" : "Home"}
-                </Link> 
-                <Link href="/predictive-analysis" className={`nav-links ${pathname === "/predictive-analysis" ? "active" : ""}`} style={{ textDecoration: "none" }}>
-                  <TbActivityHeartbeat size={34}/>
-                  {collapsed ? "" : "Predictive Analysis"}
+                <Link href="/" className={pathname === "/" ? "active" : ""}>
+                  <AiOutlineHome size={34} /> {collapsed ? "" : "Home"}
                 </Link>
-                <Link href="/battery-tracker" className={`nav-links ${pathname === "/battery-tracker" ? "active" : ""}`} style={{ textDecoration: "none" }}>
-                  <LuBatteryCharging size={34}/>
-                  {collapsed ? "" : "Battery Tracker"}
+                <Link href="/predictive-analysis" className={pathname === "/predictive-analysis" ? "active" : ""}>
+                  <TbActivityHeartbeat size={34}/> {collapsed ? "" : "Predictive Analysis"}
                 </Link>
-                <Link href="/location" className={`nav-links ${pathname === "/location" ? "active" : ""}`} style={{ textDecoration: "none" }}>
-                  <FaRegMap size={34}/>
-                  {collapsed ? "" : "Location"}
+                <Link href="/battery-tracker" className={pathname === "/battery-tracker" ? "active" : ""}>
+                  <LuBatteryCharging size={34}/> {collapsed ? "" : "Battery Tracker"}
                 </Link>
-                <Link href="/login" className={`nav-links ${pathname === "/login" ? "active" : ""}`} style={{ textDecoration: "none" }}> 
-                  <IoLogInOutline size={34}/> 
-                  {collapsed ? "" : "Sign Out"}
+                <Link href="/location" className={pathname === "/location" ? "active" : ""}>
+                  <FaRegMap size={34}/> {collapsed ? "" : "Location"}
                 </Link>
+                <button className="nav-button" onClick={() => {
+                  localStorage.removeItem("authToken");
+                  router.push("/login");
+                }}>
+                  <IoLogInOutline size={34}/> {collapsed ? "" : "Sign Out"}
+                </button>
               </nav>
             </div>
 
