@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { useState } from "react";
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 import { Inter } from "next/font/google";
@@ -96,7 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Link>
                 <Link href="/login" className={`nav-links ${pathname === "/login" ? "active" : ""}`} style={{ textDecoration: "none" }}> 
                   <IoLogInOutline size={34}/> 
-                  {collapsed ? "" : "Sign Out"}
+                  {collapsed ? "" : "Logout"}
                 </Link>
               </nav>
             </div>

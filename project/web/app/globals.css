@@ -8,7 +8,15 @@
 html, body {
   height: 100%;
   font-family: 'Inter', sans-serif;
-  background-color: #f5f5f5;
+  background-color: #FFFFFF;
+}
+
+h1 {
+  font-size: 32px !important;
+}
+
+p {
+  font-size: 16px !important;
 }
 
 /* Top Bar - Fixed at the top */
@@ -124,8 +132,8 @@ html, body {
 
 .nav-links a {
   color: white;
-  font-size: 16px;
-  padding: 24px 24px;
+  font-size: 14px;
+  padding: 18px 18px;
   text-align: center; /* Center the text under the icon */
   display: flex;
   flex-direction: column; /* Stack the icon and text vertically */
@@ -195,13 +203,6 @@ html, body {
   margin-left: 0px;
 }
 
-/* Login Content */
-.login-content {
-  margin-left: 20px;
-  margin-top: 4.5rem;
-  padding: 20px;
-}
-
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
   .top-bar {
@@ -232,4 +233,247 @@ html, body {
   z-index: 80; /* Ensure it appears below the top bar but above other content */
   padding-left: 140px;
   padding-right: 20px;
+}
+
+.dropdown-label {
+  margin-top: -15px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.patient-box {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  background-color: white;
+  color: black;
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  width: 475px;
+  height: 550px;
+  margin-top: 20px;
+}
+
+.patient-icon {
+  display: block;
+  margin: 0 auto;
+  font-size: 100px !important;
+  color: gray;
+  padding-top: 10px;
+}
+
+.patient-name {
+  display: block;
+  padding-top: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.patient-info {
+  display: block;
+  margin-top: 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.detail-label {
+  font-size: 13px !important;
+}
+
+.detail-value {
+  font-size: 13px !important;
+  color: gray;
+}
+
+.detail-dropdown {
+  width: 105px;
+}
+
+.remove-patient-button {
+  color: #FFFFFF;
+  background-color: #0F172A;
+  margin-top: 25px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.remove-patient-button:hover {
+  color: #FFFFFF;
+  background-color: #243966;
+}
+
+.vertical-line {
+  width: 100%;
+  height: 1px;
+  background-color: lightgray;
+  margin-top: 60px;
+}
+
+.add-patient-button {
+  color: #FFFFFF;
+  background-color: #0F172A;
+  margin-top: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.add-patient-button:hover {
+  color: #FFFFFF;
+  background-color: #243966;
+}
+
+.content-container {
+  display: flex;
+  gap: 30px;
+}
+
+.patient-container {
+  flex: 1;
+  min-width: 500px;
+}
+
+.right-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 40px;
+}
+
+.notifications-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: auto;
+  min-width: 1000px;
+  max-width: none;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  max-height: 350px;
+}
+
+.abnormality-text {
+  color: gray;
+  margin-top: -15px;
+  font-size: 14px !important;
+}
+
+.notifications-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 10px;
+}
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+}
+
+.notifications-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.notifications-title {
+  display: block;
+  font-size: 14px !important;
+}
+
+.notifications-summary {
+  font-size: 14px !important;
+  color: gray;
+}
+
+.bottom-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.heartrate-box {
+  display: flex;
+  text-align: left;
+  flex-direction: column;
+  flex: 1;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  background-color: #FFFFFF;
+  min-height: 355px;
+  max-height: 500px;
+  width: auto;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.heartrate-title {
+  font-size: 20px !important;
+  margin-top: 10px;
+}
+
+.heartrate-bpm {
+  font-size: 40px !important;
+}
+
+.heartrate-summary {
+  font-size: 24px !important;
+}
+
+.bloodoxygen-box {
+  display: flex;
+  text-align: left;
+  flex-direction: column;
+  flex: 1;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  background-color: #FFFFFF;
+  min-height: 355px;
+  max-height: 500px;
+  width: auto;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.bloodoxygen-title {
+  font-size: 20px !important;
+  margin-top: 10px;
+}
+
+.bloodoxygen-percentage {
+  font-size: 40px !important;
+}
+
+.bloodoxygen-summary {
+  font-size: 24px !important;
+}
+
+/* Login Content */
+.login-content {
+  margin-left: 20px;
+  margin-top: 4.5rem;
+  padding: 20px;
 }
