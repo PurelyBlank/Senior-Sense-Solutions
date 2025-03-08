@@ -107,10 +107,10 @@ html, body {
 
 /* Login Button */
 .login {
-    width: 80%;  /* Ensures it's reasonably wide */
+    width: 80%;  
     text-align: center;
-    padding: 1rem;  /* Adjusted padding for better length */
-    background: #33B7F7;  /* Set the background to blue */
+    padding: 1rem;  
+    background: #33B7F7;  
     color: white;
     font-size: 1.2rem;
     font-weight: bold;

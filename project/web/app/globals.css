@@ -8,7 +8,15 @@
 html, body {
   height: 100%;
   font-family: 'Inter', sans-serif;
-  background-color: #f5f5f5;
+  background-color: #FFFFFF;
+}
+
+h1 {
+  font-size: 32px !important;
+}
+
+p {
+  font-size: 16px !important;
 }
 
 /* Top Bar - Fixed at the top */
@@ -24,7 +32,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  z-index: 200; /* Ensures it stays above everything */
+  z-index: 200; 
 }
 
 .top-bar .logo {
@@ -61,7 +69,7 @@ html, body {
   top: 3.5rem;
   left: 0;
   width: 120px;
-  height: calc(100vh - 3.5rem); /* Ensures it fills the remaining screen height */
+  height: calc(100vh - 3.5rem); 
   background-color: #005686;
   transition: width 0.3s ease;
   overflow-y: auto;
@@ -81,7 +89,7 @@ html, body {
 /* Collapsible Button */
 .collapsible-button {
   position: absolute;
-  left: 12px; /* Adjust for alignment */
+  left: 12px; 
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -93,9 +101,9 @@ html, body {
 
 /* Centered Arrow in the Sidebar */
 .sidebar::before {
-  content: ""; /* Single arrow */
+  content: ""; 
   position: absolute;
-  left: 12px; /* Align with collapsible button */
+  left: 12px; 
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
@@ -106,7 +114,7 @@ html, body {
 .sidebar::after {
   content: "";
   position: absolute;
-  left: 30px; /* Slightly to the right of the arrow */
+  left: 30px; 
   top: 0;
   height: 100%;
   width: 2px;
@@ -119,20 +127,20 @@ html, body {
   flex-direction: column;
   gap: 0;
   margin-top: 0;
-  padding-left: 30px; /* Adjusted to move links further right */
+  padding-left: 30px; 
 }
 
 .nav-links a {
   color: white;
-  font-size: 16px;
-  padding: 24px 24px;
-  text-align: center; /* Center the text under the icon */
+  font-size: 14px;
+  padding: 18px 18px;
+  text-align: center; 
   display: flex;
-  flex-direction: column; /* Stack the icon and text vertically */
-  align-items: center; /* Center the items horizontally */
+  flex-direction: column; 
+  align-items: center; 
   position: relative;
   transition: background-color 0.3s ease, font-weight 0.1s ease,;
-  border-bottom: 1px solid white; /* Horizontal separator */
+  border-bottom: 1px solid white; 
 }
 
 .nav-links a:hover {
@@ -150,31 +158,31 @@ html, body {
 
 /* Default icon size */
 .nav-links a svg {
-  margin-bottom: 4px; /* Add some spacing between the icon and the text */
-  width: 34px; /* Set width for icons */
-  height: 34px; /* Set height for icons */
+  margin-bottom: 4px; 
+  width: 34px; 
+  height: 34px; 
 }
 
 /* Reduce icon size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a svg {
-  width: 12px; /* Smaller size when collapsed */
-  height: 12px; /* Smaller size when collapsed */
+  width: 12px; 
+  height: 12px; 
 }
 
 /* Reduce the horizontal line size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a {
-  padding-left: 8px; /* Adjust padding */
-  padding-right: 8px; /* Adjust padding */
-  font-size: 12px; /* Adjust text size */
+  padding-left: 8px; 
+  padding-right: 8px; 
+  font-size: 12px; 
 }
 
 .sidebar.collapsed .nav-links a svg {
-  width: 12px; /* Smaller size when collapsed */
-  height: 12px; /* Smaller size when collapsed */
+  width: 12px; 
+  height: 12px; 
 }
 
 .sidebar.collapsed .nav-links a {
-  border-bottom: 0.5px solid white; /* Thinner line when collapsed */
+  border-bottom: 0.5px solid white; 
 }
 
 .nav-button {
@@ -189,9 +197,9 @@ html, body {
   align-items: center;
   position: relative;
   transition: background-color 0.3s ease, font-weight 0.1s ease;
-  border-bottom: 1px solid white; /* Same separator */
+  border-bottom: 1px solid white; 
   cursor: pointer;
-  width: 100%; /* Ensure full width like links */
+  width: 100%; 
 }
 
 .nav-button:hover {
@@ -199,7 +207,7 @@ html, body {
 }
 
 .sidebar.collapsed .nav-button {
-  padding: 12px 0; /* Adjust padding */
+  padding: 12px 0; 
   font-size: 12px;
 }
 
@@ -212,15 +220,15 @@ html, body {
 /* Main Content */
 .main-content {
   margin-left: 20px;
-  margin-top: 4.5rem; /* Below the top bar */
+  margin-top: 4.5rem; 
   padding: 20px;
   transition: margin-left 0.3s ease;
 }
 
 .flex {
   display: flex;
-  flex-direction: row; /* Keep the layout column-based */
-  height: 100vh; /* Full screen height */
+  flex-direction: row; 
+  height: 100vh; 
 }
 
 .sidebar.collapsed + .main-content {
@@ -245,7 +253,7 @@ html, body {
 
 .page-name-bar {
   width: 100%;
-  height: 2rem; /* Adjust the height as needed */
+  height: 2rem; 
   background: #CFA329;
   color: white;
   display: flex;
@@ -254,8 +262,244 @@ html, body {
   font-size: 0.90rem;
   font-weight: bold;
   position: fixed;
-  top: 3.5rem; /* Right below the top bar */
-  z-index: 80; /* Ensure it appears below the top bar but above other content */
+  top: 3.5rem; 
+  z-index: 80; 
   padding-left: 140px;
   padding-right: 20px;
+}
+
+.dropdown-label {
+  margin-top: -15px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.patient-box {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  background-color: white;
+  color: black;
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  width: 475px;
+  height: 550px;
+  margin-top: 20px;
+}
+
+.patient-icon {
+  display: block;
+  margin: 0 auto;
+  font-size: 100px !important;
+  color: gray;
+  padding-top: 10px;
+}
+
+.patient-name {
+  display: block;
+  padding-top: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.patient-info {
+  display: block;
+  margin-top: 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.detail-label {
+  font-size: 13px !important;
+}
+
+.detail-value {
+  font-size: 13px !important;
+  color: gray;
+}
+
+.detail-dropdown {
+  width: 105px;
+}
+
+.remove-patient-button {
+  color: #FFFFFF;
+  background-color: #0F172A;
+  margin-top: 25px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.remove-patient-button:hover {
+  color: #FFFFFF;
+  background-color: #243966;
+}
+
+.vertical-line {
+  width: 100%;
+  height: 1px;
+  background-color: lightgray;
+  margin-top: 60px;
+}
+
+.add-patient-button {
+  color: #FFFFFF;
+  background-color: #0F172A;
+  margin-top: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.add-patient-button:hover {
+  color: #FFFFFF;
+  background-color: #243966;
+}
+
+.content-container {
+  display: flex;
+  gap: 30px;
+}
+
+.patient-container {
+  flex: 1;
+  min-width: 500px;
+}
+
+.right-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 40px;
+}
+
+.notifications-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: auto;
+  min-width: 1000px;
+  max-width: none;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  max-height: 350px;
+}
+
+.abnormality-text {
+  color: gray;
+  margin-top: -15px;
+  font-size: 14px !important;
+}
+
+.notifications-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 10px;
+}
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+}
+
+.notifications-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.notifications-title {
+  display: block;
+  font-size: 14px !important;
+}
+
+.notifications-summary {
+  font-size: 14px !important;
+  color: gray;
+}
+
+.bottom-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.heartrate-box {
+  display: flex;
+  text-align: left;
+  flex-direction: column;
+  flex: 1;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  background-color: #FFFFFF;
+  min-height: 355px;
+  max-height: 500px;
+  width: auto;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.heartrate-title {
+  font-size: 20px !important;
+  margin-top: 10px;
+}
+
+.heartrate-bpm {
+  font-size: 40px !important;
+}
+
+.heartrate-summary {
+  font-size: 24px !important;
+}
+
+.bloodoxygen-box {
+  display: flex;
+  text-align: left;
+  flex-direction: column;
+  flex: 1;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  background-color: #FFFFFF;
+  min-height: 355px;
+  max-height: 500px;
+  width: auto;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.bloodoxygen-title {
+  font-size: 20px !important;
+  margin-top: 10px;
+}
+
+.bloodoxygen-percentage {
+  font-size: 40px !important;
+}
+
+.bloodoxygen-summary {
+  font-size: 24px !important;
 }
