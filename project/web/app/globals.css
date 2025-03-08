@@ -235,7 +235,6 @@ p {
   margin-left: 0px;
 }
 
-
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
   .top-bar {
@@ -503,3 +502,4 @@ p {
 .bloodoxygen-summary {
   font-size: 24px !important;
 }
+
