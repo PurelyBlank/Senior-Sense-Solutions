@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.login-left { /*blue background */
+    flex: 1;
+    background: linear-gradient(to right, #005686, #001520);
+}
+
+.login-center { /*gold line */
+    width: 50px;
+    background: #CFA329;
+}
+
+/* Right Container (Sign-in Section) */
+.login-right {
+    flex: 1;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    gap: 1rem;
+}
+
+/* Title */
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #005686;
+    margin-bottom: 1rem;
+}
+
+/* Welcome Back Text */
+.welcome {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Sub Text */
+.sub-text {
+    font-size: 1rem;
+    color: gray;
+}
+
+/* Ensure input fields are same length */
+.email-slot,
+.password-slot {
+    width: 80%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: 1px solid gray;
+    border-radius: 8px;
+    background: white;
+    text-align: left;
+    color: black;
+}
+
+/* Password visibility section */
+.password-visible {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    color: gray;
+    font-size: 0.9rem;
+    width: 80%;
+    cursor: pointer;
+    margin-top: 0.3rem;
+}
+
+/* Remember Me & Forgot Password */
+.remember-forgot-container {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.forgot {
+    color: #005686;
+    cursor: pointer;
+}
+
+/* Login Button */
+.login {
+    width: 80%;  
+    text-align: center;
+    padding: 1rem;  
+    background: #33B7F7;  
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.login:hover {
+    background: #0099cc;  /* Slightly darker blue for hover effect */
+}
+
+/* Sign Up */
+.sign-up {
+    font-size: 1rem;
+}
+
+.sign-up a {
+    color: #005686;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.sign-up a:hover {
+    text-decoration: underline;
+}
+
+/* Separator */
+.separator {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    text-align: center;
+    font-size: 0.9rem;
+    color: gray;
+    margin: 1rem 0;
+}
+
+.separator::before,
+.separator::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: gray;
+    margin: 0 1rem;
+}
+
+/* Google Sign-In */
+.google {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid gray;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.google:hover {
+    background: #e6e6e6;
+}

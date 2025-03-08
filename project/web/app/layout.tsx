@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { Suspense } from 'react';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
@@ -24,25 +24,36 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-
-  const pageNames: Record<string, string> = {
-    "/": "Home",
-    "/predictive-analysis": "Predictive Analysis",
-    "/battery-tracker": "Battery Tracker",
-    "/location": "Location"
-  };
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  const router = useRouter();
   const pathname = usePathname();
-  const currentPageName = pageNames[pathname] || "Page Not Found";
 
-  if (pathname === "/login") {
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const allowedRoutes = ["/login", "/register"];
+    setIsAuthenticated(!!token);
+
+    if (!token && !allowedRoutes.includes(window.location.pathname)) {
+      router.push("/login");
+    }
+  }, [pathname, router]);
+
+  // If on login or register page, don't show the layout
+  if (pathname === "/login" || pathname === "/register") {
     return (
       <html lang="en">
         <body className={inter.className}>
-          <div className="login-content">{children}</div>
+          <Suspense fallback={<div>Loading...</div>}>
+            <div className="login-content">{children}</div>
+          </Suspense>
         </body>
       </html>
     );
+  }
+
+  if (!isAuthenticated && pathname !== "/login") {
+    return null; // Prevent flickering before redirect
   }
 
   return (
@@ -62,14 +73,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Golden top bar */}
-          <div className="page-name-bar">
-            {currentPageName} {/* Display dynamic page name */}
-          </div>
+          <div className="page-name-bar">{pathname === "/" ? "Home" : "Dashboard"}</div>
 
           <div className="flex flex-1">
-            {/* Sidebar - Below the top bar */}
+            {/* Sidebar */}
             <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-              {/* Collapsible Button */}
               <button
                 onClick={() => setCollapsed(!collapsed)}
                 className="collapsible-button"
@@ -95,10 +103,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <FaRegMap size={34}/>
                   {collapsed ? "" : "Location"}
                 </Link>
-                <Link href="/login" className={`nav-links ${pathname === "/login" ? "active" : ""}`} style={{ textDecoration: "none" }}> 
-                  <IoLogInOutline size={34}/> 
-                  {collapsed ? "" : "Logout"}
-                </Link>
+                <button className="nav-button" onClick={() => {
+                  localStorage.removeItem("authToken");
+                  router.push("/login");
+                }}>
+                  <IoLogInOutline size={34}/> {collapsed ? "" : "Sign Out"}
+                </button>
               </nav>
             </div>
 
