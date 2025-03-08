@@ -85,18 +85,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {collapsed ? "▸" : "◂"}
               </button>
 
+              {/* Navigation Links */}
               <nav className="nav-links">
-                <Link href="/" className={pathname === "/" ? "active" : ""}>
-                  <AiOutlineHome size={34} /> {collapsed ? "" : "Home"}
+                <Link href="/" className={`nav-links ${pathname === "/" ? "active" : ""}`} style={{ textDecoration: "none" }}>
+                  <AiOutlineHome size={34} />
+                  {collapsed ? "" : "Home"}
+                </Link> 
+                <Link href="/predictive-analysis" className={`nav-links ${pathname === "/predictive-analysis" ? "active" : ""}`} style={{ textDecoration: "none" }}>
+                  <TbActivityHeartbeat size={34}/>
+                  {collapsed ? "" : "Predictive Analysis"}
                 </Link>
-                <Link href="/predictive-analysis" className={pathname === "/predictive-analysis" ? "active" : ""}>
-                  <TbActivityHeartbeat size={34}/> {collapsed ? "" : "Predictive Analysis"}
+                <Link href="/battery-tracker" className={`nav-links ${pathname === "/battery-tracker" ? "active" : ""}`} style={{ textDecoration: "none" }}>
+                  <LuBatteryCharging size={34}/>
+                  {collapsed ? "" : "Battery Tracker"}
                 </Link>
-                <Link href="/battery-tracker" className={pathname === "/battery-tracker" ? "active" : ""}>
-                  <LuBatteryCharging size={34}/> {collapsed ? "" : "Battery Tracker"}
-                </Link>
-                <Link href="/location" className={pathname === "/location" ? "active" : ""}>
-                  <FaRegMap size={34}/> {collapsed ? "" : "Location"}
+                <Link href="/location" className={`nav-links ${pathname === "/location" ? "active" : ""}`} style={{ textDecoration: "none" }}>
+                  <FaRegMap size={34}/>
+                  {collapsed ? "" : "Location"}
                 </Link>
                 <button className="nav-button" onClick={() => {
                   localStorage.removeItem("authToken");
