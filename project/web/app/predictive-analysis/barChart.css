@@ -1,0 +1,46 @@
+.BarChartContainer  {
+    min-width: 475px;
+    min-height: 396px;
+
+    max-width: 475px;
+    max-height: 396px; 
+
+    border: 1px solid lightgray;
+    border-radius: 11.26px;
+    padding : 10px; 
+
+}
+
+.BarChartHeader h1{
+    font-size: 12px !important;
+}
+
+.BarChartDivider {
+    border-top: 1px solid lightgray;
+}
+ 
+.BarChartContent{
+    padding: 10px;
+}
+
+.BarChartChartHeader h1{
+    padding-top : 5px;
+    font-size: 15px !important;
+}
+
+.BarChartChartHeader p1{
+    font-size: 13px !important;
+}
+
+.BarChartChart{
+    padding-bottom: 10px;
+}
+
+.BarChartDescription h1{
+    font-size : 13px !important; 
+    font-weight : bold !important; 
+}
+
+.BarChartDescription p{
+    font-size: 13px !important; 
+}
