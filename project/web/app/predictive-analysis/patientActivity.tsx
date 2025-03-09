@@ -5,7 +5,7 @@ import "./barChart.css";
 
 Chart.register(...registerables);
 
-export default function FallChart() {
+export default function PatientActivity() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -19,11 +19,11 @@ export default function FallChart() {
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "bar",
         data: {
-          labels: ["1/13 - 1/19", "1/20 - 1/26", "1/27 - 2/2", "2/3 - 2/9", "2/10 - 2/16", "2/17 - 2/23"],
+          labels: ["8AM", "10AM", "12PM", "2PM", "4PM", "6PM", "8PM"],
           datasets: [
             {
-              label: "# of Falls",
-              data: [0, 2, 1, 0, 0, 0],
+              label: "# of steps",
+              data: [400, 600, 500, 153, 450, 486, 89],
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
@@ -71,7 +71,7 @@ export default function FallChart() {
     <div className="BarChartContainer">
         {/* Header */}
         <div className="BarChartHeader">
-            <h1>Fall Chart</h1>
+            <h1>Patient Activity Chart </h1>
         </div>
 
         {/* Divider */}
@@ -82,16 +82,16 @@ export default function FallChart() {
             {/* Chart */}
             <div className="BarChartChart">
                 <div className = "BarChartChartHeader">
-                    <h1>Fall Chart</h1>
-                    <p>Over six weeks</p>
+                    <h1>Patient Activity (steps) </h1>
+                    <p>Mar 8, 2025</p>
                 </div>
                 <canvas ref={chartRef} />
             </div>
 
             {/* Description */}
             <div className="BarChartDescription">
-                <h1>Trending down by 50% over the last 3 weeks</h1>
-                <p>Showing total falls over the last six weeks</p>
+                <h1>Trending down by 10.6% today</h1>
+                <p>Showing patient activity measured in steps</p>
             </div>
         </div>
 
