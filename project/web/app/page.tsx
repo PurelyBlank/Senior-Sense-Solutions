@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     if (email === "admin@test.com" && password === "password123456789") {
       localStorage.setItem("authToken", "dummy_token");
-      router.push("/biometric-monitor"); // Redirect to dashboard
+      router.push("/biometric-monitor"); 
     } else {
       setError("Invalid email or password.");
     }
@@ -40,8 +40,8 @@ export default function LoginPage() {
           type="email"
           className="email-slot"
           placeholder="Enter your email"
-          value={email} // Bind email state
-          onChange={(e) => setEmail(e.target.value)} // Update email state
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
         />
 
         {/* Password Input */}
@@ -49,8 +49,8 @@ export default function LoginPage() {
           type={showPassword ? "text" : "password"}
           className="password-slot"
           placeholder="Enter your password"
-          value={password} // Bind password state
-          onChange={(e) => setPassword(e.target.value)} // Update password state
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
         />
 
         {/* Show Password Toggle Below */}
