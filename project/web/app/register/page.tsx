@@ -14,7 +14,7 @@ export default function RegisterPage() {
     const router = useRouter();
 
     const handleRegister = () => {
-        router.push("/login");
+        router.push("/");
     };
 
     return (
