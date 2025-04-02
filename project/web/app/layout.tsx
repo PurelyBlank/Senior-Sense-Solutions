@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       router.push("/");
     }
   }, [pathname]);
-
+  
   return (
     <html lang="en">
       <body>{children}</body>
