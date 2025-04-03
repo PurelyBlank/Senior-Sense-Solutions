@@ -18,7 +18,7 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (email === "admin@test.com" && password === "password123456789") {
+    if (email === "admin@uci.edu" && password === "admin") {
       localStorage.setItem("authToken", "dummy_token");
       router.push("/biometric-monitor"); 
     } else {
