@@ -51,8 +51,8 @@ export default function LoginPage() {
       <div className="login-center" />
       <div className="login-right">
         <h1 className="title">Senior Sense Solutions</h1>
-        <h2 className="welcome">Welcome Back!</h2>
-        <p className="sub-text">Login to your account to continue</p>
+        <h2 className="welcome">Welcome back!</h2>
+        <p className="sub-text">Log in to your account to continue</p>
 
         <form className="login-form" onSubmit={handleLogin}>
           <input
@@ -91,10 +91,10 @@ export default function LoginPage() {
           <div className="remember-forgot-container">
             <label className="remember">
               <input type="checkbox" disabled={isLoading} />
-              Remember me
+              <span>Remember me</span>
             </label>
             <Link href="/forgot-password" className="forgot">
-              Forgot your password?
+              <span>Forgot your password?</span>
             </Link>
           </div>
 
@@ -112,13 +112,15 @@ export default function LoginPage() {
           <Link href="/register">Sign up here!</Link>
         </p>
 
-        <div className="separator">Or login with</div>
+        <div className="separator">
+          <span className="fw-bold">Or continue with:</span>
+        </div>
 
         <button 
-          className="google" 
+          className="google fw-bold" 
           disabled={isLoading}
         >
-          <FcGoogle size={34} /> Google
+          <FcGoogle size={48} /> Google
         </button>
       </div>
     </div>

@@ -12,6 +12,10 @@ html, body {
   overflow: hidden;
 }
 
+p, span {
+  font-size: 16px !important;
+}
+
 .login-container {
   display: flex;
   height: 100vh;
@@ -33,7 +37,7 @@ html, body {
 /* Right container (sign-in section) */
 .login-right {
   flex: 1;
-  background-color: #f5f5f5;
+  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,17 +77,21 @@ html, body {
   padding: 0;
 }
 
-/* Ensure input fields are same length */
-.email-slot,
-.password-slot {
+/* Email input field */
+.email-slot {
   width: 80%;
-  padding: 0.8rem;
-  font-size: 1rem;
-  border: 1px solid gray;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  border: 1px solid lightgray;
   border-radius: 8px;
-  background: white;
+  background: #F3F3F3;
   text-align: left;
   color: black;
+}
+
+.email-slot:focus {
+  border: 1px solid gray;
+  outline: none;
 }
 
 .password-container {
@@ -91,15 +99,21 @@ html, body {
   position: relative;
 }
 
+/* Password input field */
 .password-slot {
   width: 100%;
-  padding: 0.8rem;
-  font-size: 1rem;
-  border: 1px solid gray;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  border: 1px solid lightgray;
   border-radius: 8px;
-  background: white;
+  background: #F3F3F3;
   text-align: left;
   color: black;
+}
+
+.password-slot:focus {
+  border: 1px solid gray;
+  outline: none;
 }
 
 .password-toggle {
@@ -114,6 +128,7 @@ html, body {
   background: none;
   border: none;
   padding: 0;
+  margin-top: 15px;
 }
 
 /* Password visibility section */
@@ -126,7 +141,6 @@ html, body {
   font-size: 0.9rem;
   width: 80%;
   cursor: pointer;
-  margin-top: 0.3rem;
 }
 
 /* Remember me & forgot password */
@@ -135,6 +149,7 @@ html, body {
   justify-content: space-between;
   width: 80%;
   align-items: center;
+  margin-top: 50px;
   font-size: 0.9rem;
 }
 
@@ -153,21 +168,23 @@ html, body {
 .login {
   width: 80%;  
   text-align: center;
-  padding: 1rem;  
+  padding: 1.2rem;  
   background: #33B7F7;  
   color: white;
   font-size: 1.2rem;
   font-weight: bold;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
 .login:hover {
-  background: #0099cc;  /* Slightly darker blue for hover effect */
+  background: #2ea6e1;  /* Slightly darker blue for hover effect */
 }
 
 /* Sign up */
 .sign-up {
+  margin-top: 15px;
   font-size: 1rem;
 }
 
@@ -208,12 +225,13 @@ html, body {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.5rem;
   background: white;
   border: 1px solid gray;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1.5rem;
+  margin-top: 5px;
 }
 
 .google:hover {
