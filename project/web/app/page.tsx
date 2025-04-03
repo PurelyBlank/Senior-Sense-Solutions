@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 export default function LoginPage() {
@@ -14,74 +17,107 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-    if (email === "admin@uci.edu" && password === "admin") {
-      localStorage.setItem("authToken", "dummy_token");
-      router.push("/biometric-monitor"); 
-    } else {
-      setError("Invalid email or password.");
+    try {
+      // Replace with actual API call
+      if (!email || !password) {
+        throw new Error("Please fill in all fields.");
+      }
+
+      // Hard-coded authentication (replace with real auth)
+      if (email === "admin@uci.edu" && password === "admin") {
+        localStorage.setItem("authToken", "dummy_token");
+        router.push("/biometric-monitor"); 
+
+      } else {
+        setError("Invalid email or password.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-left"></div>
-      <div className="login-center"></div>
+      <div className="login-left" />
+      <div className="login-center" />
       <div className="login-right">
-        <div className="title">Senior Sense Solutions</div>
-        <div className="welcome">Welcome Back!</div>
-        <div className="sub-text">Login to your account to continue</div>
+        <h1 className="title">Senior Sense Solutions</h1>
+        <h2 className="welcome">Welcome Back!</h2>
+        <p className="sub-text">Login to your account to continue</p>
 
-        {/* Email Input */}
-        <input
-          type="email"
-          className="email-slot"
-          placeholder="Enter your email"
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
+        <form className="login-form" onSubmit={handleLogin}>
+          <input
+            type="email"
+            className="email-slot"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={isLoading}
+          />
 
-        {/* Password Input */}
-        <input
-          type={showPassword ? "text" : "password"}
-          className="password-slot"
-          placeholder="Enter your password"
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="password-slot"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+            >
+              {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+              <span>Show password</span>
+            </button>
+          </div>
 
-        {/* Show Password Toggle Below */}
-        <div
-          className="password-visible"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
-          <span>Show password</span>
-        </div>
+          {error && <div className="error-message" role="alert">{error}</div>}
 
-        {/* Display error message */}
-        {error && <div className="error-message">{error}</div>}
+          <div className="remember-forgot-container">
+            <label className="remember">
+              <input type="checkbox" disabled={isLoading} />
+              Remember me
+            </label>
+            <Link href="/forgot-password" className="forgot">
+              Forgot your password?
+            </Link>
+          </div>
 
-        <div className="remember-forgot-container">
-          <label className="remember">
-            <input type="checkbox" />
-            Remember me
-          </label>
-          <div className="forgot">Forgot your password?</div>
-        </div>
+          <button 
+            type="submit" 
+            className="login" 
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-        <button className="login" onClick={handleLogin}>Login</button>
-
-        <div className="sign-up">
-          Don't have an account yet? <Link href="/register">Sign up here!</Link>
-        </div>
+        <p className="sign-up">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/register">Sign up here!</Link>
+        </p>
 
         <div className="separator">Or login with</div>
 
-        <button className="google">
+        <button 
+          className="google" 
+          disabled={isLoading}
+        >
           <FcGoogle size={34} /> Google
         </button>
       </div>
