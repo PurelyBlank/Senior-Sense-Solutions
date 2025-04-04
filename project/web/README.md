@@ -10,11 +10,27 @@ Work-in-progress.
 
 ### Install Required Dependencies
 
+In the backend directory,
+
+```
+npm install
+```
+
+In the web directory,
+
 ```
 npm install
 ```
 
 ### Launch Local Instance
+
+In the backend directory,
+
+```
+node server.js
+```
+
+In the web directory,
 
 ```
 npm run dev
