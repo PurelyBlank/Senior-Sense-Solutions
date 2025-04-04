@@ -44,7 +44,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Login failed");
       }
 
-      // Store token and redirect
+      // Store auth token and redirect to Biometric Monitor page
       localStorage.setItem("authToken", data.token);
       router.push("/biometric-monitor");
 

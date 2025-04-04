@@ -17,17 +17,19 @@ html, body {
     width: 100vw;
 }
 
-.register-left { /* Blue background */
+/* Blue background */
+.register-left {
     flex: 1;
     background: linear-gradient(to right, #005686, #001520);
 }
 
-.register-center { /* Gold line */
+/* Gold line */
+.register-center {
     width: 50px;
     background: #CFA329;
 }
 
-/* Right Container (Sign-in Section) */
+/* Right Container (sign-in section) */
 .register-right {
     flex: 1;
     background-color: #f5f5f5;
@@ -47,19 +49,19 @@ html, body {
     margin-bottom: 1rem;
 }
 
-/* Welcome Back Text */
+/* Welcome back text */
 .welcome {
     font-size: 1.5rem;
     font-weight: bold;
 }
 
-/* Sub Text */
+/* Sub text */
 .sub-text {
     font-size: 1rem;
     color: gray;
 }
 
-/* Input Fields */
+/* Input fields */
 .input-container {
     width: 80%;
     margin-bottom: 1rem;
@@ -89,7 +91,7 @@ html, body {
     margin-top: 0.3rem;
 }
 
-/* Register Button */
+/* Register button */
 .register {
     width: auto;  
     padding: 0.8rem 8rem;  
@@ -101,7 +103,6 @@ html, body {
     border-radius: 8px;
     cursor: pointer;
     margin-top: 1.5rem;
-    transition: background 0.3s ease; 
 }
 
 .register:hover {
@@ -129,7 +130,7 @@ html, body {
     margin: 0 10px;
 }
 
-/* Google Sign-In Button */
+/* Google sign-in button */
 .google {
     width: 80%;
     display: flex;

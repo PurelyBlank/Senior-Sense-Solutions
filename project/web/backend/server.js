@@ -37,14 +37,14 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Query the database
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = result.rows[0];
+    const result = await pool.query('SELECT * FROM Caretaker WHERE email = $1', [email]);
+    const caretaker_user = result.rows[0];
 
-    if (!user) {
+    if (!caretaker_user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    if (user.password !== password) {
+    if (caretaker_user.user_password !== password) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
