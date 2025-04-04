@@ -19,27 +19,38 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // Replace with actual API call
       if (!email || !password) {
         throw new Error("Please fill in all fields.");
       }
 
-      // Hard-coded authentication (replace with real auth)
-      if (email === "admin@uci.edu" && password === "admin") {
-        localStorage.setItem("authToken", "dummy_token");
-        router.push("/biometric-monitor"); 
+      // Make POST request to login endpoint in backend
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      } else {
-        setError("Invalid email or password.");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
       }
+
+      // Store token and redirect
+      localStorage.setItem("authToken", data.token);
+      router.push("/biometric-monitor");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
+
     } finally {
       setIsLoading(false);
     }
