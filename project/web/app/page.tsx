@@ -66,6 +66,7 @@ export default function LoginPage() {
         <p className="sub-text">Log in to your account to continue</p>
 
         <form className="login-form" onSubmit={handleLogin}>
+          {/* Email input */}
           <input
             type="email"
             className="email-slot"
@@ -76,6 +77,7 @@ export default function LoginPage() {
             disabled={isLoading}
           />
 
+          {/* Password input */}
           <div className="password-container">
             <input
               type={showPassword ? "text" : "password"}
@@ -99,6 +101,7 @@ export default function LoginPage() {
 
           {error && <div className="error-message" role="alert">{error}</div>}
 
+          {/* Remember Me & Forgot Your Password? container */}
           <div className="remember-forgot-container">
             <label className="remember">
               <input type="checkbox" disabled={isLoading} />
@@ -109,6 +112,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
+          {/* Submit button */}
           <button 
             type="submit" 
             className="login" 
@@ -118,6 +122,7 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* Register link */}
         <p className="sign-up">
           Don&apos;t have an account yet?{" "}
           <Link href="/register">Sign up here!</Link>
@@ -127,6 +132,7 @@ export default function LoginPage() {
           <span className="fw-bold">Or continue with:</span>
         </div>
 
+        {/* Google login button */}
         <button 
           className="google fw-bold" 
           disabled={isLoading}

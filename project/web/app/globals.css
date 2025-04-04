@@ -22,7 +22,7 @@ p, span {
   width: 100vw;
 }
 
-/* Left container (solor section) */
+/* Left container (color section) */
 .login-left {
   flex: 1;
   background: linear-gradient(to right, #005686, #001520);
@@ -116,6 +116,7 @@ p, span {
   outline: none;
 }
 
+/* Password visibility section */
 .password-toggle {
   display: flex;
   align-items: center;
@@ -131,7 +132,6 @@ p, span {
   margin-top: 15px;
 }
 
-/* Password visibility section */
 .password-visible {
   display: flex;
   align-items: center;
@@ -160,8 +160,13 @@ p, span {
 }
 
 .forgot {
-  color: #005686;
+  color: #33B7F7;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.forgot:hover {
+  text-decoration: underline;
 }
 
 /* Login button */
@@ -170,7 +175,7 @@ p, span {
   text-align: center;
   padding: 1.2rem;  
   background: #33B7F7;  
-  color: white;
+  color: #FFFFFF;
   font-size: 1.2rem;
   font-weight: bold;
   border: none;
@@ -179,7 +184,7 @@ p, span {
 }
 
 .login:hover {
-  background: #2ea6e1;  /* Slightly darker blue for hover effect */
+  background: #2ea6e1;
 }
 
 /* Sign up */
