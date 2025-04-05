@@ -27,13 +27,13 @@ pool.connect((err) => {
   }
 });
 
-// Create login endpoint (POST request)
+// Login endpoint (POST request)
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: 'Email and password are required.' });
     }
 
     // Query the database
@@ -41,11 +41,11 @@ app.post('/api/login', async (req, res) => {
     const caretaker_user = result.rows[0];
 
     if (!caretaker_user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     if (caretaker_user.user_password !== password) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     // Return a dummy token (replace with JWT later)
@@ -54,7 +54,39 @@ app.post('/api/login', async (req, res) => {
 
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Register endpoint (POST request)
+app.post('/api/register', async (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
+
+  try {
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    // Check if email is already registered by another caretaker user
+    const emailCheck = await pool.query('SELECT * FROM Caretaker WHERE email=$1', [email]);
+    if (emailCheck.rows.length > 0) {
+      return res.status(409).json({ error: 'Email already registered.' });
+    }
+
+    // Insert new caretaker user into database
+    await pool.query(
+      'INSERT INTO Caretaker (first_name, last_name, email, user_password, created_at) VALUES ($1, $2, $3, $4, NOW())',
+      [firstName, lastName, email, password]
+    );
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (err) {
+    console.error('Register error', err);
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Email already registered.' });
+    }
+
+    res.status(500).json({ error: 'Server error.' });
   }
 });
 
