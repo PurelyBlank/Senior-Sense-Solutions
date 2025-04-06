@@ -49,7 +49,8 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Create a new JSON Web Token tied to current user credentials
-    const token = jwt.sign({ user_id: caretaker_user.user_id, email: caretaker_user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    // Expiration is set to '1y' (1 year) for uptime; must implement refresh tokens later for proper security
+    const token = jwt.sign({ user_id: caretaker_user.user_id, email: caretaker_user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1y' });
     res.json({ token });
 
   } catch (err) {
