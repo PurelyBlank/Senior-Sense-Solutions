@@ -1,6 +1,8 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const app = express();
 const port = 5000;
@@ -40,11 +42,7 @@ app.post('/api/login', async (req, res) => {
     const result = await pool.query('SELECT * FROM Caretaker WHERE email = $1', [email]);
     const caretaker_user = result.rows[0];
 
-    if (!caretaker_user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
-    }
-
-    if (caretaker_user.user_password !== password) {
+    if (!caretaker_user || !(await bcrypt.compare(password, caretaker_user.user_password))) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
@@ -73,10 +71,12 @@ app.post('/api/register', async (req, res) => {
       return res.status(409).json({ error: 'Email already registered.' });
     }
 
+    // Use bcrypt to hash password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     // Insert new caretaker user into database
     await pool.query(
       'INSERT INTO Caretaker (first_name, last_name, email, user_password, created_at) VALUES ($1, $2, $3, $4, NOW())',
-      [firstName, lastName, email, password]
+      [firstName, lastName, email, hashedPassword]
     );
 
     res.status(201).json({ message: 'User registered successfully' });
