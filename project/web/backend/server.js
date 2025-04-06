@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 5000;
@@ -13,11 +15,11 @@ app.use(express.json());
 
 // Establish backend connection to PostgreSQL database
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'testdb',
-  password: 'postgres',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 // Test backend connection to PostgreSQL database
@@ -46,8 +48,8 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Return a dummy token (replace with JWT later)
-    const token = 'dummy_token';
+    // Create a new JSON Web Token tied to current user credentials
+    const token = jwt.sign({ user_id: caretaker_user.user_id, email: caretaker_user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
     res.json({ token });
 
   } catch (err) {
