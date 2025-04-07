@@ -1,0 +1,16 @@
+.google-maps {
+    display: flex;
+    position: absolute;
+    width: calc(100vw - 120px);
+    height: calc(100vh - 5.5rem);
+    top: 5.5rem;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    flex: 1;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
