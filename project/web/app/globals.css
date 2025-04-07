@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Inter", sans-serif;
 }
 
 html, body {
@@ -11,26 +12,32 @@ html, body {
   overflow: hidden;
 }
 
+p, span {
+  font-size: 16px !important;
+}
+
 .login-container {
   display: flex;
   height: 100vh;
   width: 100vw;
 }
 
-.login-left { /*blue background */
+/* Left container (color section) */
+.login-left {
   flex: 1;
   background: linear-gradient(to right, #005686, #001520);
 }
 
-.login-center { /*gold line */
+/* Gold line */
+.login-center {
   width: 50px;
   background: #CFA329;
 }
 
-/* Right Container (Sign-in Section) */
+/* Right container (sign-in section) */
 .login-right {
   flex: 1;
-  background-color: #f5f5f5;
+  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -47,32 +54,84 @@ html, body {
   margin-bottom: 1rem;
 }
 
-/* Welcome Back Text */
+/* Welcome back text */
 .welcome {
   font-size: 1.5rem;
   font-weight: bold;
 }
 
-/* Sub Text */
+/* Sub text */
 .sub-text {
   font-size: 1rem;
   color: gray;
 }
 
-/* Ensure input fields are same length */
-.email-slot,
-.password-slot {
+.login-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Email input field */
+.email-slot {
   width: 80%;
-  padding: 0.8rem;
-  font-size: 1rem;
-  border: 1px solid gray;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  border: 1px solid lightgray;
   border-radius: 8px;
-  background: white;
+  background: #F3F3F3;
   text-align: left;
   color: black;
 }
 
+.email-slot:focus {
+  border: 1px solid gray;
+  outline: none;
+}
+
+.password-container {
+  width: 80%;
+  position: relative;
+}
+
+/* Password input field */
+.password-slot {
+  width: 100%;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  background: #F3F3F3;
+  text-align: left;
+  color: black;
+}
+
+.password-slot:focus {
+  border: 1px solid gray;
+  outline: none;
+}
+
 /* Password visibility section */
+.password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  color: gray;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
 .password-visible {
   display: flex;
   align-items: center;
@@ -82,15 +141,15 @@ html, body {
   font-size: 0.9rem;
   width: 80%;
   cursor: pointer;
-  margin-top: 0.3rem;
 }
 
-/* Remember Me & Forgot Password */
+/* Remember me & forgot password */
 .remember-forgot-container {
   display: flex;
   justify-content: space-between;
   width: 80%;
   align-items: center;
+  margin-top: 50px;
   font-size: 0.9rem;
 }
 
@@ -101,29 +160,36 @@ html, body {
 }
 
 .forgot {
-  color: #005686;
+  color: #33B7F7;
+  text-decoration: none;
   cursor: pointer;
 }
 
-/* Login Button */
+.forgot:hover {
+  text-decoration: underline;
+}
+
+/* Login button */
 .login {
   width: 80%;  
   text-align: center;
-  padding: 1rem;  
+  padding: 1.2rem;  
   background: #33B7F7;  
-  color: white;
+  color: #FFFFFF;
   font-size: 1.2rem;
   font-weight: bold;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
 .login:hover {
-  background: #0099cc;  /* Slightly darker blue for hover effect */
+  background: #2ea6e1;
 }
 
-/* Sign Up */
+/* Sign up */
 .sign-up {
+  margin-top: 15px;
   font-size: 1rem;
 }
 
@@ -157,19 +223,20 @@ html, body {
   margin: 0 1rem;
 }
 
-/* Google Sign-In */
+/* Google sign-in button */
 .google {
   width: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.5rem;
   background: white;
   border: 1px solid gray;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1.5rem;
+  margin-top: 5px;
 }
 
 .google:hover {
