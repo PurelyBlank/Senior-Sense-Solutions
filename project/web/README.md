@@ -24,15 +24,15 @@ npm install
 
 ### Launch Local Instance
 
-Create a PostgreSQL database with TimescaleDB extension according to the following information:\\
+Create a PostgreSQL database with TimescaleDB extension according to the following information:  
 
-Username: postgres\\
-Password: postgres\\
-Host: localhost\\
-Port: 5432\\
-Database name: testdb\\
+Username: postgres  
+Password: postgres  
+Host: localhost  
+Port: 5432  
+Database name: testdb  
 
-In the backend directory, create a .env file with the following fields:
+In the backend directory, create a ```.env``` file with the following fields:
 
 ```
 JWT_SECRET_KEY=s34pkq13/+sWTiW+VXNGq6JTznEh/6UTqG0k2sZ+kxs=
