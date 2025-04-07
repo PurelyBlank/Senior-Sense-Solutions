@@ -24,6 +24,25 @@ npm install
 
 ### Launch Local Instance
 
+Create a PostgreSQL database with TimescaleDB extension according to the following information:
+
+Username: postgres
+Password: postgres
+Host: localhost
+Port: 5432
+Database name: testdb
+
+In the backend directory, create a .env file with the following fields:
+
+```
+JWT_SECRET_KEY=s34pkq13/+sWTiW+VXNGq6JTznEh/6UTqG0k2sZ+kxs=
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=testdb
+```
+
 In one terminal, navigate to the backend directory and execute:
 
 ```
@@ -36,4 +55,4 @@ In a second terminal, navigate to the web directory and execute:
 npm run dev
 ```
 
-If the Next.js compiler is stuck, delete the .next folder and try again.
+If the Next.js compiler is stuck, delete the .next folder and execute ```npm run dev``` again.
