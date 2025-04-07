@@ -1,3 +1,4 @@
+/* Google Map component */
 .google-maps {
     display: flex;
     position: absolute;
@@ -10,7 +11,18 @@
     flex: 1;
 }
 
+/* Map container */
 .map-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Loader .gif */
+.loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
 }
