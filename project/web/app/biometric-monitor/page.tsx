@@ -8,17 +8,34 @@ import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
 import { MdOutlineBloodtype } from "react-icons/md";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { TextField, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
 
 export default function HomePage() {
+  const [isAddPatient, setIsAddPatient] = React.useState(false);
+
   const [patient, setPatient] = React.useState('');
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
   const [gender, setGender] = React.useState('');
   const [age, setAge] = React.useState('');
   const [height, setHeight] = React.useState('');
   const [weight, setWeight] = React.useState('');
+  const [deviceId, setDeviceId] = React.useState('');
+
+  const handleAddPatient = () => {
+    setIsAddPatient(true);
+  }
+
+  const handleSubmit = () => {
+    setIsAddPatient(false);
+  }
+
+  const handleCancel = () => {
+    setIsAddPatient(false);
+  }
 
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
@@ -38,6 +55,10 @@ export default function HomePage() {
 
   const handleWeightChange = (event: SelectChangeEvent) => {
     setWeight(event.target.value as string);
+  };
+
+  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDeviceId(e.target.value);
   };
 
   return (
@@ -65,6 +86,7 @@ export default function HomePage() {
           </FormControl>
 
           {/* Patient Box */}
+          {!isAddPatient ? (
           <div className="patient-box">
             {/* Profile Icon and Patient Name */}
             <CgProfile className="patient-icon" size={95} />
@@ -180,9 +202,110 @@ export default function HomePage() {
               <div className="vertical-line"></div>
 
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button">Add Patient</button>
+              <button type="button" className="btn add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
           </div>
+          ) : (
+            <div className="add-patient-form">
+              <h5>Add New Patient</h5>
+
+              {/* Profile Icon */}
+              <CgProfile className="patient-icon" size={95} />
+              <button type="button" className="btn btn-link">Import Profile Picture</button>
+
+              {/* First Name */}
+              <TextField
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+
+              {/* Last Name */}
+              <TextField
+                label="Last Name"
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+
+              {/* Gender */}
+              <FormControl fullWidth size="small" className="mb-2">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  value={gender}
+                  onChange={handleGenderChange}
+                  label="Gender"
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Age */}
+              <FormControl fullWidth size="small" className="mb-2">
+                <InputLabel>Age</InputLabel>
+                <Select
+                  value={age}
+                  onChange={handleAgeChange}
+                  label="Age"
+                >
+                  {[...Array(100)].map((_, i) => (
+                    <MenuItem key={i} value={i + 1}>
+                      {i + 1}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Height */}
+              <FormControl fullWidth size="small" className="mb-2">
+                <InputLabel>Height</InputLabel>
+                <Select
+                  value={height}
+                  onChange={handleHeightChange}
+                  label="Height"
+                >
+                  <MenuItem value="5'0">5&apos;0&quot;</MenuItem>
+                  {/* Add other heights */}
+                </Select>
+              </FormControl>
+
+              {/* Weight */}
+              <FormControl fullWidth size="small" className="mb-2">
+                <InputLabel>Weight</InputLabel>
+                <Select
+                  value={weight}
+                  onChange={handleWeightChange}
+                  label="Weight"
+                >
+                  <MenuItem value={50}>50 lbs</MenuItem>
+                  {/* Add other weights */}
+                </Select>
+              </FormControl>
+
+              {/* Device ID */}
+              <TextField
+                label="Device ID"
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={deviceId}
+                onChange={(e) => setDeviceId(e.target.value)}
+              />
+
+              {/* Action Buttons */}
+              <div className="d-flex justify-content-between mt-3">
+                <button className="btn btn-secondary" onClick={handleCancel}>Cancel</button>
+                <button className="btn btn-primary" onClick={handleSubmit}>Save Changes</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="right-container">
