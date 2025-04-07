@@ -1,247 +1,144 @@
 "use client";
 
-import * as React from 'react';
+import { useState } from "react";
 
-import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
-import { FiBell } from "react-icons/fi";
-import { IoPersonOutline } from "react-icons/io5";
-import { FaHeartbeat } from "react-icons/fa";
-import { MdOutlineBloodtype } from "react-icons/md";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
-export default function HomePage() {
-  const [patient, setPatient] = React.useState('');
-  const [gender, setGender] = React.useState('');
-  const [age, setAge] = React.useState('');
-  const [height, setHeight] = React.useState('');
-  const [weight, setWeight] = React.useState('');
+export default function LoginPage() {
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePatientChange = (event: SelectChangeEvent) => {
-    setPatient(event.target.value as string);
-  };
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-  const handleGenderChange = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string);
-  };
+    try {
+      if (!email || !password) {
+        throw new Error("Please fill in all fields.");
+      }
 
-  const handleAgeChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
+      // Make POST request to login endpoint in backend
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-  const handleHeightChange = (event: SelectChangeEvent) => {
-    setHeight(event.target.value as string);
-  };
+      const data = await response.json();
 
-  const handleWeightChange = (event: SelectChangeEvent) => {
-    setWeight(event.target.value as string);
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Store auth token and redirect to Biometric Monitor page
+      localStorage.setItem("authToken", data.token);
+      router.push("/biometric-monitor");
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="main-container container p-3">
-      <h1 className="display-7 fw-semibold">Welcome back, Olivia.</h1>
+    <div className="login-container">
+      <div className="login-left" />
+      <div className="login-center" />
+      <div className="login-right">
+        <h1 className="title">Senior Sense Solutions</h1>
+        <h2 className="welcome">Welcome back!</h2>
+        <p className="sub-text">Log in to your account to continue</p>
 
-      {/* Main Content */}
-      <div className="content-container">
-        {/* Patient Container */}
-        <div className="patient-container container pt-4">
-          <p className="dropdown-label">Select Patient</p>
-          <FormControl fullWidth size="small" style={{ width: 430 }}>
-            <InputLabel id="select-patient">Select</InputLabel>
-            <Select
-              labelId="select-patient-label"
-              id="select-patient"
-              label="Patient"
-              value={patient}
-              onChange={handlePatientChange}
+        <form className="login-form" onSubmit={handleLogin}>
+          {/* Email input */}
+          <input
+            type="email"
+            className="email-slot"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+
+          {/* Password input */}
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="password-slot"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
             >
-              <MenuItem value={"Bruce Wayne"}>Bruce Wayne</MenuItem>
-              <MenuItem value={"Jane Doe"}>Jane Doe</MenuItem>
-              <MenuItem value={"Alfred Hitchcock"}>Alfred Hitchcock</MenuItem>
-            </Select>
-          </FormControl>
-
-          {/* Patient Box */}
-          <div className="patient-box">
-            {/* Profile Icon and Patient Name */}
-            <CgProfile className="patient-icon" size={95} />
-            <span className="patient-name">{patient || "Select a patient"}</span>
-            <span className="patient-info">Patient Info</span>
-
-            {/* Patient Details Rows */}
-            <div className="patient-details">
-              {/* Gender */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Gender</span>
-                  <span className="detail-value">{gender || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-gender">Edit</InputLabel>
-                  <Select 
-                    labelId="select-gender-label" 
-                    id="select-gender" 
-                    label="Gender" 
-                    value={gender} 
-                    onChange={handleGenderChange}
-                  >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Age */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Age</span>
-                  <span className="detail-value">{age || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-age">Edit</InputLabel>
-                  <Select 
-                    labelId="select-age-label"
-                    id="select-age"
-                    label="Age"
-                    value={age}
-                    onChange={handleAgeChange}
-                  >
-                    {[...Array(100)].map((_, i) => (
-                      <MenuItem key={i} value={i + 1}>
-                        {i + 1}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Height */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Height</span>
-                  <span className="detail-value">{height || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-height">Edit</InputLabel>
-                  <Select 
-                    labelId="select-height-label"
-                    id="select-height"
-                    label="Height"
-                    value={height}
-                    onChange={handleHeightChange}
-                  >
-                    <MenuItem value="5'0">5&apos;0&quot;</MenuItem>
-                    <MenuItem value="5'1">5&apos;1&quot;</MenuItem>
-                    <MenuItem value="5'2">5&apos;2&quot;</MenuItem>
-                    <MenuItem value="5'3">5&apos;3&quot;</MenuItem>
-                    <MenuItem value="5'4">5&apos;4&quot;</MenuItem>
-                    <MenuItem value="5'5">5&apos;5&quot;</MenuItem>
-                    <MenuItem value="5'6">5&apos;6&quot;</MenuItem>
-                    <MenuItem value="5'7">5&apos;7&quot;</MenuItem>
-                    <MenuItem value="5'8">5&apos;8&quot;</MenuItem>
-                    <MenuItem value="5'9">5&apos;9&quot;</MenuItem>
-                    <MenuItem value="6'0">6&apos;0&quot;</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Weight */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Weight</span>
-                  <span className="detail-value">{weight || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-weight">Edit</InputLabel>
-                  <Select 
-                    labelId="select-weight-label" 
-                    id="select-weight"
-                    label="Weight"
-                    value={weight}
-                    onChange={handleWeightChange}
-                  >
-                    {[...Array(300)].map((_, i) => (
-                      <MenuItem key={i} value={i + 50}>
-                        {i + 50} lbs
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button">Remove Patient</button>
-
-              {/* Vertical Line Above Add Patient Button */}
-              <div className="vertical-line"></div>
-
-              {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button">Add Patient</button>
-            </div>
+              {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+              <span>Show password</span>
+            </button>
           </div>
+
+          {error && <div className="error-message" role="alert">{error}</div>}
+
+          {/* Remember Me & Forgot Your Password? container */}
+          <div className="remember-forgot-container">
+            <label className="remember">
+              <input type="checkbox" disabled={isLoading} />
+              <span>Remember me</span>
+            </label>
+            <Link href="/forgot-password" className="forgot">
+              <span>Forgot your password?</span>
+            </Link>
+          </div>
+
+          {/* Submit button */}
+          <button 
+            type="submit" 
+            className="login" 
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Register link */}
+        <p className="sign-up">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/register">Sign up here!</Link>
+        </p>
+
+        <div className="separator">
+          <span className="fw-bold">Or continue with:</span>
         </div>
 
-        <div className="right-container">
-          {/* Notifications Box */}
-          <div className="notifications-box">
-            <p className="fw-semibold">Notifications</p>
-            <p className="abnormality-text">Abnormality Alerts</p>
-
-            { /*Notification Rows*/ }
-            <div className="notifications-details">
-              <div className="notifications-row">
-                <FiBell size={20} />
-                <div className="notifications-text">
-                  <span className="notifications-title">Missed Pill</span>
-                  <span className="notifications-summary">Medicine A at 2pm</span>
-                </div>
-              </div>
-              <div className="notifications-row">
-                <IoPersonOutline size={20} />
-                <div className="notifications-text">
-                  <span className="notifications-title">Heart Rate</span>
-                  <span className="notifications-summary">Too high: 180/min at 12pm</span>
-                </div>
-              </div>
-              <div className="notifications-row">
-                <IoPersonOutline size={20} />
-                <div className="notifications-text">
-                  <span className="notifications-title">Accelerometer</span>
-                  <span className="notifications-summary">A drop 2 min ago, check in with the patient</span>
-                </div>
-              </div>
-              <div className="notifications-row">
-                <IoPersonOutline size={20} />
-                <div className="notifications-text">
-                  <span className="notifications-title">Activity</span>
-                  <span className="notifications-summary">Less movement than usual in restroom, check in with the patient</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bottom-container">
-            {/* Heart Rate Box */}
-            <div className="heartrate-box">
-              <FaHeartbeat size={45} />
-              <p className="heartrate-title fw-semibold">Heart Rate</p>
-              <p className="heartrate-bpm fw-semibold">120 BPM</p>
-              <p className="heartrate-summary fw-semibold">↑ Higher than average</p>
-            </div>
-
-            {/* Blood Oxygen Box */}
-            <div className="bloodoxygen-box">
-              <MdOutlineBloodtype size={45} />
-              <p className="bloodoxygen-title fw-semibold">Blood Oxygen</p>
-              <p className="bloodoxygen-percentage fw-semibold">88%</p>
-              <p className="bloodoxygen-summary fw-semibold">↓ Lower than average</p>
-            </div>
-          </div>
-        </div>
+        {/* Google login button */}
+        <button 
+          className="google fw-bold" 
+          disabled={isLoading}
+        >
+          <FcGoogle size={48} /> Google
+        </button>
       </div>
     </div>
   );

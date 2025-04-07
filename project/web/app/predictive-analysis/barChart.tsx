@@ -5,6 +5,7 @@ import "./barChart.css";
 
 Chart.register(...registerables);
 
+
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
