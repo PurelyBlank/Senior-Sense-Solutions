@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from 'react';
+import { useEffect } from 'react';
+
 
 import { CgProfile } from "react-icons/cg";
 import { FaUserCircle } from 'react-icons/fa';
@@ -19,6 +21,9 @@ export default function HomePage() {
   const [age, setAge] = React.useState('');
   const [height, setHeight] = React.useState('');
   const [weight, setWeight] = React.useState('');
+
+  const [firstName, setFirstName] = React.useState('');
+  const [error, setError] = React.useState('');
 
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
@@ -40,10 +45,45 @@ export default function HomePage() {
     setWeight(event.target.value as string);
   };
 
+  const handleFetchName = async () => {
+    setError("");  // Reset error before fetching
+  
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+  
+      // Decode token to get email
+      //const decoded = jwt_decode(token);
+      //const email = decoded.email;  // Extract email from decoded token
+      //if (!email) throw new Error("Email not found in token");
+  
+      const response = await fetch("http://localhost:5000/api/biometric-monitor", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
+        },
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch name");
+      }
+  
+      setFirstName(data.firstName);  // Update state with the fetched first name
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+    }
+  };
+  
+  useEffect(() => {
+    handleFetchName();  // Call the function on component mount or as needed
+  }, []);  // Empty dependency array to run only once on mount
+
   return (
     <div className="main-container container p-3">
-      <h1 className="display-7 fw-semibold">Welcome back, Olivia.</h1>
-
+      <h1 className="display-7 fw-semibold">Welcome back, {firstName}.</h1>
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}
