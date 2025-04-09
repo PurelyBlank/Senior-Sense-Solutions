@@ -1,0 +1,21 @@
+
+.PredictiveAnalysisContainer{
+    display:flex; 
+    flex-direction: row;
+    padding: 50px;
+}
+
+.BarChartsContainer{
+    display:flex;
+    flex-direction: column;
+    padding-right: 50px;
+    gap: 40px;
+
+}
+
+.LineChartsContainer{
+    display:flex;
+    flex-direction: column;
+    padding-right: 50px;
+    gap: 40px;
+}
