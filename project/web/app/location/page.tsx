@@ -30,13 +30,6 @@ export default function LocationPage() {
     throw new Error("Google Maps API key is not defined in environment variables.");
   }
 
-  // Handle close InfoWindow when map is clicked
-  const handleMapClick = () => {
-    if (infoOpen) {
-      setInfoOpen(false);
-    }
-  };
-
   return (
     <div className="google-maps">
       <LoadScript 
@@ -54,32 +47,33 @@ export default function LocationPage() {
             mapContainerClassName="map-container"
             center={center}
             zoom={10}
-            onClick={handleMapClick}
           >
             {/* Red marker icon */}
             <Marker
               position={markerPosition}
-              onClick={(e) => {
-                e.domEvent.stopPropagation();
+              onMouseOver={() => setInfoOpen(true)}
+              onMouseOut={() => setInfoOpen(false)}
+            />
 
-                setInfoOpen(true)
-              }}
-            >
-              {infoOpen && (
-                <InfoWindow
-                  position={markerPosition}
-                  onCloseClick={() => setInfoOpen(false)}
+            {/* Display InfoWindow component if Marker is hovered over */}
+            {infoOpen && (
+              <InfoWindow
+                position={markerPosition}
+                options={{ pixelOffset: new google.maps.Size(0, -40) }}
+              >
+                <div 
+                  className="info-window"
+                  onMouseOver={() => setInfoOpen(true)}
+                  onMouseOut={() => setInfoOpen(false)}
                 >
-                  <div className="info-window">
-                    <h3>Bruce Wayne</h3>
-                    <div className="lat-lng">
-                      <p className="text-secondary">Latitude: {markerPosition.lat}</p>
-                      <p className="text-secondary">Longitude: {markerPosition.lng}</p>
-                    </div>
+                  <h3>Bruce Wayne</h3>
+                  <div className="lat-lng">
+                    <p className="text-secondary">Latitude: {markerPosition.lat}</p>
+                    <p className="text-secondary">Longitude: {markerPosition.lng}</p>
                   </div>
-                </InfoWindow>
-              )}
-            </Marker>
+                </div>
+              </InfoWindow>
+            )}
           </GoogleMap>
         ) : (
           <div className="loader">
