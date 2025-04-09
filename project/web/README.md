@@ -24,7 +24,17 @@ npm install
 
 ### Launch Local Instance
 
-Create a PostgreSQL database with TimescaleDB extension according to the following information:  
+1.) Log into your Google Cloud account, and create a new project.  
+
+Navigate to Enable APIs and services, then enable the Maps JavaScript API. This will generate your new API key.  
+
+In the web directory, create a ```.env``` file with the following line. Replace ```YOUR_API_KEY``` with your actual key:  
+
+```
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=YOUR_API_KEY
+```
+
+2.) Create a PostgreSQL database with TimescaleDB extension according to the following information:  
 
 Username: postgres  
 Password: postgres  
@@ -43,13 +53,13 @@ DB_PORT=5432
 DB_NAME=testdb
 ```
 
-In one terminal, navigate to the backend directory and execute:
+3.) In one terminal, navigate to the backend directory and execute:
 
 ```
 node server.js
 ```
 
-In a second terminal, navigate to the web directory and execute:
+4.) In a second terminal, navigate to the web directory and execute:
 
 ```
 npm run dev
