@@ -120,7 +120,7 @@ app.post('/api/wearable_data/insert', async (req, res) => {
     longitude       = body["longitude"];
     latitude        = body["latitude"];
     num_falls       = body["num_falls"];
-    num_steps       = body["nums_steps"];
+    num_steps       = body["num_steps"];
 
     await pool.query(
       `
