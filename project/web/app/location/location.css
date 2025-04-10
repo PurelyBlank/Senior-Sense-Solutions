@@ -1,0 +1,61 @@
+* {
+    font-family: "Inter", sans-serif;
+}
+
+h3 {
+    font-weight: 500 !important;
+    padding-bottom: 10px !important;
+}
+
+p, span {
+    font-size: 16px !important;
+}
+
+.lat-lng p {
+    margin: 0 0 5px 0;
+}
+
+/* Google Map component */
+.google-maps {
+    display: flex;
+    position: absolute;
+    width: calc(100vw - 120px);
+    height: calc(100vh - 5.5rem);
+    top: 5.5rem;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    flex: 1;
+}
+
+/* Map container */
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Loader .gif */
+.loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* InfoWindow tab */
+.info-window {
+    position: relative;
+    padding: 0px 10px 20px 10px;
+    min-width: 150px;
+    max-width: 250px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Remove close button of InfoWindow tab */
+button.gm-ui-hover-effect {
+    visibility: hidden;
+}

@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from 'react';
+import { useState } from 'react';
 
 import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
@@ -14,11 +13,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
 
 export default function HomePage() {
-  const [patient, setPatient] = React.useState('');
-  const [gender, setGender] = React.useState('');
-  const [age, setAge] = React.useState('');
-  const [height, setHeight] = React.useState('');
-  const [weight, setWeight] = React.useState('');
+  const [patient, setPatient] = useState('');
+  const [gender, setGender] = useState('');
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
 
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
