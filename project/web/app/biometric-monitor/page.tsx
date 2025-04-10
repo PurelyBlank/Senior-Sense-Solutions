@@ -7,24 +7,24 @@ import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
 import { MdOutlineBloodtype } from "react-icons/md";
-import { TextField, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
 
 export default function HomePage() {
-  const [isAddPatient, setIsAddPatient] = React.useState(false);
-  const [isRemovePatient, setIsRemovePatient] = React.useState(false);
+  const [isAddPatient, setIsAddPatient] = useState(false);
+  const [isRemovePatient, setIsRemovePatient] = useState(false);
 
-  const [patient, setPatient] = React.useState('');
-  const [firstName, setFirstName] = React.useState('');
-  const [lastName, setLastName] = React.useState('');
-  const [gender, setGender] = React.useState('');
-  const [age, setAge] = React.useState('');
-  const [height, setHeight] = React.useState('');
-  const [weight, setWeight] = React.useState('');
-  const [deviceId, setDeviceId] = React.useState('');
+  const [patient, setPatient] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState('');
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [deviceId, setDeviceId] = useState('');
 
   const handleRemovePatient = () => {
     setIsRemovePatient(true);
