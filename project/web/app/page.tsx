@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 export default function LoginPage() {
@@ -14,75 +17,127 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-    if (email === "admin@test.com" && password === "password123456789") {
-      localStorage.setItem("authToken", "dummy_token");
-      router.push("/biometric-monitor"); 
-    } else {
-      setError("Invalid email or password.");
+    try {
+      if (!email || !password) {
+        throw new Error("Please fill in all fields.");
+      }
+
+      // Make POST request to login endpoint in backend
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Store auth token and redirect to Biometric Monitor page
+      localStorage.setItem("authToken", data.token);
+      router.push("/biometric-monitor");
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-left"></div>
-      <div className="login-center"></div>
+      <div className="login-left" />
+      <div className="login-center" />
       <div className="login-right">
-        <div className="title">Senior Sense Solutions</div>
-        <div className="welcome">Welcome Back!</div>
-        <div className="sub-text">Login to your account to continue</div>
+        <h1 className="title">Senior Sense Solutions</h1>
+        <h2 className="welcome">Welcome back!</h2>
+        <p className="sub-text">Log in to your account to continue</p>
 
-        {/* Email Input */}
-        <input
-          type="email"
-          className="email-slot"
-          placeholder="Enter your email"
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
+        <form className="login-form" onSubmit={handleLogin}>
+          {/* Email input */}
+          <input
+            type="email"
+            className="email-slot"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={isLoading}
+          />
 
-        {/* Password Input */}
-        <input
-          type={showPassword ? "text" : "password"}
-          className="password-slot"
-          placeholder="Enter your password"
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
+          {/* Password input */}
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="password-slot"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+            >
+              {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+              <span>Show password</span>
+            </button>
+          </div>
 
-        {/* Show Password Toggle Below */}
-        <div
-          className="password-visible"
-          onClick={() => setShowPassword(!showPassword)}
+          {error && <div className="error-message" role="alert">{error}</div>}
+
+          {/* Remember Me & Forgot Your Password? container */}
+          <div className="remember-forgot-container">
+            <label className="remember">
+              <input type="checkbox" disabled={isLoading} />
+              <span>Remember me</span>
+            </label>
+            <Link href="/forgot-password" className="forgot">
+              <span>Forgot your password?</span>
+            </Link>
+          </div>
+
+          {/* Submit button */}
+          <button 
+            type="submit" 
+            className="login" 
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Register link */}
+        <p className="sign-up">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/register">Sign up here!</Link>
+        </p>
+
+        <div className="separator">
+          <span className="fw-bold">Or continue with:</span>
+        </div>
+
+        {/* Google login button */}
+        <button 
+          className="google fw-bold" 
+          disabled={isLoading}
         >
-          {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
-          <span>Show password</span>
-        </div>
-
-        {/* Display error message */}
-        {error && <div className="error-message">{error}</div>}
-
-        <div className="remember-forgot-container">
-          <label className="remember">
-            <input type="checkbox" />
-            Remember me
-          </label>
-          <div className="forgot">Forgot your password?</div>
-        </div>
-
-        <button className="login" onClick={handleLogin}>Login</button>
-
-        <div className="sign-up">
-          Don't have an account yet? <Link href="/register">Sign up here!</Link>
-        </div>
-
-        <div className="separator">Or login with</div>
-
-        <button className="google">
-          <FcGoogle size={34} /> Google
+          <FcGoogle size={48} /> Google
         </button>
       </div>
     </div>

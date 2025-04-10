@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from 'react';
+import { useState } from 'react';
 
 import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
