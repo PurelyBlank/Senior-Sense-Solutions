@@ -93,6 +93,71 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+/*
+* Register endpoint for inserting wearable_data
+* Format of request body data:
+* {
+*  "wearable_id"   : <serial>,
+*  "timestamp"     : <timestamp with time zone>, // this will be NULL b/c we will have request handle inserting the time into db
+*  "battery_level" : <double precision>,
+*  "heart_rate"    : <double precision>,
+*  "blood_oxygen"  : <double precision>,
+*  "longitude"     : <double precision>,
+*  "latitude"      : <double precision>,
+*  "num_falls"     : <integer>,
+*  "num_steps"     : <integer>
+* }
+*/
+app.post('/api/wearable_data/insert', async (req, res) => {
+  try {
+    body = req.body;
+
+    wearable_id     = body["wearable_id"];
+    timestamp       = new Date().toISOString();                   // need to get current timestamp according to database timestamp type
+    battery_level   = body["battery_level"];
+    heart_rate      = body["heart_rate"];
+    blood_oxygen    = body["blood_oxygen"];
+    longitude       = body["longitude"];
+    latitude        = body["latitude"];
+    num_falls       = body["num_falls"];
+    num_steps       = body["num_steps"];
+
+    await pool.query(
+      `
+      INSERT INTO wearable_data (
+        wearable_id,
+        timestamp,
+        battery_level,
+        heart_rate,
+        blood_oxygen,
+        longitude,
+        latitude,
+        num_falls,
+        num_steps
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9
+      )
+      `,
+      [
+        wearable_id,
+        timestamp,
+        battery_level,
+        heart_rate,
+        blood_oxygen,
+        longitude,
+        latitude,
+        num_falls,
+        num_steps
+      ]
+    );
+
+    res.status(200).send('Data received');
+  } catch (err) {
+    console.error("Unable to Insert Wearable Data Error", err);
+    res.status(400).send("Unable to Insert Wearable Data Error");
+  }
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
