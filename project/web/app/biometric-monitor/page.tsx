@@ -72,9 +72,8 @@ export default function HomePage() {
   };
 
   return (
-    <>
-    {!isRemovePatient ? ( 
     <div className="main-container container p-3">
+      {isRemovePatient && <div className="overlay"></div>}
       <h1 className="display-7 fw-semibold">Welcome back, Olivia.</h1>
 
       {/* Main Content */}
@@ -372,15 +371,14 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      {isRemovePatient && (
+        <div className="center-remove-box">
+          <p className="title-bold">Are you absolutely sure?</p>
+          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and associated data.</p>
+          <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
+          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button> {/*Will change to work with backend*/}
+        </div>
+      )}
     </div>
-    ) : (
-      <div className="center-remove-box">
-        <p className="title-bold">Are you absolutely sure?</p>
-        <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and associated data.</p>
-        <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
-        <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button> {/*Will change to work with backend*/}
-      </div>
-    )}
-    </>
   );
 }
