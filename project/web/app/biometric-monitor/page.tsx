@@ -219,7 +219,13 @@ export default function HomePage() {
             <div className="add-patient-box">
               <h5>Add New Patient</h5>
               <CgProfile className="patient-icon" size={95} />
-              <Link href="/biometric-monitor">Import Profile Picture</Link> {/*Change link to actual thing later on*/}
+              {/* Change link to actual destination later */}
+              <Link 
+                href="/biometric-monitor" 
+                className="import-profile-link"
+              >
+                Import Profile Picture
+              </Link>
               <div className="patient-details">
                 {/*First name*/}
                 <div className="add-detail-row">
