@@ -1,26 +1,52 @@
 "use client";
 
-import * as React from 'react';
+import { useState } from 'react';
 import { useEffect } from 'react';
 
 
 import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
 import { MdOutlineBloodtype } from "react-icons/md";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
 
 export default function HomePage() {
-  const [patient, setPatient] = React.useState('');
-  const [gender, setGender] = React.useState('');
-  const [age, setAge] = React.useState('');
-  const [height, setHeight] = React.useState('');
-  const [weight, setWeight] = React.useState('');
+  const [isAddPatient, setIsAddPatient] = useState(false);
+  const [isRemovePatient, setIsRemovePatient] = useState(false);
+
+  const [patient, setPatient] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState('');
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+
+  const handleRemovePatient = () => {
+    setIsRemovePatient(true);
+  }
+
+  const handleRemoveCancel = () => {
+    setIsRemovePatient(false);
+  }
+
+  const handleAddPatient = () => {
+    setIsAddPatient(true);
+  }
+
+  const handleSubmit = () => {
+    setIsAddPatient(false);
+  }
+
+  const handleCancel = () => {
+    setIsAddPatient(false);
+  }
 
   const [firstName, setFirstName] = React.useState('');
   const [error, setError] = React.useState('');
@@ -43,6 +69,10 @@ export default function HomePage() {
 
   const handleWeightChange = (event: SelectChangeEvent) => {
     setWeight(event.target.value as string);
+  };
+
+  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDeviceId(e.target.value);
   };
 
   const handleFetchName = async () => {
@@ -83,13 +113,14 @@ export default function HomePage() {
 
   return (
     <div className="main-container container p-3">
+      {isRemovePatient && <div className="overlay"></div>}
       <h1 className="display-7 fw-semibold">Welcome back, {firstName}.</h1>
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}
         <div className="patient-container container pt-4">
           <p className="dropdown-label">Select Patient</p>
-          <FormControl fullWidth size="small" style={{ width: 430 }}>
+          <FormControl fullWidth size="small" style={{ width: 475 }}>
             <InputLabel id="select-patient">Select</InputLabel>
             <Select
               labelId="select-patient-label"
@@ -105,6 +136,7 @@ export default function HomePage() {
           </FormControl>
 
           {/* Patient Box */}
+          {!isAddPatient ? (
           <div className="patient-box">
             {/* Profile Icon and Patient Name */}
             <CgProfile className="patient-icon" size={95} />
@@ -214,15 +246,116 @@ export default function HomePage() {
               </div>
 
               {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button">Remove Patient</button>
+              <button type="button" className="btn remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
 
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button">Add Patient</button>
+              <button type="button" className="btn add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
           </div>
+          ) : (
+            <div className="add-patient-box">
+              <h5>Add New Patient</h5>
+              <CgProfile className="patient-icon" size={95} />
+              {/* Change link to actual destination later */}
+              <Link 
+                href="/biometric-monitor" 
+                className="import-profile-link"
+              >
+                Import Profile Picture
+              </Link>
+              <div className="patient-details">
+                {/*First name*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">First Name</span>
+                  </div>
+                  <input
+                    className="first-name"
+                    placeholder='Enter here'
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                {/*Last Name*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Last Name</span>
+                  </div>
+                  <input
+                    className="last-name"
+                    placeholder='Enter here'
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+                {/*Gender*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Gender</span>
+                  </div>
+                  <input
+                    className="gender-slot"
+                    placeholder='Enter here'
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                  />
+                </div>
+                {/*Age*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Age</span>
+                  </div>
+                  <input
+                    className="age-slot"
+                    placeholder='Enter here'
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                  />
+                </div>
+                {/*Height*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Height</span>
+                  </div>
+                  <input
+                    className="height-slot"
+                    placeholder='Enter here'
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                  />
+                </div>
+                {/*Weight*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Weight</span>
+                  </div>
+                  <input
+                    className="weight-slot"
+                    placeholder='Enter here'
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                  />
+                </div>
+                {/*Device*/}
+                <div className="add-detail-row">
+                  <div className="add-detail-text">
+                    <span className="add-detail-label">Device</span>
+                  </div>
+                  <input
+                    className="device-slot"
+                    placeholder='Enter Device ID'
+                    value={deviceId}
+                    onChange={(e) => setDeviceId(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button type="button" className="cancel-button" onClick={handleCancel}>Cancel</button>
+              <button type="button" className="save-button" onClick={handleSubmit}>Save Changes</button>
+            </div>
+          )}
         </div>
 
         <div className="right-container">
@@ -283,6 +416,14 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      {isRemovePatient && (
+        <div className="center-remove-box">
+          <p className="title-bold">Are you absolutely sure?</p>
+          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and associated data.</p>
+          <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
+          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button> {/*Will change to work with backend*/}
+        </div>
+      )}
     </div>
   );
 }
