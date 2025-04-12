@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
+import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
 import { MdOutlineBloodtype } from "react-icons/md";
+
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
@@ -27,6 +27,7 @@ export default function HomePage() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [error, setError] = useState('');
 
   const handleRemovePatient = () => {
     setIsRemovePatient(true);
@@ -47,9 +48,6 @@ export default function HomePage() {
   const handleCancel = () => {
     setIsAddPatient(false);
   }
-
-  const [firstName, setFirstName] = React.useState('');
-  const [error, setError] = React.useState('');
 
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
