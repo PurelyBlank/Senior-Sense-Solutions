@@ -78,43 +78,49 @@ export default function HomePage() {
     setError("");  // Reset error before fetching
   
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found");
-  
-      // Decode token to get email
-      //const decoded = jwt_decode(token);
-      //const email = decoded.email;  // Extract email from decoded token
-      //if (!email) throw new Error("Email not found in token");
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      console.log("Fetching with authentication token:", token);
   
       const response = await fetch("http://localhost:5000/api/biometric-monitor", {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Send token in Authorization header
+          "Authorization": `Bearer ${token}`,
         },
       });
-  
+
       const data = await response.json();
-  
+      console.log("Response data:", data);
+
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch name");
+        throw new Error(data.error || "Failed to fetch caretaker name.");
       }
-  
-      setCaretakerName(data.caretakerName);  // Update state with the fetched first name
+      if (!data.caretakerName) {
+        throw new Error("Caretaker first name not found in response.");
+      }
+
+      setCaretakerName(data.caretakerName);
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred.");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
     }
   };
   
   // Call the function on component mount or as needed
   useEffect(() => {
     handleFetchCaretakerName();
-  }, []);  // Empty dependency array to run only once on mount
+  }, []);
 
   return (
     <div className="main-container container p-3">
       {isRemovePatient && <div className="overlay"></div>}
-      <h1 className="display-7 fw-semibold">Welcome back, {caretakerName}.</h1>
+      <h1 className="display-7 fw-semibold">Welcome back, {caretakerName || "Caretaker"}.</h1>
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}

@@ -93,38 +93,60 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Biometric Monitor endpoint (POST request)
+// Biometric-monitor endpoint (POST request)
 app.post('/api/biometric-monitor', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      return res.status(401).json({ error: 'No token provided' });
+      console.log("No authorization header provided");
+
+      return res.status(401).json({ error: 'No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log("Malformed authorization header");
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    console.log("Verifying token:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const email = decoded.email;
-    
+
     if (!email) {
-      return res.status(400).json({ error: 'No email provided' });
+      console.log("No email in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: email not found.' });
     }
 
-    // Get user's first name from the database
+    console.log("Querying caretaker with email:", email);
     const result = await pool.query('SELECT first_name FROM Caretaker WHERE email = $1', [email]);
-    const firstName = result.rows[0]?.first_name;
-    
-    if (!firstName) {
-      return res.status(404).json({ error: 'User not found' });
+    const caretaker = result.rows[0];
+
+    if (!caretaker) {
+      console.log("Caretaker not found for email:", email);
+
+      return res.status(404).json({ error: 'Caretaker user not found.' });
     }
 
-    res.json({ firstName });
-    
+    res.json({ caretakerName: caretaker.first_name });
+
   } catch (err) {
-    console.error('Name display err', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Biometric monitor error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
   }
 });
 
+// Wearable data endpoint (POST request)
 app.post('/api/wearable_data/insert', async (req, res) => {
   try {
     body = req.body;
