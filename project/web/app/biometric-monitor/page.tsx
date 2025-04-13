@@ -27,6 +27,7 @@ export default function HomePage() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [caretakerName, setCaretakerName] = useState('');
   const [error, setError] = useState('');
 
   const handleRemovePatient = () => {
@@ -73,7 +74,7 @@ export default function HomePage() {
     setDeviceId(e.target.value);
   };
 
-  const handleFetchName = async () => {
+  const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
   
     try {
@@ -99,20 +100,21 @@ export default function HomePage() {
         throw new Error(data.error || "Failed to fetch name");
       }
   
-      setFirstName(data.firstName);  // Update state with the fetched first name
+      setCaretakerName(data.caretakerName);  // Update state with the fetched first name
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
     }
   };
   
+  // Call the function on component mount or as needed
   useEffect(() => {
-    handleFetchName();  // Call the function on component mount or as needed
+    handleFetchCaretakerName();
   }, []);  // Empty dependency array to run only once on mount
 
   return (
     <div className="main-container container p-3">
       {isRemovePatient && <div className="overlay"></div>}
-      <h1 className="display-7 fw-semibold">Welcome back, {firstName}.</h1>
+      <h1 className="display-7 fw-semibold">Welcome back, {caretakerName}.</h1>
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}
