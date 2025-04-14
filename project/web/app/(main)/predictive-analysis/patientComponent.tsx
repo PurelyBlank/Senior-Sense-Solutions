@@ -167,12 +167,12 @@ export default function PatientInfo() {
 
 
               {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button">Remove Patient</button>
+              <button type="button" className="remove-patient-button">Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button">Add Patient</button>
+              <button type="button" className="add-patient-button">Add Patient</button>
             </div>
 
 
