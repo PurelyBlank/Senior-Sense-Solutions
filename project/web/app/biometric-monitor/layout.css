@@ -9,6 +9,7 @@
     height: 100%;
     font-family: 'Inter', sans-serif;
     background-color: #FFFFFF;
+    overflow: hidden;
   }
   
   h1 {
@@ -223,6 +224,10 @@
     margin-top: 4.5rem; 
     padding: 20px;
     transition: margin-left 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
   
   .flex {
@@ -384,6 +389,9 @@
     margin-top: 25px;
     padding-left: 100px;
     padding-right: 100px;
+    border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
   
   .remove-patient-button:hover {
@@ -404,6 +412,9 @@
     margin-top: 20px;
     padding-left: 100px;
     padding-right: 100px;
+    border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
   
   .add-patient-button:hover {

@@ -207,13 +207,13 @@ export default function HomePage() {
               </div>
 
               {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
+              <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
 
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button" onClick={handleAddPatient}>Add Patient</button>
+              <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
           </div>
           ) : (
