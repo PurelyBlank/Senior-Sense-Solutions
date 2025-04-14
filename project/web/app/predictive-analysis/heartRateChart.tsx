@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js";
-import "./barChart.css";
+import styles from "./charts.module.css";
 
 Chart.register(...registerables);
 
@@ -67,20 +67,20 @@ export default function HeartRateChart() {
   }, []);
 
   return (
-    <div className="BarChartContainer">
+    <div className={styles.BarChart}>
         {/* Header */}
-        <div className="BarChartHeader">
+        <div className={styles.BarChartHeader}>
             <h1>Heart Rate Chart </h1>
         </div>
 
         {/* Divider */}
-        <div className="BarChartDivider">
+        <div className={styles.BarChartDivider}>
         </div>
     
-        <div className = "BarChartContent">
+        <div className = {styles.BarChartContent}>
             {/* Chart */}
-            <div className="BarChartChart">
-                <div className = "BarChartChartHeader">
+            <div className={styles.BarChartChart}>
+                <div className = {styles.BarChartChartHeader}>
                     <h1>Heart Rate </h1>
                     <p>Mar 8, 2025</p>
                 </div>
@@ -88,7 +88,7 @@ export default function HeartRateChart() {
             </div>
 
             {/* Description */}
-            <div className="BarChartDescription">
+            <div className={styles.BarChartDescription}>
                 <h1>Trending up by 5.2% this today</h1>
                 <p>Showing average heart rate measured in beats per minute (bpm) </p>
             </div>
