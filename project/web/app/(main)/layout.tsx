@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./layout.css";
+import "./global-layout.css";
 
 import { BiUser } from "react-icons/bi";
 import { AiOutlineHome } from "react-icons/ai";

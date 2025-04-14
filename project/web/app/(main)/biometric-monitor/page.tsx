@@ -12,7 +12,7 @@ import { TextField, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent
 import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./layout.css";
+import "./temp-comp.css";
 
 export default function HomePage() {
   const [isAddPatient, setIsAddPatient] = React.useState(false);
