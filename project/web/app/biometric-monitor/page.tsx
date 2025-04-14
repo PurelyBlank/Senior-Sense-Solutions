@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaHeartbeat } from "react-icons/fa";
 import { MdOutlineBloodtype } from "react-icons/md";
+
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
@@ -25,6 +27,8 @@ export default function HomePage() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [caretakerName, setCaretakerName] = useState('');
+  const [error, setError] = useState('');
 
   const handleRemovePatient = () => {
     setIsRemovePatient(true);
@@ -70,11 +74,53 @@ export default function HomePage() {
     setDeviceId(e.target.value);
   };
 
+  const handleFetchCaretakerName = async () => {
+    setError("");  // Reset error before fetching
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      console.log("Fetching with authentication token:", token);
+  
+      const response = await fetch("http://localhost:5000/api/biometric-monitor", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch caretaker name.");
+      }
+      if (!data.caretakerName) {
+        throw new Error("Caretaker first name not found in response.");
+      }
+
+      setCaretakerName(data.caretakerName);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
+    }
+  };
+  
+  // Call the function on component mount or as needed
+  useEffect(() => {
+    handleFetchCaretakerName();
+  }, []);
+
   return (
     <div className="main-container container p-3">
       {isRemovePatient && <div className="overlay"></div>}
-      <h1 className="display-7 fw-semibold">Welcome back, Olivia.</h1>
-
+      <h1 className="display-7 fw-semibold">Welcome back, {caretakerName || "Caretaker"}.</h1>
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}

@@ -93,34 +93,73 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-/*
-* Register endpoint for inserting wearable_data
-* Format of request body data:
-* {
-*  "wearable_id"   : <serial>,
-*  "timestamp"     : <timestamp with time zone>, // this will be NULL b/c we will have request handle inserting the time into db
-*  "battery_level" : <double precision>,
-*  "heart_rate"    : <double precision>,
-*  "blood_oxygen"  : <double precision>,
-*  "longitude"     : <double precision>,
-*  "latitude"      : <double precision>,
-*  "num_falls"     : <integer>,
-*  "num_steps"     : <integer>
-* }
-*/
+// Biometric-monitor endpoint (POST request)
+app.post('/api/biometric-monitor', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log("No authorization header provided");
+
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log("Malformed authorization header");
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    console.log("Verifying token:", token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const email = decoded.email;
+
+    if (!email) {
+      console.log("No email in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: email not found.' });
+    }
+
+    console.log("Querying caretaker with email:", email);
+    const result = await pool.query('SELECT first_name FROM Caretaker WHERE email = $1', [email]);
+    const caretaker = result.rows[0];
+
+    if (!caretaker) {
+      console.log("Caretaker not found for email:", email);
+
+      return res.status(404).json({ error: 'Caretaker user not found.' });
+    }
+
+    res.json({ caretakerName: caretaker.first_name });
+
+  } catch (err) {
+    console.error('Biometric monitor error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Wearable data endpoint (POST request)
 app.post('/api/wearable_data/insert', async (req, res) => {
   try {
     body = req.body;
 
-    wearable_id     = body["wearable_id"];
-    timestamp       = new Date().toISOString();                   // need to get current timestamp according to database timestamp type
-    battery_level   = body["battery_level"];
-    heart_rate      = body["heart_rate"];
-    blood_oxygen    = body["blood_oxygen"];
-    longitude       = body["longitude"];
-    latitude        = body["latitude"];
-    num_falls       = body["num_falls"];
-    num_steps       = body["num_steps"];
+    wearable_id = body["wearable_id"];
+    timestamp = new Date().toISOString(); // get current timestamp according to database timestamp type
+    battery_level = body["battery_level"];
+    heart_rate = body["heart_rate"];
+    blood_oxygen = body["blood_oxygen"];
+    longitude = body["longitude"];
+    latitude = body["latitude"];
+    num_falls = body["num_falls"];
+    num_steps = body["num_steps"];
 
     await pool.query(
       `
@@ -152,6 +191,7 @@ app.post('/api/wearable_data/insert', async (req, res) => {
     );
 
     res.status(200).send('Data received');
+
   } catch (err) {
     console.error("Unable to Insert Wearable Data Error", err);
     res.status(400).send("Unable to Insert Wearable Data Error");
