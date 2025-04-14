@@ -13,7 +13,7 @@ import { MdOutlineBloodtype } from "react-icons/md";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./layout.css";
+import "./homepage.css";
 
 export default function HomePage() {
   const [isAddPatient, setIsAddPatient] = useState(false);
@@ -252,13 +252,13 @@ export default function HomePage() {
               </div>
 
               {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
+              <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
 
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button" onClick={handleAddPatient}>Add Patient</button>
+              <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
           </div>
           ) : (
