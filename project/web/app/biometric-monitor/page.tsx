@@ -12,6 +12,7 @@ import Link from "next/link";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
+import HeartRate from './heartRate';
 
 export default function HomePage() {
   const [isAddPatient, setIsAddPatient] = useState(false);
@@ -357,23 +358,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="bottom-container">
-            {/* Heart Rate Box */}
-            <div className="heartrate-box">
-              <FaHeartbeat size={45} />
-              <p className="heartrate-title fw-semibold">Heart Rate</p>
-              <p className="heartrate-bpm fw-semibold">120 BPM</p>
-              <p className="heartrate-summary fw-semibold">↑ Higher than average</p>
-            </div>
+          <HeartRate/>
 
-            {/* Blood Oxygen Box */}
-            <div className="bloodoxygen-box">
-              <MdOutlineBloodtype size={45} />
-              <p className="bloodoxygen-title fw-semibold">Blood Oxygen</p>
-              <p className="bloodoxygen-percentage fw-semibold">88%</p>
-              <p className="bloodoxygen-summary fw-semibold">↓ Lower than average</p>
-            </div>
-          </div>
         </div>
       </div>
       {isRemovePatient && (
