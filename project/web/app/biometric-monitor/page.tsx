@@ -28,7 +28,7 @@ export default function HomePage() {
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [caretakerName, setCaretakerName] = useState('');
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
 
   const handleRemovePatient = () => {
     setIsRemovePatient(true);
@@ -68,10 +68,6 @@ export default function HomePage() {
 
   const handleWeightChange = (event: SelectChangeEvent) => {
     setWeight(event.target.value as string);
-  };
-
-  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDeviceId(e.target.value);
   };
 
   const handleFetchCaretakerName = async () => {

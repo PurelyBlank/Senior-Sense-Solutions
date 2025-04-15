@@ -3,11 +3,6 @@
 import * as React from 'react';
 
 import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
-import { FiBell } from "react-icons/fi";
-import { IoPersonOutline } from "react-icons/io5";
-import { FaHeartbeat } from "react-icons/fa";
-import { MdOutlineBloodtype } from "react-icons/md";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";

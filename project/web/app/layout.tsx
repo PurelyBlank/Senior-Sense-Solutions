@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     if (!token && !authPages.includes(pathname)) {
       router.push("/");
     }
-  }, [pathname]);
+  }, [pathname, router]);
   
   return (
     <html lang="en">
