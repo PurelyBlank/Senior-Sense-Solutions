@@ -16,10 +16,10 @@ import { IoLogInOutline } from "react-icons/io5";
 
 export default function BiometricLayout({ children }: { children: React.ReactNode }) {
     const pageNames: Record<string, string> = {
-        "/biometric-monitor": "Home (Biometric Monitoring)",
+        "/biometric-monitor": "Home",
         "/battery-tracker": "Battery Tracker",
         "/location": "Location",
-        "/predictive-analysis": "Trends (Predictive Analysis)",
+        "/predictive-analysis": "Predictive Analysis",
       };
 
   const [collapsed, setCollapsed] = useState(false);
