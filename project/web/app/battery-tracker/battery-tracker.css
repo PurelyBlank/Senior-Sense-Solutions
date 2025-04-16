@@ -2,12 +2,13 @@
   display: flex;
   flex-direction: row;
   padding: 40px;
-  gap: 200px;
+  gap: 40px;
   justify-items: center;
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .left-column {
-  flex: 1 1 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,11 +16,10 @@
 }
 
 .right-column {
-  flex: 1 1 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 1rem;
+  align-items: stretch;
 }
 
 /* CHART CONTAINER */
@@ -52,14 +52,10 @@
   padding-top: 1rem;
 }
 
-/* Media Queries for Larger Screens */
-@media screen and (min-width: 768px) {
-  .left-column,
-  .right-column {
-    flex: 1 1 45%;
-  }
-
-  .BatteryTrackerPageContainer {
-    justify-content: space-between;
-  }
+.left-column,
+.right-column {
+  flex: 1 1 48%;
+  min-width: 320px;
+  box-sizing: border-box;
 }
+

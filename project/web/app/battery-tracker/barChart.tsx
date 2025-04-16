@@ -64,3 +64,5 @@ export default function BarChart({ timeRange }: BarChartProps) {
 
   return <canvas ref={chartRef} className="bar-chart-canvas" />;
 }
+
+// make a commit
