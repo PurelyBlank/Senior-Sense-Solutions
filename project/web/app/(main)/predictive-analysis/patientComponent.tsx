@@ -3,11 +3,6 @@
 import * as React from 'react';
 
 import { CgProfile } from "react-icons/cg";
-import { FaUserCircle } from 'react-icons/fa';
-import { FiBell } from "react-icons/fi";
-import { IoPersonOutline } from "react-icons/io5";
-import { FaHeartbeat } from "react-icons/fa";
-import { MdOutlineBloodtype } from "react-icons/md";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -172,12 +167,12 @@ export default function PatientInfo() {
 
 
               {/* Remove Patient Button */}
-              <button type="button" className="btn remove-patient-button">Remove Patient</button>
+              <button type="button" className="remove-patient-button">Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
               {/* Add Patient Button */}
-              <button type="button" className="btn add-patient-button">Add Patient</button>
+              <button type="button" className="add-patient-button">Add Patient</button>
             </div>
 
 
