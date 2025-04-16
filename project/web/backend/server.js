@@ -110,7 +110,6 @@ app.post('/api/biometric-monitor', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    console.log("Verifying token:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const email = decoded.email;
 
@@ -120,13 +119,10 @@ app.post('/api/biometric-monitor', async (req, res) => {
       return res.status(400).json({ error: 'Invalid token: email not found.' });
     }
 
-    console.log("Querying caretaker with email:", email);
     const result = await pool.query('SELECT first_name FROM Caretaker WHERE email = $1', [email]);
     const caretaker = result.rows[0];
 
     if (!caretaker) {
-      console.log("Caretaker not found for email:", email);
-
       return res.status(404).json({ error: 'Caretaker user not found.' });
     }
 
