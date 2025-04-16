@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import "./battery-tracker.css";
-;import { CgProfile } from "react-icons/cg";
 import GaugeClient from './batteryGauge';
 import PatientInfo from "../predictive-analysis/patientComponent";
 import BarChart from './barChart';

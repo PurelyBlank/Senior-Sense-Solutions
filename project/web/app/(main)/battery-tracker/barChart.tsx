@@ -25,7 +25,7 @@ export default function BarChart({ timeRange }: BarChartProps) {
             dataPoints = [90, 80, 70, 60, 50, 40, 30];
             break;
         case '30d':
-            labels = Array.from({length: 30}, (_, i) => i + 1);
+            labels = Array.from({length: 30}, (_, i) => String(i + 1));
             dataPoints = Array.from({length: 30}, () => Math.floor(Math.random() * 100));
             break;
     }
@@ -55,7 +55,6 @@ export default function BarChart({ timeRange }: BarChartProps) {
       }
     };
 
-    let chartInstance: Chart | undefined;
     if (chartRef.current) {
       const chartInstance = new Chart(chartRef.current, config);
       return () => chartInstance.destroy();
