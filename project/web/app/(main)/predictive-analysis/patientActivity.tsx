@@ -11,10 +11,11 @@ export default function PatientActivity() {
 
   useEffect(() => {
     if (chartRef.current) {
+      // clean up chart if needed 
       if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
+        chartInstanceRef.current.destroy(); 
       }
-  
+
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "bar",
         data: {

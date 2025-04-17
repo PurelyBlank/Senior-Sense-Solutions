@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { SelectChangeEvent } from "@mui/material";
+
+import Link from "next/link";
+
+import { CgProfile } from "react-icons/cg";
+import { FiBell } from "react-icons/fi";
+import { IoPersonOutline } from "react-icons/io5";
+import { FaHeartbeat } from "react-icons/fa";
+import { MdOutlineBloodtype } from "react-icons/md";
+
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+
 import "bootstrap/dist/css/bootstrap.min.css";
-import HeartOxygenCharts from './HeartOxygenCharts';
-import NotificationChart from './NotificationChart';
-import PatientComponent from './PatientComponent/PatientComponent';
 import "./homepage.css";
 
 export default function HomePage() {
@@ -21,7 +28,7 @@ export default function HomePage() {
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [caretakerName, setCaretakerName] = useState('');
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
 
   const handleRemovePatient = () => {
     setIsRemovePatient(true);
@@ -61,10 +68,6 @@ export default function HomePage() {
 
   const handleWeightChange = (event: SelectChangeEvent) => {
     setWeight(event.target.value as string);
-  };
-
-  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDeviceId(e.target.value);
   };
 
   const handleFetchCaretakerName = async () => {
