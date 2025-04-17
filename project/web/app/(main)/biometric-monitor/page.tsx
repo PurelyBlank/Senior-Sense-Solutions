@@ -14,6 +14,9 @@ import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@m
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
+import PatientComponent from '../predictive-analysis/patientComponent';
+import NotificationChart from './NotificationChart';
+import HeartOxygenCharts from './HeartOxygenCharts';
 
 export default function HomePage() {
   const [isAddPatient, setIsAddPatient] = useState(false);
