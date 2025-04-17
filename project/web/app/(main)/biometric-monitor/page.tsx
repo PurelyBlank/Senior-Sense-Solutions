@@ -70,6 +70,7 @@ export default function HomePage() {
     setWeight(event.target.value as string);
   };
 
+  // Make POST request to retrieve caretaker user's first name from backend
   const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
   

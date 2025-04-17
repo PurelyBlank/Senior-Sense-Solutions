@@ -98,14 +98,14 @@ app.post('/api/biometric-monitor', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      console.log("No authorization header provided");
+      console.log('No authorization header provided.');
 
       return res.status(401).json({ error: 'No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      console.log("Malformed authorization header");
+      console.log('Malformed authorization header.');
 
       return res.status(401).json({ error: 'Malformed token.' });
     }
@@ -114,7 +114,7 @@ app.post('/api/biometric-monitor', async (req, res) => {
     const email = decoded.email;
 
     if (!email) {
-      console.log("No email in decoded token");
+      console.log('No email in decoded token.');
       
       return res.status(400).json({ error: 'Invalid token: email not found.' });
     }
@@ -129,7 +129,56 @@ app.post('/api/biometric-monitor', async (req, res) => {
     res.json({ caretakerName: caretaker.first_name });
 
   } catch (err) {
-    console.error('Biometric monitor error:', err);
+    console.error('Error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Layout endpoint to retrieve caretaker user's first and last names (POST request)
+app.post('/api/caretaker-name', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log('No authorization header provided.');
+
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log('Malformed authorization header.');
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const email = decoded.email;
+
+    if (!email) {
+      console.log('No email in decoded token.');
+      
+      return res.status(400).json({ error: 'Invalid token: email not found.' });
+    }
+
+    const result = await pool.query('SELECT first_name, last_name FROM Caretaker WHERE email = $1', [email]);
+    const caretaker = result.rows[0];
+
+    if (!caretaker) {
+      return res.status(404).json({ error: 'Caretaker user not found.' });
+    }
+
+    res.json({ caretakerFirstName: caretaker.first_name, caretakerLastName: caretaker.last_name });
+
+  } catch (err) {
+    console.error('Error:', err);
 
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });
