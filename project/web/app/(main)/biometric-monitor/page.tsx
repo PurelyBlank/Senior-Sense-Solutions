@@ -1,77 +1,20 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
-import Link from "next/link";
-
-import { CgProfile } from "react-icons/cg";
-import { FiBell } from "react-icons/fi";
-import { IoPersonOutline } from "react-icons/io5";
-import { FaHeartbeat } from "react-icons/fa";
-import { MdOutlineBloodtype } from "react-icons/md";
-
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
-import PatientComponent from '../predictive-analysis/patientComponent';
 import NotificationChart from './NotificationChart';
 import HeartOxygenCharts from './HeartOxygenCharts';
+import PatientInfo from './PatientComponent';
 
 export default function HomePage() {
-  const [isAddPatient, setIsAddPatient] = useState(false);
   const [isRemovePatient, setIsRemovePatient] = useState(false);
-
-  const [patient, setPatient] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState('');
-  const [age, setAge] = useState('');
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [deviceId, setDeviceId] = useState('');
   const [caretakerName, setCaretakerName] = useState('');
   const [, setError] = useState('');
-
-  const handleRemovePatient = () => {
-    setIsRemovePatient(true);
-  }
 
   const handleRemoveCancel = () => {
     setIsRemovePatient(false);
   }
-
-  const handleAddPatient = () => {
-    setIsAddPatient(true);
-  }
-
-  const handleSubmit = () => {
-    setIsAddPatient(false);
-  }
-
-  const handleCancel = () => {
-    setIsAddPatient(false);
-  }
-
-  const handlePatientChange = (event: SelectChangeEvent) => {
-    setPatient(event.target.value as string);
-  };
-
-  const handleGenderChange = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string);
-  };
-
-  const handleAgeChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
-
-  const handleHeightChange = (event: SelectChangeEvent) => {
-    setHeight(event.target.value as string);
-  };
-
-  const handleWeightChange = (event: SelectChangeEvent) => {
-    setWeight(event.target.value as string);
-  };
 
   const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
@@ -123,7 +66,7 @@ export default function HomePage() {
       {/* Main Content */}
       <div className="content-container">
         {/* Patient Container */}
-        <PatientComponent/>
+        <PatientInfo/>
 
         <div className="right-container">
           <NotificationChart/>

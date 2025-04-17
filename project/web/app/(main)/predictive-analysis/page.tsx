@@ -1,10 +1,10 @@
-import PatientInfo from "./patientComponent";
 import FallChart from "./fallChart";
 import PatientActivity from "./patientActivity";
 import HeartRateChart from "./heartRateChart";
 import BloodOxygenChart from "./bloodOxygenChart";
 
 import "./prediciveAnalysis.css";
+import PatientInfo from "../biometric-monitor/PatientComponent";
 
 export default function PredictiveAnalysisPage() {
     return (
