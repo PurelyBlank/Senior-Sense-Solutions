@@ -1,0 +1,76 @@
+.BarChart {
+    width: 100%;
+    max-width: 550px;
+    min-width: 300px;
+    margin: 0 auto;
+  
+    border: 1px solid lightgray;
+    border-radius: 11.26px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+/* limits the height / width of the charts*/
+.chartWrapper {
+    position: relative;
+    width: 100%;
+    height: 200px; 
+}
+  
+.chartWrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+  
+.BarChartHeader h1 {
+    font-size: 12px !important;
+}
+  
+.BarChartDivider {
+    border-top: 1px solid lightgray;
+  }
+  
+.BarChartContent {
+    padding: 10px;
+}
+
+.BarChartChartHeader h1 {
+    padding-top: 5px;
+    font-size: 15px !important;
+}
+
+.BarChartChartHeader p {
+    font-size: 13px !important;
+}
+
+.BarChartChart {
+    padding-bottom: 10px;
+}
+
+.BarChartDescription h1 {
+    font-size: 13px !important;
+    font-weight: bold !important;
+}
+
+.BarChartDescription p {
+    font-size: 13px !important;
+}
+
+@media (max-width: 600px) {
+  .BarChart {
+    max-width: 100%;
+    padding: 8px;
+  }
+
+  .chartWrapper {
+    height: 250px;
+  }
+
+  .BarChartDescription h1,
+  .BarChartDescription p,
+  .BarChartChartHeader h1,
+  .BarChartChartHeader p {
+    font-size: 12px !important;
+  }
+}
+  

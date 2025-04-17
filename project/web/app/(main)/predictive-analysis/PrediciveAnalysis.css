@@ -1,21 +1,33 @@
+.ChartContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 
 .PredictiveAnalysisContainer{
     display:flex; 
     flex-direction: row;
-    padding: 50px;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
 }
 
-.BarChartsContainer{
-    display:flex;
-    flex-direction: column;
-    padding-right: 50px;
-    gap: 40px;
-
+/* smaller viewports */
+@media (max-width: 1200px) {
+    .PredictiveAnalysisContainer{
+        flex-direction: column;
+    }
 }
 
-.LineChartsContainer{
-    display:flex;
-    flex-direction: column;
-    padding-right: 50px;
-    gap: 40px;
+@media (max-width: 1000px){
+    .ChartContainer{
+        grid-template-columns: 1fr;
+    }
 }
+
+html, body {
+    height: 100%;
+    overflow-y: auto; 
+}
+  
+

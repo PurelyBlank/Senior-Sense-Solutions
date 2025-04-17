@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import "./battery-tracker.css";
 import GaugeClient from './batteryGauge';
-import PatientInfo from "../predictive-analysis/patientComponent";
 import BarChart from './barChart';
+import PatientInfo from '../biometric-monitor/PatientComponent';
 
 
 export default function BatteryTrackerPage() {
