@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./layout.css";
+import { useState, useEffect } from "react";
 
 import { BiUser } from "react-icons/bi";
 import { AiOutlineHome } from "react-icons/ai";
@@ -14,17 +12,69 @@ import { LuBatteryCharging } from "react-icons/lu";
 import { FaRegMap } from "react-icons/fa";
 import { IoLogInOutline } from "react-icons/io5";
 
-export default function BiometricLayout({ children }: { children: React.ReactNode }) {
-    const pageNames: Record<string, string> = {
-        "/biometric-monitor": "Home",
-        "/battery-tracker": "Battery Tracker",
-        "/location": "Location",
-        "/predictive-analysis": "Predictive Analysis",
-      };
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./layout.css";
 
+export default function BiometricLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [caretakerFirstName, setCaretakerFirstName] = useState('');
+  const [caretakerLastName, setCaretakerLastName] = useState('');
+  const [, setError] = useState('');
+
+  const pageNames: Record<string, string> = {
+    "/biometric-monitor": "Home",
+    "/battery-tracker": "Battery Tracker",
+    "/location": "Location",
+    "/predictive-analysis": "Predictive Analysis",
+  };
+
   const pathname = usePathname();
   const router = useRouter();
+
+  // Make POST request to retrieve caretaker user's first name and last name from backend
+  const handleFetchCaretakerFirstAndLastName = async () => {
+    setError("");  // Reset error before fetching
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const response = await fetch("http://localhost:5000/api/caretaker-name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch caretaker first name and last name.");
+      }
+      if (!data.caretakerFirstName) {
+        throw new Error("Caretaker first name not found in response.");
+      }
+      if (!data.caretakerLastName) {
+        throw new Error("Caretaker last name not found in response.");
+      }
+
+      setCaretakerFirstName(data.caretakerFirstName);
+      setCaretakerLastName(data.caretakerLastName);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
+    }
+  };
+  
+  // Call the function on component mount or as needed
+  useEffect(() => {
+    handleFetchCaretakerFirstAndLastName();
+  }, []);
 
   return (
     <div className="flex h-screen flex-col">
@@ -34,7 +84,7 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
         <div className="dash">Dashboard</div>
         <div className="icon">
           <button><BiUser size={24} /></button>
-          <span>Olivia Martin</span>
+          <span>{caretakerFirstName || "Caretaker"}{" "}{caretakerLastName || "User"}</span>
           <button style={{ fontSize: "1.5rem" }}>▾</button>
         </div>
       </div>

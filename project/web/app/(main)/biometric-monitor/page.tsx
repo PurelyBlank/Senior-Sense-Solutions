@@ -16,6 +16,7 @@ export default function HomePage() {
     setIsRemovePatient(false);
   }
 
+
   const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
   
@@ -24,8 +25,6 @@ export default function HomePage() {
       if (!token) {
         throw new Error("No authentication token found.");
       }
-
-      console.log("Fetching with authentication token:", token);
   
       const response = await fetch("http://localhost:5000/api/biometric-monitor", {
         method: "POST",
@@ -36,7 +35,6 @@ export default function HomePage() {
       });
 
       const data = await response.json();
-      console.log("Response data:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch caretaker name.");
