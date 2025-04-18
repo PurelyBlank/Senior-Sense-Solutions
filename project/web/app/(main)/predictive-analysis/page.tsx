@@ -3,7 +3,7 @@ import PatientActivity from "./patientActivity";
 import HeartRateChart from "./heartRateChart";
 import BloodOxygenChart from "./bloodOxygenChart";
 
-import "./prediciveAnalysis.css";
+import './predictiveAnalysis.css'
 import PatientInfo from "../biometric-monitor/PatientComponent";
 
 export default function PredictiveAnalysisPage() {
