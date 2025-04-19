@@ -1,9 +1,7 @@
 "use client"
 import { FaHeartbeat } from "react-icons/fa";
-import { MdOutlineBloodtype } from "react-icons/md";
 
-
-export default function HeartOxygenCharts(){
+export default function HeartRateChart(){
     return(
         <div className="bottom-container">
             {/* Heart Rate Box */}
@@ -14,13 +12,6 @@ export default function HeartOxygenCharts(){
                 <p className="heartrate-summary fw-semibold">↑ Higher than average</p>
             </div>
 
-            {/* Blood Oxygen Box */}
-            <div className="bloodoxygen-box">
-                <MdOutlineBloodtype size={45} />
-                <p className="bloodoxygen-title fw-semibold">Blood Oxygen</p>
-                <p className="bloodoxygen-percentage fw-semibold">88%</p>
-                <p className="bloodoxygen-summary fw-semibold">↓ Lower than average</p>
-            </div>
         </div>
     )
 }

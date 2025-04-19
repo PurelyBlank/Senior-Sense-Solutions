@@ -1,3 +1,9 @@
+.biometric-container{
+  background-color: red;
+  padding: 20px;
+  flex: 1; 
+}
+
 .dropdown-label {
     margin-top: -15px;
     margin-bottom: 10px;
@@ -352,4 +358,8 @@
   
   
   
-  
+@media (max-width: 768px) {
+  .content-container{
+    flex-direction: column;
+  }
+}
