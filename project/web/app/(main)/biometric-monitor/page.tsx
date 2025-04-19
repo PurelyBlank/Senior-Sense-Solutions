@@ -26,7 +26,7 @@ export default function HomePage() {
         throw new Error("No authentication token found.");
       }
   
-      const response = await fetch("http://localhost:5000/api/biometric-monitor", {
+      const response = await fetch("http://localhost:5000/api/caretaker-firstname", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
