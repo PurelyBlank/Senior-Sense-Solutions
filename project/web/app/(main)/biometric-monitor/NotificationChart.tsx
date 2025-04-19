@@ -2,6 +2,7 @@
 
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
+import "./NotificationChart.css"
 
 export default function NotificationChart(){
 
