@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
 import NotificationChart from './NotificationChart';
-import HeartOxygenCharts from './HeartRateChart';
 import PatientInfo from './PatientComponent';
 import BloodOxygenChart from './BloodOxygenChart';
 import HeartRateChart from './HeartRateChart';
@@ -71,8 +70,12 @@ export default function HomePage() {
 
         <div className="right-container">
           <NotificationChart/>
-          <BloodOxygenChart/>
-          <HeartRateChart/>
+
+          <div className = "biometric-charts">
+            <BloodOxygenChart/>
+            <HeartRateChart/> 
+          </div>
+
         </div>
 
       </div>
