@@ -1,12 +1,8 @@
-
-
-
 .notifications-box {
     display: flex;
     flex-direction: column;
     flex: 1;
-    width: auto;
-    min-width: 1000px;
+    width: 100%;
     max-width: none;
     background-color: #FFFFFF;
     padding: 20px;
@@ -15,15 +11,11 @@
     max-height: 350px;
   }
   
-
-  
-  
   .abnormality-text {
     color: gray;
     margin-top: -15px;
     font-size: 14px !important;
   }
-
 
   .notifications-row {
     display: flex;

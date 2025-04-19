@@ -1,36 +1,5 @@
 
-.dropdown-label {
-    margin-top: -15px;
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
-  
-  .patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 550px;
-    margin-top: 20px;
-  }
-  
-  .patient-icon {
-    display: block;
-    margin: 0 auto;
-    font-size: 100px !important;
-    color: gray;
-    padding-top: 10px;
-  }
-  
-  .import-profile-link {
+.import-profile-link {
     color: #33B7F7;
     text-decoration: none;
     cursor: pointer;
@@ -39,119 +8,7 @@
   .import-profile-link:hover {
     text-decoration: underline;
   }
-  
-  .patient-name {
-    display: block;
-    padding-top: 20px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid lightgray;
-  }
-  
-  .patient-info {
-    display: block;
-    margin-top: 15px;
-    text-align: left;
-    font-size: 14px;
-  }
-  
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-  }
-  
-  .detail-text {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-  
-  .detail-label {
-    font-size: 13px !important;
-  }
-  
-  .detail-value {
-    font-size: 13px !important;
-    color: gray;
-  }
-  
-  .detail-dropdown {
-    width: 105px;
-  }
-  
-  .add-patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 650px;
-    margin-top: 20px;
-    position: relative;
-    padding-bottom:  60px;
-  }
-  
-  .add-detail-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 10px;
-    width: 90%;
-  }
-  
-  .add-detail-text {
-    flex: 1;
-    text-align: left;
-    padding-left: 60px;
-  }
-  
-  .add-detail-label {
-    font-size: 13px;
-  }
-  
-  .remove-patient-button {
-    color: #ffffff;
-    background-color: #0F172A;
-    margin-top: 25px;
-    padding-left: 100px;
-    padding-right: 100px;
-  }
-  
-  .remove-patient-button:hover {
-    color: #ffffff;
-    background-color: #0F172A;
-  }
-  
-  .vertical-line {
-    width: 100%;
-    height: 1px;
-    background-color: lightgray;
-    margin-top: 60px;
-  }
-  
-  .add-patient-button {
-    color: #FFFFFF;
-    background-color: #0F172A;
-    margin-top: 20px;
-    padding-left: 100px;
-    padding-right: 100px;
-  }
-  
-  .add-patient-button:hover {
-    color: #FFFFFF;
-    background-color: #0F172A;
-  }
-  
+
   input {
     flex: 2;
     padding: 0.5rem;
@@ -213,14 +70,11 @@
   .content-container {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     gap: 30px;
-    background-color: #33B7F7;
   }
   
-  .patient-container {
-    flex: 1;
-    min-width: 500px;
-  }
+
   
   .right-container {
     display: flex;
@@ -232,7 +86,6 @@
   .biometric-container{
     padding: 20px;
     flex: 1;
-    background-color: red;
   }
   
   .biometric-charts {

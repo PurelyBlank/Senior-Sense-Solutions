@@ -6,7 +6,7 @@ import { CgProfile } from "react-icons/cg";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-//import "./globals.css";
+import "./PatientComponent.css";
 
 export default function PatientInfo() {
   const [patient, setPatient] = React.useState('');
@@ -36,25 +36,27 @@ export default function PatientInfo() {
   };
 
   return (
-    <div className="main-container container p-3">
-
+    <div className="p-3">
         {/* Patient Container */}
         <div className="patient-container container pt-4">
+
+        <div className="dropdown-wrapper">
           <p className="dropdown-label">Select Patient</p>
-          <FormControl fullWidth size="small" style={{ width: 430 }}>
-            <InputLabel id="select-patient">Select</InputLabel>
-            <Select
-              labelId="select-patient-label"
-              id="select-patient"
-              label="Patient"
-              value={patient}
-              onChange={handlePatientChange}
-            >
-              <MenuItem value={"Bruce Wayne"}>Bruce Wayne</MenuItem>
-              <MenuItem value={"Jane Doe"}>Jane Doe</MenuItem>
-              <MenuItem value={"Alfred Hitchcock"}>Alfred Hitchcock</MenuItem>
-            </Select>
-          </FormControl>
+            <FormControl fullWidth size="small" style={{ width: 430 }}>
+              <InputLabel id="select-patient">Select</InputLabel>
+              <Select
+                labelId="select-patient-label"
+                id="select-patient"
+                label="Patient"
+                value={patient}
+                onChange={handlePatientChange}
+              >
+                <MenuItem value={"Bruce Wayne"}>Bruce Wayne</MenuItem>
+                <MenuItem value={"Jane Doe"}>Jane Doe</MenuItem>
+                <MenuItem value={"Alfred Hitchcock"}>Alfred Hitchcock</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
 
           {/* Patient Box */}
           <div className="patient-box">
