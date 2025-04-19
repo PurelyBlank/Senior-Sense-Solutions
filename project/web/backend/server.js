@@ -192,7 +192,7 @@ app.post('/api/caretaker-name', async (req, res) => {
 });
 
 // Biometric-monitor endpoint to get a certain patients heart rate (POST request)
-app.post('/api/patient-heartrate', async (req, res) => {
+app.post('/api/patient-heartrate_bloodoxygen', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {

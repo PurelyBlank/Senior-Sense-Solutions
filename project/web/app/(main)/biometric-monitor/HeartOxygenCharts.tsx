@@ -10,7 +10,7 @@ export default function HeartOxygenCharts(){
 
     const [, setError] = useState('');
   
-    const handleFetchPatientHeartRate = async () => {
+    const handleFetchPatientHeartRateOxygen = async () => {
       setError("");  // Reset error before fetching
     
       try {
@@ -19,7 +19,7 @@ export default function HeartOxygenCharts(){
           throw new Error("No authentication token found.");
         }
     
-        const response = await fetch("http://localhost:5000/api/patient-heartrate", {
+        const response = await fetch("http://localhost:5000/api/patient-heartrate_bloodoxygen", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -51,10 +51,10 @@ export default function HeartOxygenCharts(){
     // Call the function on component mount or as needed
     useEffect(() => {
         // Fetch heart rate immediately on mount
-        handleFetchPatientHeartRate();
+        handleFetchPatientHeartRateOxygen();
     
-        // Set interval to fetch heart rate every 5 seconds (3000ms)
-        const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
+        // Set interval to fetch heart rate every 3 seconds (3000ms)
+        const intervalId = setInterval(handleFetchPatientHeartRateOxygen, 3000);
     
         // Cleanup the interval when the component unmounts
         return () => clearInterval(intervalId);
