@@ -7,6 +7,7 @@ import NotificationChart from './NotificationChart';
 import PatientInfo from './PatientComponent';
 import BloodOxygenChart from './BloodOxygenChart';
 import HeartRateChart from './HeartRateChart';
+import PatientDropdown from '../components/patient-component/patient-dropdown';
 
 export default function HomePage() {
   const [isRemovePatient, setIsRemovePatient] = useState(false);
@@ -68,6 +69,7 @@ export default function HomePage() {
         {/* Patient Container */}
         <PatientInfo/>
 
+
         <div className="right-container">
           <NotificationChart/>
 
@@ -77,6 +79,8 @@ export default function HomePage() {
           </div>
 
         </div>
+
+        <PatientDropdown/>
 
       </div>
 
