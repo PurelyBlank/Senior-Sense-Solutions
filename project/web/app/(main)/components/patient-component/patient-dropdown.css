@@ -1,0 +1,99 @@
+ .sidebarDropdown { position: fixed; }
+
+  .sidebarDropdown {
+    position: fixed;
+    top: 3.5rem;
+    right: 0;
+    left: auto;
+    width: 120px;                
+    height: calc(100vh - 3.5rem);
+    background-color: #005686;
+    transition: width 0.3s ease; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding-top: 1rem;
+  }
+  
+  /* Collapsed Sidebar */
+  .sidebarDropdown.collapsed {
+    width: 60px;
+  }
+  
+  /* Collapsible Button */
+  .sidebarDropdown-collapsible-button{
+    position: absolute;
+    top: 50%;
+    right: 4px;               
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  
+  /* Centered Arrow in the Sidebar */
+  .sidebarDropdown::before {
+    content: ""; 
+    position: absolute;
+    left: 12px; 
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: white;
+  }
+  
+  .sidebarDropdown::after {
+    content: "";
+    position: absolute;
+    right: 30px;
+    left: auto;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: white;
+  }
+  
+  .sidebar.collapsed .nav-links a svg {
+    width: 12px; 
+    height: 12px; 
+  }
+  
+  .sidebarDropdown.collapsed .nav-links a {
+    padding-left: 8px; 
+    padding-right: 8px; 
+    font-size: 12px; 
+  }
+  
+  .sidebarDropdown.collapsed .nav-links a svg {
+    width: 12px; 
+    height: 12px; 
+  }
+  
+  .sidebarDropdown.collapsed .nav-links a {
+    border-bottom: 0.5px solid white; 
+  }
+
+  .sidebarDropdown.collapsed .nav-button {
+    padding: 12px 0; 
+    font-size: 12px;
+  }
+  
+  .sidebarDropdown.collapsed .nav-button svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .sidebarDropdown.collapsed + .main-content {
+    margin-left: 0px;
+  }
+  
