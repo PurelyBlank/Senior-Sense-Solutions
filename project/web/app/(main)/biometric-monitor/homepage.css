@@ -1,35 +1,5 @@
-.dropdown-label {
-    margin-top: -15px;
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
-  
-  .patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 550px;
-    margin-top: 20px;
-  }
-  
-  .patient-icon {
-    display: block;
-    margin: 0 auto;
-    font-size: 100px !important;
-    color: gray;
-    padding-top: 10px;
-  }
-  
-  .import-profile-link {
+
+.import-profile-link {
     color: #33B7F7;
     text-decoration: none;
     cursor: pointer;
@@ -38,119 +8,7 @@
   .import-profile-link:hover {
     text-decoration: underline;
   }
-  
-  .patient-name {
-    display: block;
-    padding-top: 20px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid lightgray;
-  }
-  
-  .patient-info {
-    display: block;
-    margin-top: 15px;
-    text-align: left;
-    font-size: 14px;
-  }
-  
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-  }
-  
-  .detail-text {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-  
-  .detail-label {
-    font-size: 13px !important;
-  }
-  
-  .detail-value {
-    font-size: 13px !important;
-    color: gray;
-  }
-  
-  .detail-dropdown {
-    width: 105px;
-  }
-  
-  .add-patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 650px;
-    margin-top: 20px;
-    position: relative;
-    padding-bottom:  60px;
-  }
-  
-  .add-detail-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 10px;
-    width: 90%;
-  }
-  
-  .add-detail-text {
-    flex: 1;
-    text-align: left;
-    padding-left: 60px;
-  }
-  
-  .add-detail-label {
-    font-size: 13px;
-  }
-  
-  .remove-patient-button {
-    color: #ffffff;
-    background-color: #0F172A;
-    margin-top: 25px;
-    padding-left: 100px;
-    padding-right: 100px;
-  }
-  
-  .remove-patient-button:hover {
-    color: #ffffff;
-    background-color: #0F172A;
-  }
-  
-  .vertical-line {
-    width: 100%;
-    height: 1px;
-    background-color: lightgray;
-    margin-top: 60px;
-  }
-  
-  .add-patient-button {
-    color: #FFFFFF;
-    background-color: #0F172A;
-    margin-top: 20px;
-    padding-left: 100px;
-    padding-right: 100px;
-  }
-  
-  .add-patient-button:hover {
-    color: #FFFFFF;
-    background-color: #0F172A;
-  }
-  
+
   input {
     flex: 2;
     padding: 0.5rem;
@@ -211,13 +69,12 @@
   
   .content-container {
     display: flex;
+    flex-direction: row;
+    justify-content: center;
     gap: 30px;
   }
   
-  .patient-container {
-    flex: 1;
-    min-width: 500px;
-  }
+
   
   .right-container {
     display: flex;
@@ -225,66 +82,22 @@
     flex: 1;
     gap: 40px;
   }
-  
-  .notifications-box {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: auto;
-    min-width: 1000px;
-    max-width: none;
-    background-color: #FFFFFF;
+
+  .biometric-container{
     padding: 20px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    max-height: 350px;
-  }
-  
-  .abnormality-text {
-    color: gray;
-    margin-top: -15px;
-    font-size: 14px !important;
-  }
-  
-  .notifications-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 10px;
-  }
-  
-  .notifications-header {
-    display: flex;
-    align-items: center;
-  }
-  
-  .notifications-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
     flex: 1;
   }
   
-  .notifications-title {
-    display: block;
-    font-size: 14px !important;
-  }
-  
-  .notifications-summary {
-    font-size: 14px !important;
-    color: gray;
-  }
-  
-  .bottom-container {
+  .biometric-charts {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 20px;
+    justify-content: space-evenly;
+    flex: 1;
+    gap: 30px;
   }
   
-  .heartrate-box {
+  .heartrate-box,
+  .bloodoxygen-box {
     display: flex;
-    text-align: left;
     flex-direction: column;
     flex: 1;
     padding: 30px;
@@ -293,11 +106,13 @@
     background-color: #FFFFFF;
     min-height: 355px;
     max-height: 500px;
-    width: auto;
-    min-width: 350px;
-    max-width: 500px;
+    /* remove width constraints */
+    width: 100%;
+    min-width: 0;
+    max-width: none;
   }
-  
+
+  .bloodoxygen-title,
   .heartrate-title {
     font-size: 20px !important;
     margin-top: 10px;
@@ -306,39 +121,17 @@
   .heartrate-bpm {
     font-size: 40px !important;
   }
-  
+
+  .bloodoxygen-summary,
   .heartrate-summary {
     font-size: 24px !important;
-  }
-  
-  .bloodoxygen-box {
-    display: flex;
-    text-align: left;
-    flex-direction: column;
-    flex: 1;
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    background-color: #FFFFFF;
-    min-height: 355px;
-    max-height: 500px;
-    width: auto;
-    min-width: 350px;
-    max-width: 500px;
-  }
-  
-  .bloodoxygen-title {
-    font-size: 20px !important;
-    margin-top: 10px;
   }
   
   .bloodoxygen-percentage {
     font-size: 40px !important;
   }
   
-  .bloodoxygen-summary {
-    font-size: 24px !important;
-  }
+
   
   .overlay {
     position: fixed;
@@ -352,4 +145,8 @@
   
   
   
-  
+@media (max-width: 1500px) {
+  .content-container{
+    flex-direction: column-reverse;
+  }
+}

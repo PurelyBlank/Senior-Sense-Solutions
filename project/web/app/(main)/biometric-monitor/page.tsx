@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
 import NotificationChart from './NotificationChart';
-import HeartOxygenCharts from './HeartOxygenCharts';
 import PatientInfo from './PatientComponent';
+import BloodOxygenChart from './BloodOxygenChart';
+import HeartRateChart from './HeartRateChart';
 
 export default function HomePage() {
   const [isRemovePatient, setIsRemovePatient] = useState(false);
@@ -58,20 +59,27 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="main-container container p-3">
+    <div className="biometric-container">
       {isRemovePatient && <div className="overlay"></div>}
       <h1 className="display-7 fw-semibold">Welcome back, {caretakerName || "Caretaker"}.</h1>
       {/* Main Content */}
+
       <div className="content-container">
         {/* Patient Container */}
         <PatientInfo/>
 
         <div className="right-container">
           <NotificationChart/>
-          <HeartOxygenCharts/>
+
+          <div className = "biometric-charts">
+            <BloodOxygenChart/>
+            <HeartRateChart/> 
+          </div>
+
         </div>
 
       </div>
+
       {isRemovePatient && (
         <div className="center-remove-box">
           <p className="title-bold">Are you absolutely sure?</p>
