@@ -1,99 +1,48 @@
- .sidebarDropdown { position: fixed; }
+.sidebarDropdown-toggle {
+  position: fixed;
+  top: 3.5rem;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  background-color: #005686;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
 
-  .sidebarDropdown {
-    position: fixed;
-    top: 3.5rem;
-    right: 0;
-    left: auto;
-    width: 120px;                
-    height: calc(100vh - 3.5rem);
-    background-color: #005686;
-    transition: width 0.3s ease; 
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-    padding-top: 1rem;
-  }
-  
-  /* Collapsed Sidebar */
-  .sidebarDropdown.collapsed {
-    width: 60px;
-  }
-  
-  /* Collapsible Button */
-  .sidebarDropdown-collapsible-button{
-    position: absolute;
-    top: 50%;
-    right: 4px;               
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 90;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  
-  /* Centered Arrow in the Sidebar */
-  .sidebarDropdown::before {
-    content: ""; 
-    position: absolute;
-    left: 12px; 
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    color: white;
-  }
-  
-  .sidebarDropdown::after {
-    content: "";
-    position: absolute;
-    right: 30px;
-    left: auto;
-    top: 0;
-    height: 100%;
-    width: 2px;
-    background: white;
-  }
-  
-  .sidebar.collapsed .nav-links a svg {
-    width: 12px; 
-    height: 12px; 
-  }
-  
-  .sidebarDropdown.collapsed .nav-links a {
-    padding-left: 8px; 
-    padding-right: 8px; 
-    font-size: 12px; 
-  }
-  
-  .sidebarDropdown.collapsed .nav-links a svg {
-    width: 12px; 
-    height: 12px; 
-  }
-  
-  .sidebarDropdown.collapsed .nav-links a {
-    border-bottom: 0.5px solid white; 
-  }
+/* styling for the button */
+.sidebarDropdown-collapsible-button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .sidebarDropdown.collapsed .nav-button {
-    padding: 12px 0; 
-    font-size: 12px;
-  }
-  
-  .sidebarDropdown.collapsed .nav-button svg {
-    width: 12px;
-    height: 12px;
-  }
-  
-  .sidebarDropdown.collapsed + .main-content {
-    margin-left: 0px;
-  }
-  
+/* sidebar dropdown content container  */
+.sidebarDropdown-panel {  
+  position: fixed;
+  top: 3.5rem;
+  right: 30px; /* sits literally next to the sidebar toggle button */
+  width: calc(100% - 30px - 120px); /* full width minus the sidebar + the toggle button */
+  height: calc(100vh - 3.5rem);
+  background-color: #ffffff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.patient-dropdown-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}

@@ -3,21 +3,30 @@
 import { useState } from "react";
 
 import "./patient-dropdown.css"
+import PatientInfo from "../../biometric-monitor/PatientComponent";
 
-export default function PatientDropdown(){
-      const [collapsed, setCollapsed] = useState(false);
-      const [caretakerFirstName, setCaretakerFirstName] = useState('');
-      const [caretakerLastName, setCaretakerLastName] = useState('');
-
-    return(
-        <div className={`sidebarDropdown ${collapsed ? "collapsed" : ""}`}>
-
-        <button onClick={() => setCollapsed(!collapsed)} className="sidebarDropdown-collapsible-button ">
-          {collapsed ? "▸": "◂" }
-        </button>
-
-        {/* Navigation Links */}
-
-      </div>
-    )
-}
+export default function PatientDropdown() {
+    const [collapsed, setCollapsed] = useState(true);
+  
+    return (
+      <>
+        <div className="sidebarDropdown-toggle">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="sidebarDropdown-collapsible-button"
+          >
+            {collapsed ? "▸" : "◂"}
+          </button>
+        </div>
+  
+        {!collapsed && (
+          <div className="sidebarDropdown-panel">
+            <div className="patient-dropdown-content">
+              <PatientInfo />
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+  
