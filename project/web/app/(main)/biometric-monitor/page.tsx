@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
 import NotificationChart from './NotificationChart';
-import PatientInfo from './PatientComponent';
+import PatientInfo from '../components/patient-component/PatientComponent';
 import BloodOxygenChart from './BloodOxygenChart';
 import HeartRateChart from './HeartRateChart';
 import PatientDropdown from '../components/patient-component/patient-dropdown';
@@ -68,7 +68,7 @@ export default function HomePage() {
       <div className="content-container">
         {/* Patient Container */}
 
-        <div className = "test-patient">
+        <div className = "PatientInfoContainer">
           <PatientInfo/>
         </div>
 

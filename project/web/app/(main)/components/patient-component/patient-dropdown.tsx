@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import "./patient-dropdown.css"
-import PatientInfo from "../../biometric-monitor/PatientComponent";
+import PatientInfo from "./PatientComponent";
 
 export default function PatientDropdown() {
     const [collapsed, setCollapsed] = useState(true);
