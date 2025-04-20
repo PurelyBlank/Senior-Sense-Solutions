@@ -132,6 +132,14 @@
   }
   
 
+  .test-patient{
+    display: block; /* default visible */
+  }
+  
+  .patient-dropdown-container {
+    display: none;  /* default hidden */
+
+  }
   
   .overlay {
     position: fixed;
@@ -143,10 +151,21 @@
     z-index: 10;
   }
   
-  
-  
+
+/* Show/hide based on screen size */
 @media (max-width: 1500px) {
-  .content-container{
+  .content-container {
     flex-direction: column-reverse;
+  }
+
+  .patient-dropdown-container {
+    display: block;  /* or flex, depending on your layout */
+    display:flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .test-patient {
+    display: none;
   }
 }

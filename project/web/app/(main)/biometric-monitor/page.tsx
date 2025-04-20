@@ -67,20 +67,23 @@ export default function HomePage() {
 
       <div className="content-container">
         {/* Patient Container */}
-        <PatientInfo/>
+
+        <div className = "test-patient">
+          <PatientInfo/>
+        </div>
 
 
         <div className="right-container">
           <NotificationChart/>
-
           <div className = "biometric-charts">
             <BloodOxygenChart/>
             <HeartRateChart/> 
           </div>
-
         </div>
 
-        <PatientDropdown/>
+        <div className = "patient-dropdown-container">
+          <PatientDropdown/>
+        </div>
 
       </div>
 
