@@ -94,7 +94,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Biometric-monitor endpoint (POST request)
-app.post('/api/biometric-monitor', async (req, res) => {
+app.post('/api/caretaker-firstname', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -179,6 +179,82 @@ app.post('/api/caretaker-name', async (req, res) => {
 
   } catch (err) {
     console.error('Error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+app.post('/api/patient-heartrate', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log("No authorization header provided");
+
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log("Malformed authorization header");
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    console.log("Verifying token:", token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user_id = decoded.user_id;
+
+    if (!user_id) {
+      console.log("No user_id in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    }
+
+    console.log("Querying caretaker with user_id:", user_id);
+    
+    const result = await pool.query(
+      `
+        SELECT
+          c.user_id AS caretaker_id,
+          c.first_name AS caretaker_first_name,
+          p.patient_id,
+          p.first_name AS patient_first_name,
+          p.wearable_id,
+          wd.timestamp,
+          wd.heart_rate,
+          wd.blood_oxygen
+        FROM caretaker c
+        JOIN patients p ON c.user_id = p.caretaker_id
+        JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
+        WHERE c.user_id = $1 AND p.patient_id = 17
+        ORDER BY wd.timestamp DESC;
+      `,
+      [user_id]
+    );
+    
+    
+    const patient_data = result.rows[0];
+
+    if (!patient_data) {
+      console.log("patient_data not found for user_id:", user_id);
+
+      return res.status(404).json({ error: 'patient_data not found.' });
+    }
+
+    res.json({ 
+      heartRate_patient: patient_data.heart_rate,
+    });
+
+
+  } catch (err) {
+    console.error('Biometric monitor error:', err);
 
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });
