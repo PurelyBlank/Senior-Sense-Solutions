@@ -1,7 +1,7 @@
 // BarChart.tsx
 "use client"
 import React, { useEffect, useRef } from 'react';
-import Chart from 'chart.js/auto';
+import Chart, { ChartConfiguration } from 'chart.js/auto';
 
 interface BarChartProps {
     timeRange: '24h' | '7d' | '30d';
@@ -42,7 +42,7 @@ export default function BarChart({ timeRange }: BarChartProps) {
       }]
     };
 
-    const config = {
+    const config: ChartConfiguration<'bar', number[], string> = {
       type: 'bar' as const,
       data: data,
       options: {
