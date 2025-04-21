@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
 import NotificationChart from './NotificationChart';
 import PatientInfo from '../components/patient-component/PatientComponent';
-import BloodOxygenChart from './BloodOxygenChart';
+import StepCounterChart from './StepCounterChart';
 import HeartRateChart from './HeartRateChart';
 import PatientDropdown from '../components/patient-component/patient-dropdown';
 
@@ -76,8 +76,8 @@ export default function HomePage() {
         <div className="right-container">
           <NotificationChart/>
           <div className = "biometric-charts">
-            <BloodOxygenChart/>
-            <HeartRateChart/> 
+            <HeartRateChart/>
+            <StepCounterChart/> 
           </div>
         </div>
 
