@@ -182,7 +182,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
         JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 2
+        WHERE c.user_id = $1 AND p.patient_id = 17
         ORDER BY wd.timestamp DESC;
       `,
       [user_id]
@@ -196,7 +196,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
     }
 
     res.json({ 
-      heartRate_patient: patient_data.heart_rate,
+      patientHeartRate: patient_data.heart_rate,
     });
 
   } catch (err) {
