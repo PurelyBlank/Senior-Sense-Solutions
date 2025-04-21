@@ -104,10 +104,9 @@
     background-color: #FFFFFF;
     min-height: 355px;
     max-height: 500px;
-    /* remove width constraints */
     width: 100%;
     min-width: 0;
-    max-width: none;
+    max-width: 500px;
   }
 
   .bloodoxygen-title,
