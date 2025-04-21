@@ -207,7 +207,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    console.log("Verifying token:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const user_id = decoded.user_id;
 
@@ -216,8 +215,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
       
       return res.status(400).json({ error: 'Invalid token: user_id not found.' });
     }
-
-    console.log("Querying caretaker with user_id:", user_id);
     
     const result = await pool.query(
       `
@@ -238,8 +235,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
       `,
       [user_id]
     );
-    
-    
     const patient_data = result.rows[0];
 
     if (!patient_data) {
@@ -251,7 +246,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
     res.json({ 
       heartRate_patient: patient_data.heart_rate,
     });
-
 
   } catch (err) {
     console.error('Biometric monitor error:', err);
