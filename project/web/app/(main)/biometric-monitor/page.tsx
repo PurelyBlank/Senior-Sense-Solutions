@@ -18,7 +18,6 @@ export default function HomePage() {
     setIsRemovePatient(false);
   }
 
-
   const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
   
@@ -28,7 +27,10 @@ export default function HomePage() {
         throw new Error("No authentication token found.");
       }
   
-      const response = await fetch("http://localhost:5000/api/caretaker-firstname", {
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/caretaker-firstname`;
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

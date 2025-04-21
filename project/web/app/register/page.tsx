@@ -38,8 +38,11 @@ export default function RegisterPage() {
         throw new Error("Passwords do not match.");
       }
 
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/register`;
+
       // Make POST request to register endpoint in backend
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

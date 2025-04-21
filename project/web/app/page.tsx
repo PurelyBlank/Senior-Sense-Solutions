@@ -29,8 +29,11 @@ export default function LoginPage() {
         throw new Error("Please fill in all fields.");
       }
 
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/login`;
+
       // Make POST request to login endpoint in backend
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,7 +1,7 @@
 "use client"
+
 import { FaHeartbeat } from "react-icons/fa";
 import { useState, useEffect } from 'react';
-
 
 export default function HeartRateChart(){
     const [heartRate_patient, setHeartRate_patient] = useState('');
@@ -17,7 +17,10 @@ export default function HeartRateChart(){
           throw new Error("No authentication token found.");
         }
     
-        const response = await fetch("http://localhost:5000/api/patient-heartrate", {
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/patient-heartrate`;
+
+        const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -182,7 +182,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
         JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 17
+        WHERE c.user_id = $1 AND p.patient_id = 2
         ORDER BY wd.timestamp DESC;
       `,
       [user_id]
@@ -214,7 +214,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
 });
 
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
-app.post('/api/caretaker-name', async (req, res) => {
+app.post('/api/caretaker-fullname', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
