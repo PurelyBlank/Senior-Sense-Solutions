@@ -9,9 +9,8 @@ export default function HeartRateChart(){
             <p className="heartrate-bpm fw-semibold">120 BPM</p>
             <p className="heartrate-summary fw-semibold">
               <em>
-                  *Note: These readings reflect the patient's current heart rate. 
-                  Please consult the guidelines <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">link/reference</a> or 
-                  professional healthcare advisor for proper interpretation.
+                  *Note: This heart rate reading shows the patient's pulse right now. To understand what a healthy heart rate range is, please refer to the guidelines
+                  Please consult the guidelines <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">link/reference</a> for proper interpretation.
               </em>
             </p>
         </div>
