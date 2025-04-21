@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./homepage.css";
 import NotificationChart from './NotificationChart';
-import PatientInfo from './PatientComponent';
+import PatientInfo from '../components/patient-component/PatientComponent';
 import BloodOxygenChart from './BloodOxygenChart';
 import HeartRateChart from './HeartRateChart';
+import PatientDropdown from '../components/patient-component/patient-dropdown';
 
 export default function HomePage() {
   const [isRemovePatient, setIsRemovePatient] = useState(false);
@@ -66,16 +67,22 @@ export default function HomePage() {
 
       <div className="content-container">
         {/* Patient Container */}
-        <PatientInfo/>
+
+        <div className = "PatientInfoContainer">
+          <PatientInfo/>
+        </div>
+
 
         <div className="right-container">
           <NotificationChart/>
-
           <div className = "biometric-charts">
             <BloodOxygenChart/>
             <HeartRateChart/> 
           </div>
+        </div>
 
+        <div className = "patient-dropdown-container">
+          <PatientDropdown/>
         </div>
 
       </div>

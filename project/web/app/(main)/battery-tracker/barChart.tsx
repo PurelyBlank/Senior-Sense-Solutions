@@ -47,12 +47,33 @@ export default function BarChart({ timeRange }: BarChartProps) {
       data: data,
       options: {
         responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+          },
+          tooltip: {
+            enabled: true,
+          }
+        },
         scales: {
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 45,
+              minRotation: 0
+            }
+          },
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              stepSize: 20 
+            }
           }
         }
       }
+      
     };
 
     if (chartRef.current) {
