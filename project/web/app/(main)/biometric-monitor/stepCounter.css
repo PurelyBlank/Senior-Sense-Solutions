@@ -1,13 +1,16 @@
 .stepCounter-box {
-    background-color: #fff;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    padding: 20px;
-    width: 300px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: sans-serif;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid lightgray;
+    background-color: #FFFFFF;
+    min-height: 355px;
+    max-height: 500px;
+    width: 100%;
+    min-width: 0;
+    max-width: 500px;
   }
   
   .top-section {
