@@ -59,7 +59,10 @@ export default function PatientInfo() {
           throw new Error("No authentication token found.");
         }
 
-        const response = await fetch("http://localhost:5000/api/patients", {
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/patients`;
+
+        const response = await fetch(apiUrl, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -114,7 +117,10 @@ export default function PatientInfo() {
         weight: weight ? parseInt(weight) : null,
       };
 
-      const response = await fetch("http://localhost:5000/api/patients", {
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
