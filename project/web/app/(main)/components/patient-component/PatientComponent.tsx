@@ -35,6 +35,21 @@ export default function PatientInfo() {
   const [deviceId, setDeviceId] = useState('');
   const [error, setError] = useState('');
 
+  // Generate possible height options
+  const generateHeightOptions = () => {
+    const heights: string[] = [];
+
+    for (let feet = 2; feet <= 8; feet++) {
+      const maxInches = feet === 8 ? 0 : 11;
+
+      for (let inches = 0; inches <= maxInches; inches++) {
+        heights.push(`${feet}'${inches}`);
+      }
+    }
+    
+    return heights;
+  };
+
   // Fetch patients on mount
   useEffect(() => {
     const fetchPatients = async () => {
@@ -68,8 +83,11 @@ export default function PatientInfo() {
   }, []);
 
   const handleRemovePatient = () => setIsRemovePatient(true);
+
   const handleRemoveCancel = () => setIsRemovePatient(false);
+
   const handleAddPatient = () => setIsAddPatient(true);
+
   const handleCancel = () => {
     setIsAddPatient(false);
     clearForm();
@@ -109,13 +127,13 @@ export default function PatientInfo() {
       // Update patient list
       setPatients([...patients, {
         patient_id: data.patient_id,
+        wearable_id: parseInt(deviceId),
         first_name: firstName,
         last_name: lastName,
         gender: gender || undefined,
         age: age ? parseInt(age) : undefined,
         height: height || undefined,
         weight: weight ? parseInt(weight) : undefined,
-        wearable_id: parseInt(deviceId),
       }]);
 
       setIsAddPatient(false);
@@ -143,9 +161,13 @@ export default function PatientInfo() {
   };
 
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
+
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
+
   const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
+
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
+
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
 
   return (
@@ -245,17 +267,11 @@ export default function PatientInfo() {
                     value={height}
                     onChange={handleHeightChange}
                   >
-                    <MenuItem value="5'0">5&apos;0&quot;</MenuItem>
-                    <MenuItem value="5'1">5&apos;1&quot;</MenuItem>
-                    <MenuItem value="5'2">5&apos;2&quot;</MenuItem>
-                    <MenuItem value="5'3">5&apos;3&quot;</MenuItem>
-                    <MenuItem value="5'4">5&apos;4&quot;</MenuItem>
-                    <MenuItem value="5'5">5&apos;5&quot;</MenuItem>
-                    <MenuItem value="5'6">5&apos;6&quot;</MenuItem>
-                    <MenuItem value="5'7">5&apos;7&quot;</MenuItem>
-                    <MenuItem value="5'8">5&apos;8&quot;</MenuItem>
-                    <MenuItem value="5'9">5&apos;9&quot;</MenuItem>
-                    <MenuItem value="6'0">6&apos;0&quot;</MenuItem>
+                    {generateHeightOptions().map((heightOption) => (
+                      <MenuItem key={heightOption} value={heightOption}>
+                        {heightOption}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </div>
@@ -366,29 +382,11 @@ export default function PatientInfo() {
                     value={height}
                     onChange={handleHeightChange}
                   >
-                    <MenuItem value="5'0">5&apos;0&quot;</MenuItem>
-                    <MenuItem value="5'1">5&apos;1&quot;</MenuItem>
-                    <MenuItem value="5'2">5&apos;2&quot;</MenuItem>
-                    <MenuItem value="5'3">5&apos;3&quot;</MenuItem>
-                    <MenuItem value="5'4">5&apos;4&quot;</MenuItem>
-                    <MenuItem value="5'5">5&apos;5&quot;</MenuItem>
-                    <MenuItem value="5'6">5&apos;6&quot;</MenuItem>
-                    <MenuItem value="5'7">5&apos;7&quot;</MenuItem>
-                    <MenuItem value="5'8">5&apos;8&quot;</MenuItem>
-                    <MenuItem value="5'9">5&apos;9&quot;</MenuItem>
-                    <MenuItem value="6'0">6&apos;0&quot;</MenuItem>
-                    <MenuItem value="6'1">6&apos;1&quot;</MenuItem>
-                    <MenuItem value="6'2">6&apos;2&quot;</MenuItem>
-                    <MenuItem value="6'3">6&apos;3&quot;</MenuItem>
-                    <MenuItem value="6'4">6&apos;4&quot;</MenuItem>
-                    <MenuItem value="6'5">6&apos;5&quot;</MenuItem>
-                    <MenuItem value="6'6">6&apos;6&quot;</MenuItem>
-                    <MenuItem value="6'7">6&apos;7&quot;</MenuItem>
-                    <MenuItem value="6'8">6&apos;8&quot;</MenuItem>
-                    <MenuItem value="6'9">6&apos;9&quot;</MenuItem>
-                    <MenuItem value="6'10">6&apos;10&quot;</MenuItem>
-                    <MenuItem value="6'11">6&apos;11&quot;</MenuItem>
-                    <MenuItem value="7'0">7&apos;0&quot;</MenuItem>
+                    {generateHeightOptions().map((heightOption) => (
+                      <MenuItem key={heightOption} value={heightOption}>
+                        {heightOption}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </div>

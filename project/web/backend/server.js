@@ -155,18 +155,18 @@ app.post('/api/patients', async (req, res) => {
     const caretaker_id = decoded.user_id;
 
     const {
+      wearable_id,
       first_name,
       last_name,
       gender,
       age,
       height,
       weight,
-      wearable_id,
     } = req.body;
 
     // Validate input fields
     if (!first_name || !last_name || !wearable_id) {
-      return res.status(400).json({ error: 'First name, last name, and wearable ID are required.' });
+      return res.status(400).json({ error: 'First name, last name, and wearable ID are required fields.' });
     }
 
     // Validate wearable_id exists
@@ -225,7 +225,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, first_name, last_name, gender, age, weight, wearable_id
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, weight
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
