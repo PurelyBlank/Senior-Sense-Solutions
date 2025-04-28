@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 import { CgProfile } from "react-icons/cg";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
@@ -9,62 +9,168 @@ import Link from "next/link";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PatientComponent.css";
 
+// Define Patient fields
+interface Patient {
+  patient_id: number;
+  wearable_id?: number;
+  first_name: string;
+  last_name: string;
+  gender?: string;
+  age?: number;
+  height?: string;
+  weight?: number;
+}
+
 export default function PatientInfo() {
-  const [isAddPatient, setIsAddPatient] = React.useState(false);
-  const [isRemovePatient, setIsRemovePatient] = React.useState(false);
-  const [patient, setPatient] = React.useState('');
-  const [firstName, setFirstName] = React.useState('');
-  const [lastName, setLastName] = React.useState('');
-  const [gender, setGender] = React.useState('');
-  const [age, setAge] = React.useState('');
-  const [height, setHeight] = React.useState('');
-  const [weight, setWeight] = React.useState('');
-  const [deviceId, setDeviceId] = React.useState('');
+  const [isAddPatient, setIsAddPatient] = useState(false);
+  const [isRemovePatient, setIsRemovePatient] = useState(false);
+  const [patient, setPatient] = useState('');
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState('');
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [error, setError] = useState('');
 
-  const handleRemovePatient = () => {
-    setIsRemovePatient(true);
-  }
+  // Generate possible height options
+  const generateHeightOptions = () => {
+    const heights: string[] = [];
 
-  const handleRemoveCancel = () => {
-    setIsRemovePatient(false);
-  }
+    for (let feet = 2; feet <= 8; feet++) {
+      const maxInches = feet === 8 ? 0 : 11;
 
-  const handleAddPatient = () => {
-    setIsAddPatient(true);
-  }
+      for (let inches = 0; inches <= maxInches; inches++) {
+        heights.push(`${feet}'${inches}`);
+      }
+    }
 
-  const handleSubmit = () => {
-    setIsAddPatient(false);
-  }
+    return heights;
+  };
 
+  // Fetch Patient rows for Select dropdown upon mount
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          throw new Error("No authentication token found.");
+        }
+
+        const response = await fetch("http://localhost:5000/api/patients", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch patients.");
+        }
+
+        setPatients(data.patients);
+
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred.");
+        console.error("Fetch patients error:", err);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
+  // Setters
+  const handleRemovePatient = () => setIsRemovePatient(true);
+  const handleRemoveCancel = () => setIsRemovePatient(false);
+  const handleAddPatient = () => setIsAddPatient(true);
   const handleCancel = () => {
     setIsAddPatient(false);
-  }
+    clearForm();
+  };
 
+  // Fetch request for adding a new Patient row
+  const handleSubmitPatient = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      if (!firstName || !lastName || !deviceId) {
+        throw new Error("First name, last name, and device ID are required.");
+      }
+
+      // Define expected data fields in request body
+      const patientData = {
+        wearable_id: parseInt(deviceId),
+        first_name: firstName,
+        last_name: lastName,
+        gender: gender || null,
+        age: age ? parseInt(age) : null,
+        height: height || null,
+        weight: weight ? parseInt(weight) : null,
+      };
+
+      const response = await fetch("http://localhost:5000/api/patients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to add patient.");
+      }
+
+      // Update patient list
+      setPatients([...patients, {
+        patient_id: data.patient_id,
+        wearable_id: parseInt(deviceId),
+        first_name: firstName,
+        last_name: lastName,
+        gender: gender || undefined,
+        age: age ? parseInt(age) : undefined,
+        height: height || undefined,
+        weight: weight ? parseInt(weight) : undefined,
+      }]);
+
+      // Clear the input fields
+      setIsAddPatient(false);
+      clearForm();
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Add patient error:", err);
+    }
+  };
+
+  // Helper function to clear all input fields in Add Patient form
+  const clearForm = () => {
+    setFirstName('');
+    setLastName('');
+    setGender('');
+    setAge('');
+    setHeight('');
+    setWeight('');
+    setDeviceId('');
+    setError('');
+  };
+
+  // Setters for Patient row attribute changes
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
   };
-
-  const handleGenderChange = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string);
-  };
-
-  const handleAgeChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
-
-  const handleHeightChange = (event: SelectChangeEvent) => {
-    setHeight(event.target.value as string);
-  };
-
-  const handleWeightChange = (event: SelectChangeEvent) => {
-    setWeight(event.target.value as string);
-  };
-
-  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDeviceId(e.target.value);
-  };
-
+  const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
+  const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
+  const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
+  const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
+  const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
 
   return (
     <div className="p-3">
@@ -83,9 +189,11 @@ export default function PatientInfo() {
                 value={patient}
                 onChange={handlePatientChange}
               >
-                <MenuItem value={"Bruce Wayne"}>Bruce Wayne</MenuItem>
-                <MenuItem value={"Jane Doe"}>Jane Doe</MenuItem>
-                <MenuItem value={"Alfred Hitchcock"}>Alfred Hitchcock</MenuItem>
+                {patients.map((p) => (
+                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                    {p.first_name + " " + p.last_name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </div>
@@ -161,17 +269,11 @@ export default function PatientInfo() {
                     value={height}
                     onChange={handleHeightChange}
                   >
-                    <MenuItem value="5'0">5&apos;0&quot;</MenuItem>
-                    <MenuItem value="5'1">5&apos;1&quot;</MenuItem>
-                    <MenuItem value="5'2">5&apos;2&quot;</MenuItem>
-                    <MenuItem value="5'3">5&apos;3&quot;</MenuItem>
-                    <MenuItem value="5'4">5&apos;4&quot;</MenuItem>
-                    <MenuItem value="5'5">5&apos;5&quot;</MenuItem>
-                    <MenuItem value="5'6">5&apos;6&quot;</MenuItem>
-                    <MenuItem value="5'7">5&apos;7&quot;</MenuItem>
-                    <MenuItem value="5'8">5&apos;8&quot;</MenuItem>
-                    <MenuItem value="5'9">5&apos;9&quot;</MenuItem>
-                    <MenuItem value="6'0">6&apos;0&quot;</MenuItem>
+                    {generateHeightOptions().map((heightOption) => (
+                      <MenuItem key={heightOption} value={heightOption}>
+                        {heightOption}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </div>
@@ -200,120 +302,156 @@ export default function PatientInfo() {
                 </FormControl>
               </div>
 
-
               {/* Remove Patient Button */}
               <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
 
               {/* Vertical Line Above Add Patient Button */}
               <div className="vertical-line"></div>
+
               {/* Add Patient Button */}
               <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
-
-
           </div>
           ) : (
-            <div className="add-patient-box">
+          <div className="add-patient-box">
             <h5>Add New Patient</h5>
             <CgProfile className="patient-icon" size={95} />
-            <Link href="/biometric-monitor">Import Profile Picture</Link> {/*Change link to actual thing later on*/}
+            <Link href="/biometric-monitor">Import Profile Picture</Link>
+            {error && <div className="error-message" role="alert">{error}</div>}
             <div className="patient-details">
-              {/*First name*/}
+
+              {/* First name */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">First Name</span>
                 </div>
                 <input
                   className="first-name"
-                  placeholder='Enter here'
+                  placeholder="Enter here"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                 />
               </div>
-              {/*Last Name*/}
+
+              {/* Last name */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Last Name</span>
                 </div>
                 <input
                   className="last-name"
-                  placeholder='Enter here'
+                  placeholder="Enter here"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
-              {/*Gender*/}
+
+              {/* Gender */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
                 </div>
-                <input
-                  className="gender-slot"
-                  placeholder='Enter here'
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                />
+                <FormControl size="small" fullWidth>
+                  <InputLabel id="add-gender-label">Gender</InputLabel>
+                  <Select
+                    labelId="add-gender-label"
+                    id="add-gender"
+                    label="Gender"
+                    value={gender}
+                    onChange={handleGenderChange}
+                  >
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                    <MenuItem value="Other">Other</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
-              {/*Age*/}
+
+              {/* Age */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Age</span>
                 </div>
                 <input
                   className="age-slot"
-                  placeholder='Enter here'
+                  placeholder="Enter here"
+                  type="number"
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                 />
               </div>
-              {/*Height*/}
+
+              {/* Height */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
                 </div>
-                <input
-                  className="height-slot"
-                  placeholder='Enter here'
-                  value={height}
-                  onChange={(e) => setHeight(e.target.value)}
-                />
+                <FormControl size="small" fullWidth>
+                  <InputLabel id="add-height-label">Height</InputLabel>
+                  <Select
+                    labelId="add-height-label"
+                    id="add-height"
+                    label="Height"
+                    value={height}
+                    onChange={handleHeightChange}
+                  >
+                    {generateHeightOptions().map((heightOption) => (
+                      <MenuItem key={heightOption} value={heightOption}>
+                        {heightOption}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </div>
-              {/*Weight*/}
+
+              {/* Weight */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Weight</span>
                 </div>
                 <input
                   className="weight-slot"
-                  placeholder='Enter here'
+                  placeholder="Enter here"
+                  type="number"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                 />
               </div>
-              {/*Device*/}
+
+              {/* Wearable ID */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
-                  <span className="add-detail-label">Device</span>
+                  <span className="add-detail-label">Device ID</span>
                 </div>
                 <input
                   className="device-slot"
-                  placeholder='Enter Device ID'
+                  placeholder="Enter Device ID"
+                  type="number"
                   value={deviceId}
                   onChange={(e) => setDeviceId(e.target.value)}
                 />
               </div>
             </div>
+
+            {/* Cancel button */}
             <button type="button" className="cancel-button" onClick={handleCancel}>Cancel</button>
-            <button type="button" className="save-button" onClick={handleSubmit}>Save Changes</button>
+
+            {/* Save changes button */}
+            <button type="button" className="save-button" onClick={handleSubmitPatient}>Save Changes</button>
           </div>
         )}
         </div>
         {isRemovePatient && (
         <div className="center-remove-box">
-          <p className="title-bold">Are you absolutely sure?</p>
-          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and associated data.</p>
+          {/* Warning text */}
+          <p className="title-bold">Are you sure?</p>
+          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and all associated data.</p>
+
+          {/* Cancel button */}
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button> {/*Will change to work with backend*/}
+
+          {/* Continue button */}
+          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
         </div>
       )}
     </div>

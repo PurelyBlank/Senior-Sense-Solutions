@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./homepage.css";
+
 import NotificationChart from './NotificationChart';
-import PatientInfo from '../components/patient-component/PatientComponent';
 import StepCounterChart from './StepCounterChart';
 import HeartRateChart from './HeartRateChart';
+import PatientInfo from '../components/patient-component/PatientComponent';
 import PatientDropdown from '../components/patient-component/patient-dropdown';
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./homepage.css";
 
 export default function HomePage() {
   const [isRemovePatient, setIsRemovePatient] = useState(false);
@@ -18,6 +20,7 @@ export default function HomePage() {
     setIsRemovePatient(false);
   }
 
+  // Fetch user's first name for "Welcome back, ..." text
   const handleFetchCaretakerName = async () => {
     setError("");  // Reset error before fetching
   
@@ -65,16 +68,14 @@ export default function HomePage() {
     <div className="biometric-container">
       {isRemovePatient && <div className="overlay"></div>}
       <h1 className="display-7 fw-semibold">Welcome back, {caretakerName || "Caretaker"}.</h1>
+
       {/* Main Content */}
-
       <div className="content-container">
-        {/* Patient Container */}
 
+        {/* Patient Container */}
         <div className = "PatientInfoContainer">
           <PatientInfo/>
         </div>
-
-
         <div className="right-container">
           <NotificationChart/>
           <div className = "biometric-charts">
@@ -82,19 +83,17 @@ export default function HomePage() {
             <StepCounterChart/> 
           </div>
         </div>
-
         <div className = "patient-dropdown-container">
           <PatientDropdown/>
         </div>
-
       </div>
 
       {isRemovePatient && (
         <div className="center-remove-box">
-          <p className="title-bold">Are you absolutely sure?</p>
-          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and associated data.</p>
+          <p className="title-bold">Are you sure?</p>
+          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and all associated data.</p>
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button> {/*Will change to work with backend*/}
+          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
         </div>
       )}
     </div>

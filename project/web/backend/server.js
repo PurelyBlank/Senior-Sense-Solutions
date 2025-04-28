@@ -98,15 +98,11 @@ app.post('/api/caretaker-firstname', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      console.log('No authorization header provided.');
-
       return res.status(401).json({ error: 'No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      console.log('Malformed authorization header.');
-
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
@@ -142,20 +138,136 @@ app.post('/api/caretaker-firstname', async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
-app.post('/api/patient-heartrate', async (req, res) => {
+// Biometric monitor page endpoint to add Patient (POST request)
+app.post('/api/patients', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      console.log("No authorization header provided");
-
       return res.status(401).json({ error: 'No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      console.log("Malformed authorization header");
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const caretaker_id = decoded.user_id;
+
+    const {
+      wearable_id,
+      first_name,
+      last_name,
+      gender,
+      age,
+      height,
+      weight,
+    } = req.body;
+
+    // Validate input fields
+    if (!first_name || !last_name || !wearable_id) {
+      return res.status(400).json({ error: 'First name, last name, and wearable ID are required fields.' });
+    }
+
+    // Validate wearable_id exists
+    const wearableCheck = await pool.query('SELECT wearable_id FROM wearable WHERE wearable_id = $1', [wearable_id]);
+    if (wearableCheck.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid wearable ID: device not found.' });
+    }
+
+    // Validate wearable_id is not already assigned to a patient
+    const patientCheck = await pool.query('SELECT wearable_id FROM patients WHERE wearable_id = $1', [wearable_id]);
+    if (patientCheck.rows.length > 0) {
+      return res.status(400).json({ error: 'Invalid wearable ID: wearable ID already assigned to another patient.' });
+    }
+
+    // Insert new patient in Patient table
+    const result = await pool.query(
+      `INSERT INTO patients (
+        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING patient_id`,
+      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight]
+    );
+
+    const patient_id = result.rows[0].patient_id;
+    res.status(201).json({ patient_id });
+
+  } catch (err) {
+    console.error('Add patient error:', err);
+
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Wearable ID already assigned.' });
+    }
+    if (err.code === '22P02') {
+      return res.status(400).json({ error: 'Invalid data format.' });
+    }
+
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Biometric monitor page endpoint to retrieve Patient rows (GET request)
+app.get('/api/patients', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const caretaker_id = decoded.user_id;
+
+    // Query for all Patient rows assigned to user's caretaker_id
+    const result = await pool.query(
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight
+       FROM patients WHERE caretaker_id = $1`,
+      [caretaker_id]
+    );
+
+    // Map each Patient row in response data
+    const patients = result.rows.map(patient => ({
+      patient_id: patient.patient_id,
+      wearable_id: patient.wearable_id,
+      first_name: patient.first_name,
+      last_name: patient.last_name,
+      gender: patient.gender,
+      age: patient.age,
+      height: patient.height,
+      weight: patient.weight,
+    }));
+
+    res.json({ patients });
+
+  } catch (err) {
+    console.error('Get patients error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
+app.post('/api/patient-heartrate', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
@@ -182,7 +294,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
         JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 17
+        WHERE c.user_id = $1 AND p.patient_id = 2
         ORDER BY wd.timestamp DESC;
       `,
       [user_id]
@@ -218,15 +330,11 @@ app.post('/api/caretaker-fullname', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      console.log('No authorization header provided.');
-
       return res.status(401).json({ error: 'No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      console.log('Malformed authorization header.');
-
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
