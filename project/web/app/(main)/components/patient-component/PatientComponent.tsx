@@ -46,7 +46,7 @@ export default function PatientInfo() {
         heights.push(`${feet}'${inches}`);
       }
     }
-    
+
     return heights;
   };
 
@@ -93,10 +93,12 @@ export default function PatientInfo() {
     clearForm();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitPatient = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) throw new Error("No authentication token found.");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
 
       if (!firstName || !lastName || !deviceId) {
         throw new Error("First name, last name, and device ID are required.");
@@ -122,7 +124,9 @@ export default function PatientInfo() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to add patient.");
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to add patient.");
+      }
 
       // Update patient list
       setPatients([...patients, {
@@ -328,6 +332,7 @@ export default function PatientInfo() {
                   onChange={(e) => setFirstName(e.target.value)}
                 />
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Last Name</span>
@@ -339,6 +344,7 @@ export default function PatientInfo() {
                   onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
@@ -354,9 +360,11 @@ export default function PatientInfo() {
                   >
                     <MenuItem value="Male">Male</MenuItem>
                     <MenuItem value="Female">Female</MenuItem>
+                    <MenuItem value="Other">Other</MenuItem>
                   </Select>
                 </FormControl>
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Age</span>
@@ -369,6 +377,7 @@ export default function PatientInfo() {
                   onChange={(e) => setAge(e.target.value)}
                 />
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
@@ -390,6 +399,7 @@ export default function PatientInfo() {
                   </Select>
                 </FormControl>
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Weight</span>
@@ -402,6 +412,7 @@ export default function PatientInfo() {
                   onChange={(e) => setWeight(e.target.value)}
                 />
               </div>
+
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Device ID</span>
@@ -415,8 +426,9 @@ export default function PatientInfo() {
                 />
               </div>
             </div>
+
             <button type="button" className="cancel-button" onClick={handleCancel}>Cancel</button>
-            <button type="button" className="save-button" onClick={handleSubmit}>Save Changes</button>
+            <button type="button" className="save-button" onClick={handleSubmitPatient}>Save Changes</button>
           </div>
         )}
         </div>
@@ -424,6 +436,7 @@ export default function PatientInfo() {
         <div className="center-remove-box">
           <p className="title-bold">Are you sure?</p>
           <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and all associated data.</p>
+          
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
           <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
         </div>
