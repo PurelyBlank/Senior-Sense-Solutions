@@ -1,13 +1,18 @@
 #include "heart_rate.h"
 
+#include <Wire.h>
+
+
+
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
+  Serial.println("Initializing...");
+
+  initialize_heart_rate_sensor();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.println(heart_rate()); 
-  delay(1000);
+  // Serial.println(heart_rate());
+  Serial.println(millis());
+  delay(5000);
 }
-
