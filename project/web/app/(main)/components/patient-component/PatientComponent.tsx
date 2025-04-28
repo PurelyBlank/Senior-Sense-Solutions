@@ -50,7 +50,7 @@ export default function PatientInfo() {
     return heights;
   };
 
-  // Fetch patients on mount
+  // Fetch Patient rows for Select dropdown upon mount
   useEffect(() => {
     const fetchPatients = async () => {
       try {
@@ -82,17 +82,16 @@ export default function PatientInfo() {
     fetchPatients();
   }, []);
 
+  // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
-
   const handleRemoveCancel = () => setIsRemovePatient(false);
-
   const handleAddPatient = () => setIsAddPatient(true);
-
   const handleCancel = () => {
     setIsAddPatient(false);
     clearForm();
   };
 
+  // Fetch request for adding a new Patient row
   const handleSubmitPatient = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -104,6 +103,7 @@ export default function PatientInfo() {
         throw new Error("First name, last name, and device ID are required.");
       }
 
+      // Define expected data fields in request body
       const patientData = {
         wearable_id: parseInt(deviceId),
         first_name: firstName,
@@ -140,6 +140,7 @@ export default function PatientInfo() {
         weight: weight ? parseInt(weight) : undefined,
       }]);
 
+      // Clear the input fields
       setIsAddPatient(false);
       clearForm();
 
@@ -149,6 +150,7 @@ export default function PatientInfo() {
     }
   };
 
+  // Helper function to clear all input fields in Add Patient form
   const clearForm = () => {
     setFirstName('');
     setLastName('');
@@ -160,18 +162,14 @@ export default function PatientInfo() {
     setError('');
   };
 
+  // Setters for Patient row attribute changes
   const handlePatientChange = (event: SelectChangeEvent) => {
     setPatient(event.target.value as string);
   };
-
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
-
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
-
   const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
-
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
-
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
 
   return (
@@ -321,6 +319,8 @@ export default function PatientInfo() {
             <Link href="/biometric-monitor">Import Profile Picture</Link>
             {error && <div className="error-message" role="alert">{error}</div>}
             <div className="patient-details">
+
+              {/* First name */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">First Name</span>
@@ -333,6 +333,7 @@ export default function PatientInfo() {
                 />
               </div>
 
+              {/* Last name */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Last Name</span>
@@ -345,6 +346,7 @@ export default function PatientInfo() {
                 />
               </div>
 
+              {/* Gender */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
@@ -365,6 +367,7 @@ export default function PatientInfo() {
                 </FormControl>
               </div>
 
+              {/* Age */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Age</span>
@@ -378,6 +381,7 @@ export default function PatientInfo() {
                 />
               </div>
 
+              {/* Height */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
@@ -400,6 +404,7 @@ export default function PatientInfo() {
                 </FormControl>
               </div>
 
+              {/* Weight */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Weight</span>
@@ -413,6 +418,7 @@ export default function PatientInfo() {
                 />
               </div>
 
+              {/* Wearable ID */}
               <div className="add-detail-row">
                 <div className="add-detail-text">
                   <span className="add-detail-label">Device ID</span>
@@ -427,17 +433,24 @@ export default function PatientInfo() {
               </div>
             </div>
 
+            {/* Cancel button */}
             <button type="button" className="cancel-button" onClick={handleCancel}>Cancel</button>
+
+            {/* Save changes button */}
             <button type="button" className="save-button" onClick={handleSubmitPatient}>Save Changes</button>
           </div>
         )}
         </div>
         {isRemovePatient && (
         <div className="center-remove-box">
+          {/* Warning text */}
           <p className="title-bold">Are you sure?</p>
           <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and all associated data.</p>
-          
+
+          {/* Cancel button */}
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
+
+          {/* Continue button */}
           <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
         </div>
       )}
