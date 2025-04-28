@@ -169,16 +169,20 @@ app.post('/api/patients', async (req, res) => {
       return res.status(400).json({ error: 'First name, last name, and wearable ID are required fields.' });
     }
 
+    if (age < 0 || age > 150) {
+      return res.status(400).json({ error: 'Age is invalid.' });
+    }
+
     // Validate wearable_id exists
     const wearableCheck = await pool.query('SELECT wearable_id FROM wearable WHERE wearable_id = $1', [wearable_id]);
     if (wearableCheck.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid wearable ID: device not found.' });
+      return res.status(400).json({ error: 'Device not found.' });
     }
 
     // Validate wearable_id is not already assigned to a patient
     const patientCheck = await pool.query('SELECT wearable_id FROM patients WHERE wearable_id = $1', [wearable_id]);
     if (patientCheck.rows.length > 0) {
-      return res.status(400).json({ error: 'Invalid wearable ID: wearable ID already assigned to another patient.' });
+      return res.status(400).json({ error: 'Wearable ID is already assigned to a patient.' });
     }
 
     // Insert new patient in Patient table
@@ -197,7 +201,7 @@ app.post('/api/patients', async (req, res) => {
     console.error('Add patient error:', err);
 
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'Wearable ID already assigned.' });
+      return res.status(409).json({ error: 'Wearable ID is already assigned to a patient.' });
     }
     if (err.code === '22P02') {
       return res.status(400).json({ error: 'Invalid data format.' });
