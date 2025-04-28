@@ -37,26 +37,22 @@ html, body {
     overflow-y: auto; 
 }
   
-
 .PatientInfoContainer{
     display: block;
   }
 
 .patient-dropdown-container {
-    display: none;  
+  display: block;  
+  display:flex;
+  justify-content: center;
+  align-items: center;
 }
-  
+
 @media (max-width: 1500px) {
   .content-container {
     flex-direction: column-reverse;
   }
 
-  .patient-dropdown-container {
-    display: block;  
-    display:flex;
-    justify-content: center;
-    align-items: center;
-  }
 
   .PatientInfoContainer{
     display: none;
