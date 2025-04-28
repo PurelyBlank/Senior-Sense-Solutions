@@ -2,24 +2,19 @@
   display: flex;
   flex-direction: row;
   padding: 40px;
-  gap: 40px;
+  /* gap: 40px; */
   justify-items: center;
   flex-wrap: wrap;
   box-sizing: border-box;
+  justify-content: center;
 }
 
 .left-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-}
-
-.right-column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-items: stretch;
+  gap: 10px;
+  justify-content: center;
 }
 
 /* CHART CONTAINER */
@@ -53,9 +48,15 @@
 }
 
 .left-column,
-.right-column {
+.PatientInfoContainer {
   flex: 1 1 48%;
   min-width: 320px;
   box-sizing: border-box;
 }
 
+.patient-dropdown-container {
+  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
