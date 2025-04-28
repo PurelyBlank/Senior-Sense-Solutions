@@ -168,9 +168,28 @@ export default function PatientInfo() {
     setError('');
   };
 
-  // Setters for Patient row attribute changes
+  // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    setPatient(event.target.value as string);
+    const selectedFullName = event.target.value as string;
+    setPatient(selectedFullName);
+
+    // Find the selected patient
+    const selectedPatient = patients.find(
+      (p) => `${p.first_name} ${p.last_name}` === selectedFullName
+    );
+
+    if (selectedPatient) {
+      setGender(selectedPatient.gender || '');
+      setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
+      setHeight(selectedPatient.height || '');
+      setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+    } else {
+      // Clear Patient attribute fields if no Patient is selected
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+    }
   };
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
