@@ -54,8 +54,10 @@ double heart_rate() {
     // Serial.print(", Avg BPM=");
     // Serial.print(beatAvg);
 
-    // if (irValue < 50000)
-    //     Serial.print(" No finger?");
+    if (irValue < 50000) {
+        // Serial.print(" No finger?");
+        return -1;
+    }
 
     return beatAvg;
 }
