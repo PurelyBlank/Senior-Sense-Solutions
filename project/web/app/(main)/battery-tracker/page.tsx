@@ -5,6 +5,8 @@ import "./battery-tracker.css";
 import GaugeClient from './batteryGauge';
 import BarChart from './barChart';
 import PatientInfo from '../components/patient-component/PatientComponent';
+import PatientDropdown from "../components/patient-component/patient-dropdown";
+
 
 
 export default function BatteryTrackerPage() {
@@ -38,8 +40,9 @@ export default function BatteryTrackerPage() {
             <BarChart timeRange={timeRange} />
           </div>
         </div>
-        <div className="right-column">
-            <PatientInfo/>
+
+        <div className="patient-dropdown-container">
+              <PatientDropdown/>
         </div>
       </div>
     );
