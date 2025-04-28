@@ -1,14 +1,22 @@
+.BarChart, .DoubleBarChart {
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid lightgray;
+  border-radius: 11.26px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
 .BarChart {
-    width: 100%;
-    max-width: 550px;
-    min-width: 300px;
-    margin: 0 auto;
-  
-    border: 1px solid lightgray;
-    border-radius: 11.26px;
-    padding: 10px;
-    box-sizing: border-box;
-  }
+  max-width: 550px;
+  min-width: 300px;
+}
+
+.DoubleBarChart {
+  max-width: 1120px; 
+  min-width: 620px;  
+}
+
 
 /* limits the height / width of the charts*/
 .chartWrapper {
@@ -74,3 +82,10 @@
   }
 }
   
+/* for when the patient activity chart and heart rate chart go vertical */
+@media (max-width: 1000px) {
+  .DoubleBarChart {
+    max-width: 550px;
+    min-width: 300px;
+  }
+}
