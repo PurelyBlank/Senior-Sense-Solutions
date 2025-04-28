@@ -1,225 +1,228 @@
 .patient-container {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 500px;
-    justify-content: center;
-    align-items: center;
-  }
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 500px;
+  justify-content: center;
+  align-items: center;
+}
 
-  .dropdown-label {
-    margin-top: -15px;
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
+.dropdown-label {
+  margin-top: -15px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
 
-  .dropdown-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 430px; 
-  }
-  
-  .dropdown-label {
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
-  
+.dropdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 430px; 
+}
 
-  .patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 550px;
-    margin-top: 20px;
-  }
+.dropdown-label {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
 
-    
-  .patient-icon {
-    display: block;
-    margin: 0 auto;
-    font-size: 100px !important;
-    color: gray;
-    padding-top: 10px;
-  }
-  
-    
-  .patient-name {
-    display: block;
-    padding-top: 20px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid lightgray;
-  }
-  
-  .patient-info {
-    display: block;
-    margin-top: 15px;
-    text-align: left;
-    font-size: 14px;
-  }
 
-  .add-patient-box {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-    background-color: white;
-    color: black;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    width: 475px;
-    height: 650px;
-    margin-top: 20px;
-    position: relative;
-    padding-bottom:  60px;
-  }
+.patient-box {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  background-color: white;
+  color: black;
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  width: 475px;
+  height: 550px;
+  margin-top: 20px;
+}
 
-    
-  .remove-patient-button {
-    color: #ffffff;
-    background-color: #0F172A;
-    margin-top: 25px;
-    padding-left: 100px;
-    padding-right: 100px;
-    border-radius: 10px;
-  }
   
-  .remove-patient-button:hover {
-    color: #ffffff;
-    background-color: #0F172A;
-  }
+.patient-icon {
+  display: block;
+  margin: 0 auto;
+  font-size: 100px !important;
+  color: gray;
+  padding-top: 10px;
+}
 
-  .add-patient-button {
-    color: #FFFFFF;
-    background-color: #0F172A;
-    margin-top: 20px;
-    padding-left: 100px;
-    padding-right: 100px;
-    border-radius: 10px;
-  }
+.error-message {
+  color: red;
+}
   
-  .add-patient-button:hover {
-    color: #FFFFFF;
-    background-color: #0F172A;
-  }
+.patient-name {
+  display: block;
+  padding-top: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid lightgray;
+}
 
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-  }
-  
-  .detail-text {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-  
-  .detail-label {
-    font-size: 13px !important;
-  }
-  
-  .detail-value {
-    font-size: 13px !important;
-    color: gray;
-  }
-  
-  .detail-dropdown {
-    width: 105px;
-  }
-  
-  .add-detail-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 10px;
-    width: 90%;
-  }
-  
-  .add-detail-text {
-    flex: 1;
-    text-align: left;
-    padding-left: 60px;
-  }
-  
-  .add-detail-label {
-    font-size: 13px;
-  }
+.patient-info {
+  display: block;
+  margin-top: 15px;
+  text-align: left;
+  font-size: 14px;
+}
 
-  .vertical-line {
-    width: 100%;
-    height: 1px;
-    background-color: lightgray;
-    margin-top: 60px;
-  }
+.add-patient-box {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  background-color: white;
+  color: black;
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  width: 475px;
+  height: 700px;
+  margin-top: 20px;
+  position: relative;
+  padding-bottom:  60px;
+}
+
   
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 10;
-  }
+.remove-patient-button {
+  color: #ffffff;
+  background-color: #0F172A;
+  margin-top: 25px;
+  padding-left: 100px;
+  padding-right: 100px;
+  border-radius: 10px;
+}
 
-  input {
-    flex: 2;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-  }
+.remove-patient-button:hover {
+  color: #ffffff;
+  background-color: #0F172A;
+}
 
-  .cancel-button,
-  .save-button {
-    position: absolute;
-    bottom: 1rem;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: 0.4rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
+.add-patient-button {
+  color: #FFFFFF;
+  background-color: #0F172A;
+  margin-top: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+  border-radius: 10px;
+}
 
-  .cancel-button {
-    left: 1.5rem;
-    background-color: #0F172A;
-    color: white;
-  }
+.add-patient-button:hover {
+  color: #FFFFFF;
+  background-color: #0F172A;
+}
 
-  .save-button {
-    right: 1.5rem;
-    background-color: #0F172A;
-    color: white;
-  }
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+}
 
-  .center-remove-box {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 90%;
-    max-width: 500px;
-    z-index: 999;
-  }
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.detail-label {
+  font-size: 13px !important;
+}
+
+.detail-value {
+  font-size: 13px !important;
+  color: gray;
+}
+
+.detail-dropdown {
+  width: 105px;
+}
+
+.add-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 10px;
+  width: 90%;
+}
+
+.add-detail-text {
+  flex: 1;
+  text-align: left;
+  padding-left: 60px;
+}
+
+.add-detail-label {
+  font-size: 13px;
+}
+
+.vertical-line {
+  width: 100%;
+  height: 1px;
+  background-color: lightgray;
+  margin-top: 60px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+input {
+  flex: 2;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+
+.cancel-button,
+.save-button {
+  position: absolute;
+  bottom: 1rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.4rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancel-button {
+  left: 1.5rem;
+  background-color: #0F172A;
+  color: white;
+}
+
+.save-button {
+  right: 1.5rem;
+  background-color: #0F172A;
+  color: white;
+}
+
+.center-remove-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  z-index: 999;
+}
