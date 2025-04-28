@@ -327,6 +327,9 @@ export default function PatientInfo() {
                 </FormControl>
               </div>
 
+              {/* Save Changes Button */}
+              <button type="button" className="save-changes-button" onClick={handleRemovePatient}>Save Changes</button>
+
               {/* Remove Patient Button */}
               <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
 

@@ -164,11 +164,12 @@ app.post('/api/patients', async (req, res) => {
       weight,
     } = req.body;
 
-    // Validate input fields
+    // Validate required input fields
     if (!first_name || !last_name || !wearable_id) {
       return res.status(400).json({ error: 'First name, last name, and wearable ID are required fields.' });
     }
 
+    // Validate age input field
     if (age < 0 || age > 150) {
       return res.status(400).json({ error: 'Age is invalid.' });
     }
