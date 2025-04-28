@@ -71,7 +71,7 @@ export default function FallChart() {
   }, []);
 
   return (
-    <div className={styles.BarChart}>
+    <div className={styles.DoubleBarChart}>
         {/* Header */}
         <div className={styles.BarChartHeader}>
             <h1>Fall Chart</h1>
