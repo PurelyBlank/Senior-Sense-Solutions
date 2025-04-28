@@ -184,10 +184,10 @@ app.post('/api/patients', async (req, res) => {
     // Insert new patient in Patient table
     const result = await pool.query(
       `INSERT INTO patients (
-        caretaker_id, wearable_id, first_name, last_name, gender, age, weight
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING patient_id`,
-      [caretaker_id, wearable_id, first_name, last_name, gender, age, weight]
+      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight]
     );
 
     const patient_id = result.rows[0].patient_id;
@@ -225,7 +225,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, weight
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
@@ -238,6 +238,7 @@ app.get('/api/patients', async (req, res) => {
       last_name: patient.last_name,
       gender: patient.gender,
       age: patient.age,
+      height: patient.height,
       weight: patient.weight,
     }));
 
