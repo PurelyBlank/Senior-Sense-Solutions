@@ -1,7 +1,6 @@
 import FallChart from "./fallChart";
 import PatientActivity from "./patientActivity";
 import HeartRateChart from "./heartRateChart";
-import BloodOxygenChart from "./bloodOxygenChart";
 
 import './predictiveAnalysis.css'
 import PatientInfo from "../components/patient-component/PatientComponent";
@@ -11,13 +10,19 @@ export default function PredictiveAnalysisPage() {
     return (
       <div className = "PredictiveAnalysisContainer">
       
-        <div className = "ChartContainer">
-          <PatientActivity/>
-          <FallChart/>
-          <HeartRateChart/>
-          <BloodOxygenChart/>
+
+        <div className = "AllChartsContainer">
+          <div className = "FallChartContainer">
+            <FallChart/>
+          </div>
+    
+          <div className = "ChartContainer">
+            <PatientActivity/>
+            <HeartRateChart/>
+          </div>
         </div>
-  
+ 
+
         <div className = "PatientInfoContainer">
           <PatientInfo/>
         </div>

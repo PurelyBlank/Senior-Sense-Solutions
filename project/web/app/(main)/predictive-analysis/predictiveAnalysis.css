@@ -1,3 +1,9 @@
+.AllChartsContainer{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .ChartContainer {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -23,6 +29,7 @@
     .ChartContainer{
         grid-template-columns: 1fr;
     }
+    
 }
 
 html, body {
