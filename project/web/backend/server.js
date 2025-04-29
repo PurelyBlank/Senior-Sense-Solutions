@@ -138,7 +138,7 @@ app.post('/api/caretaker-firstname', async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to add Patient (POST request)
+// Patient component endpoint to add new Patient (POST request)
 app.post('/api/patients', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -212,7 +212,7 @@ app.post('/api/patients', async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve Patient rows (GET request)
+// Patient component endpoint to retrieve Patient rows (GET request)
 app.get('/api/patients', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -260,6 +260,66 @@ app.get('/api/patients', async (req, res) => {
     }
 
     res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Patient component to update Patient attributes (Gender, Age, Height, Weight)
+app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const caretaker_id = req.user.user_id;
+  const { gender, age, height, weight } = req.body;
+
+  try {
+    // Verify Patient exists and belongs to current user
+    const patientCheck = await pool.query(
+      'SELECT * FROM patients WHERE patient_id = $1 AND caretaker_id = $2',
+      [id, caretaker_id]
+    );
+    if (patientCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found or not authorized.' });
+    }
+
+    // Build dynamic update query
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    if (gender !== undefined) {
+      fields.push(`gender = $${index++}`);
+      values.push(gender);
+    }
+    if (age !== undefined) {
+      fields.push(`age = $${index++}`);
+      values.push(age);
+    }
+    if (height !== undefined) {
+      fields.push(`height = $${index++}`);
+      values.push(height);
+    }
+    if (weight !== undefined) {
+      fields.push(`weight = $${index++}`);
+      values.push(weight);
+    }
+
+    // Prevent update attempt if no input fields are filled
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No fields provided to update.' });
+    }
+
+    // Update gender, age, height, or weight for current Patient
+    const query = `UPDATE patients SET ${fields.join(', ')} WHERE patient_id = $${index} AND caretaker_id = $${index + 1} RETURNING *`;
+    values.push(id, caretaker_id);
+    
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found.' });
+    }
+
+    res.json({ patient: result.rows[0] });
+
+  } catch (err) {
+    console.error('Update Patient error:', err);
+    res.status(500).json({ error: 'Failed to update Patient.' });
   }
 });
 
