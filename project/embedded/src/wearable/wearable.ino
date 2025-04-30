@@ -58,7 +58,7 @@ int httpPostBiometricData(double heartRate) {  // add additional arguments as ne
         data["timestamp"]     = NULL;
         data["battery_level"] = NULL;
         data["heart_rate"]    = heartRate;
-        data["blood_oxyen"]   = -1;
+        data["blood_oxygen"]   = -1;
         data["longitude"]     = longitude;
         data["latitude"]      = latitude;
         data["num_falls"]     = NULL;
