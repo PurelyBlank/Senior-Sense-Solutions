@@ -3,7 +3,6 @@
   flex-direction: row;
   padding: 40px;
   /* gap: 40px; */
-  justify-items: center;
   flex-wrap: wrap;
   box-sizing: border-box;
   justify-content: center;
@@ -15,6 +14,30 @@
   align-items: center;
   gap: 10px;
   justify-content: center;
+}
+
+.gaugeChartContainer {
+  font-size: clamp(16px, 5vw, 32px);
+  display: flex;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  max-width: 400px;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  color: #33B7F7;
+  line-height: 1.2;
+  white-space: pre-line;
+  /* font-size: clamp(1rem, 5vw, 2rem); */
 }
 
 /* CHART CONTAINER */
@@ -34,8 +57,8 @@
 
 /* MAKE CANVAS FILL BAR CHART */
 .bar-chart-canvas {
-  width: 100% !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
 }
 
 /* BUTTON NAV (Time Range Selector) */
@@ -47,8 +70,7 @@
   padding-top: 1rem;
 }
 
-.left-column,
-.PatientInfoContainer {
+.left-column {
   flex: 1 1 48%;
   min-width: 320px;
   box-sizing: border-box;
@@ -59,4 +81,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.gauge-percent {
+  font-size: 2em;
+}
+
+.gauge-label {
+  font-size: 1em;
+}
+
+.gauge-responsive {
+  width: 20em;
+  height: 20em;
 }
