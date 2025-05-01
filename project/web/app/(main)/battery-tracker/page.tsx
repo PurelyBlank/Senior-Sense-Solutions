@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import "./battery-tracker.css";
 import GaugeClient from './batteryGauge';
 import BarChart from './barChart';
-import PatientInfo from '../components/patient-component/PatientComponent';
 import PatientDropdown from "../components/patient-component/patient-dropdown";
 
 
@@ -14,8 +13,8 @@ export default function BatteryTrackerPage() {
     return (
       <div className = "BatteryTrackerPageContainer">
         <div className="left-column">
-            <GaugeClient value={80} />
-
+          <GaugeClient value={80} />
+            
           {/* Navigation Bar */}
           <div style={{ margin: '16px 0', display: 'flex', gap: '8px' }}>
               {['24h', '7d', '30d'].map((range) => (
