@@ -69,6 +69,13 @@
   font-size: 14px;
 }
 
+.edit-age-slot,
+.edit-weight-slot {
+  width: 105px;
+  max-width: 105px;
+  min-width: 105px;
+}
+
 .add-patient-box {
   display: block;
   flex-direction: column;
@@ -86,6 +93,12 @@
   margin-top: 20px;
   position: relative;
   padding-bottom:  60px;
+}
+
+.add-detail-dropdown {
+  width: 215px;
+  max-width: 215px;
+  min-width: 215px;
 }
 
 .save-changes-button {
