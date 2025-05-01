@@ -52,6 +52,18 @@ export default function BarChart({ timeRange }: BarChartProps) {
           legend: {
             display: true,
             position: 'top',
+            labels: {
+              font: function(context) {
+                const width = context.chart.width;
+                let size = Math.round(width / 32); // tweak this factor to your needs
+                size = size < 10 ? 10 : size;       // minimum size
+                size = size > 18 ? 18 : size;       // maximum size
+                return {
+                  size: size,
+                  weight: 'bold'
+                };
+              }
+            }
           },
           tooltip: {
             enabled: true,
@@ -84,5 +96,3 @@ export default function BarChart({ timeRange }: BarChartProps) {
 
   return <canvas ref={chartRef} className="bar-chart-canvas" />;
 }
-
-// make a commit
