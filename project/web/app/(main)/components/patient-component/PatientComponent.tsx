@@ -329,22 +329,13 @@ export default function PatientInfo() {
                     <span className="detail-label">Age</span>
                     <span className="detail-value">{age || "None specified"}</span>
                   </div>
-                  <FormControl size="small" className="detail-dropdown">
-                    <InputLabel id="select-age">Edit</InputLabel>
-                    <Select 
-                      labelId="select-age-label"
-                      id="select-age"
-                      label="Age"
-                      value={age}
-                      onChange={handleAgeChange}
-                    >
-                      {[...Array(100)].map((_, i) => (
-                        <MenuItem key={i} value={i + 1}>
-                          {i + 1}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <input
+                    className="edit-age-slot"
+                    placeholder="Edit"
+                    type="number"
+                    value={age}
+                    onChange={handleAgeChange}
+                  />
                 </div>
 
                 {/* Height */}
@@ -377,22 +368,13 @@ export default function PatientInfo() {
                     <span className="detail-label">Weight</span>
                     <span className="detail-value">{weight || "None specified"}</span>
                   </div>
-                  <FormControl size="small" className="detail-dropdown">
-                    <InputLabel id="select-weight">Edit</InputLabel>
-                    <Select 
-                      labelId="select-weight-label" 
-                      id="select-weight"
-                      label="Weight"
-                      value={weight}
-                      onChange={handleWeightChange}
-                    >
-                      {[...Array(300)].map((_, i) => (
-                        <MenuItem key={i} value={i + 50}>
-                          {i + 50} lbs
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <input
+                    className="edit-weight-slot"
+                    placeholder="Edit"
+                    type="number"
+                    value={weight}
+                    onChange={handleWeightChange}
+                  />
                 </div>
 
                 {/* Save Changes Button */}
@@ -447,7 +429,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-gender-label">Gender</InputLabel>
                   <Select
                     labelId="add-gender-label"
@@ -482,7 +464,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-height-label">Height</InputLabel>
                   <Select
                     labelId="add-height-label"
