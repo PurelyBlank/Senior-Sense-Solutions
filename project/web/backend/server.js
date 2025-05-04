@@ -294,7 +294,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
         JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 2
+        WHERE c.user_id = $1 AND p.patient_id = 1
         ORDER BY wd.timestamp DESC;
       `,
       [user_id]
@@ -425,4 +425,71 @@ app.post('/api/wearable_data/insert', async (req, res) => {
 // Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+});
+
+// Battery Tracker- ring endpoint (POST request)
+app.post('/api/battery-tracker', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log('No authorization header provided.');
+
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log('Malformed authorization header.');
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user_id = decoded.user_id;
+
+    if (!user_id) {
+      console.log('No user in decoded token.');
+      
+      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT
+          c.user_id AS caretaker_id,
+          c.first_name AS caretaker_first_name,
+          p.patient_id,
+          p.first_name AS patient_first_name,
+          p.wearable_id,
+          wd.timestamp,
+          wd.battery_level
+        FROM caretaker c
+        JOIN patients p ON c.user_id = p.caretaker_id
+        JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
+        WHERE c.user_id = $1 AND p.patient_id = 1
+        ORDER BY wd.timestamp DESC;
+    `,
+      [user_id]
+    );
+    
+    const wearable_data = result.rows[0];
+
+    if (!wearable_data) {
+      return res.status(404).json({ error: 'wearable_data not found.' });
+    }
+
+    res.json({ batteryLevel: wearable_data.battery_level });
+
+  } catch (err) {
+    console.error('Battery tracker error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
 });
