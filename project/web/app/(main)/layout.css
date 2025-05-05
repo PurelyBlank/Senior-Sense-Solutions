@@ -8,6 +8,8 @@ html, body {
   height: 100%;
   font-family: 'Inter', sans-serif;
   background-color: #FFFFFF;
+  width: 100%;
+  overflow-x: hidden; 
 }
 
 h1 {
@@ -31,17 +33,12 @@ p {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  z-index: 200; 
+  z-index: 200;
+  max-width: 100%;
 }
 
-.top-bar .logo {
-  font-size: 1.125rem;
-  font-weight: bold;
-}
-
-.top-bar .dash {
-  font-size: 1.125rem;
-  font-weight: bold;
+.top-bar .logo, .top-bar .dash {
+  font-size: clamp(1rem, 4vw, 1.125rem); /* Dynamic font size */
 }
 
 .top-bar .icon {
@@ -59,7 +56,7 @@ p {
 }
 
 .top-bar .icon button:hover {
-  opacity: 0.8; 
+  opacity: 0.8;
 }
 
 /* Sidebar - Starts below the top bar */
@@ -67,8 +64,8 @@ p {
   position: fixed;
   top: 3.5rem;
   left: 0;
-  width: 120px;
-  height: calc(100vh - 3.5rem); 
+  width: 200px;
+  height: calc(100vh - 3.5rem);
   background-color: #005686;
   transition: width 0.3s ease;
   overflow-y: auto;
@@ -78,6 +75,7 @@ p {
   z-index: 100;
   padding-top: 1rem;
   position: relative;
+  border-right: 2px solid #003d5c; 
 }
 
 /* Collapsed Sidebar */
@@ -126,20 +124,20 @@ p {
   flex-direction: column;
   gap: 0;
   margin-top: 0;
-  padding-left: 30px; 
+  padding-left: 30px;
 }
 
 .nav-links a {
   color: white;
-  font-size: 16px;
+  font-size: clamp(0.75rem, 2vw, 1rem); 
   padding: 18px 18px;
-  text-align: center; 
+  text-align: center;
   text-decoration: none;
   display: flex;
-  flex-direction: column; 
-  align-items: center; 
+  flex-direction: column;
+  align-items: center;
   position: relative;
-  transition: background-color 0.3s ease, font-weight 0.1s ease,;
+  transition: background-color 0.3s ease, font-weight 0.1s ease;
   border-bottom: 1px solid white; 
 }
 
@@ -151,37 +149,25 @@ p {
   font-weight: bold;
 }
 
-/* Remove left arrows before links */
 .nav-links a::before {
   content: "";
 }
 
-/* Default icon size */
 .nav-links a svg {
   margin-bottom: 4px; 
   width: 34px; 
   height: 34px; 
 }
 
-/* Reduce icon size when sidebar is collapsed */
-.sidebar.collapsed .nav-links a svg {
-  width: 12px; 
-  height: 12px; 
-}
-
-/* Reduce the horizontal line size when sidebar is collapsed */
-.sidebar.collapsed .nav-links a {
-  padding-left: 8px; 
-  padding-right: 8px; 
-  font-size: 12px; 
-}
-
 .sidebar.collapsed .nav-links a svg {
   width: 12px; 
   height: 12px; 
 }
 
 .sidebar.collapsed .nav-links a {
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: clamp(0.75rem, 1.5vw, 1rem); 
   border-bottom: 0.5px solid white; 
 }
 
@@ -189,7 +175,7 @@ p {
   background: none;
   border: none;
   color: white;
-  font-size: 16px;
+  font-size: clamp(0.75rem, 1.5vw, 1rem); 
   padding: 24px 24px;
   text-align: center;
   display: flex;
@@ -197,9 +183,9 @@ p {
   align-items: center;
   position: relative;
   transition: background-color 0.3s ease, font-weight 0.1s ease;
-  border-bottom: 1px solid white; 
+  border-bottom: 1px solid white;
   cursor: pointer;
-  width: 100%; 
+  width: 100%;
 }
 
 .nav-button:hover {
@@ -219,17 +205,18 @@ p {
 
 /* Main Content */
 .main-content {
-  flex-grow: 1; 
+  flex-grow: 1;
   padding: 20px;
-  margin-top: 5.5rem; 
-  overflow-y: auto; 
+  margin-top: 5.5rem;
+  overflow-y: auto;
+  max-width: 100%; 
+  width: 100%;
 }
-
 
 .flex {
   display: flex;
-  flex-direction: row; 
-  height: 100vh; 
+  flex-direction: row;
+  height: 100vh;
 }
 
 .flex.flex-1 {
@@ -239,40 +226,83 @@ p {
   overflow: hidden;
 }
 
-
 .sidebar.collapsed + .main-content {
-  margin-left: 0px;
+  margin-left: 80px;
 }
 
-
-/* Responsive styles for mobile */
-@media (max-width: 768px) {
-  .top-bar {
-    padding: 0 1rem;
-  }
-  
-  .top-bar .logo {
-    font-size: 1rem;
-  }
-
-  .main-content {
-    margin-left: 60px;
-  }
-}
 
 .page-name-bar {
   width: 100%;
-  height: 2rem; 
+  height: 2rem;
   background: #CFA329;
   color: white;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  font-size: 0.90rem;
+  font-size: clamp(0.75rem, 2vw, 1rem); 
   font-weight: bold;
   position: fixed;
-  top: 3.5rem; 
-  z-index: 80; 
-  padding-left: 140px;
+  top: 3.5rem;
+  z-index: 80;
+  padding-left: 200px;
   padding-right: 20px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 120px; 
+  }
+
+  .sidebar.collapsed {
+    width: 80px; 
+  }
+
+  .top-bar {
+    padding: 0 1rem;
+  }
+
+  .top-bar .logo,
+  .top-bar .dash {
+    font-size: 0.875rem; 
+  }
+
+  .top-bar .icon button {
+    font-size: 1rem; 
+  }
+
+  .nav-links a {
+    font-size: 0.75rem; 
+    padding: 12px 12px; 
+  }
+
+  .nav-links a:hover {
+    font-weight: normal; 
+  }
+
+  .nav-button {
+    font-size: 0.75rem; 
+    padding: 18px 18px; 
+  }
+
+  .collapse-btn {
+    font-size: 1.25rem; 
+  }
+
+  .page-name-bar {
+    font-size: 0.875rem; 
+    padding-left: 120px; 
+  }
+
+  .main-content {
+    margin-left: 20px; 
+  }
+
+  .sidebar.collapsed .nav-links a {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .main-content {
+    font-size: 0.575rem; 
+  }
 }
