@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState } from 'react';
-import "./battery-tracker.css";
+
 import GaugeClient from './batteryGauge';
 import PatientInfo from "../components/patient-component/PatientComponent";
 
-
+import "./battery-tracker.css";
 
 export default function BatteryTrackerPage() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
