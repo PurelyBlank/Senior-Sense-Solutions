@@ -284,7 +284,7 @@ app.get('/api/patients', async (req, res) => {
   }
 });
 
-// Patient component to update Patient attributes (Gender, Age, Height, Weight)
+// Patient component endpoint to update Patient attributes (Gender, Age, Height, Weight)
 app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const caretaker_id = req.user.user_id;
@@ -344,10 +344,12 @@ app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Patient component endpoint to delete a patient row
 app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Delete row from Patients table
     const result = await pool.query("DELETE FROM patients WHERE patient_id = $1", [id]);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Patient not found" });
