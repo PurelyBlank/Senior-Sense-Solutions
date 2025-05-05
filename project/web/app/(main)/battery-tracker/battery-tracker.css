@@ -72,18 +72,14 @@
 
 .left-column {
   flex: 1 1 50%;
-  /* min-width: 320px; */
   box-sizing: border-box;
   justify-content: center;
-  /* border: 1px solid gray; */
 }
 
 .right-column {
   flex: 1 1 50%;
-  /* min-width: 320px; */
   box-sizing: border-box;
   justify-content: center;
-  /* border: 1px solid gray; */
 }
 
 
