@@ -3,7 +3,6 @@
 import { Gauge, gaugeClasses } from '@mui/x-charts';
 import { useState, useEffect } from 'react';
 
-
 export default function GaugeClient() {
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [, setError] = useState('');
@@ -51,7 +50,7 @@ export default function GaugeClient() {
     // Fetch battery level
     handleFetchBatteryLevel();
 
-    // set interval to fetch battery every 1 min
+    // Set interval to fetch battery every 1 min
     const intervalId = setInterval(handleFetchBatteryLevel, 60000);
 
     return () => clearInterval(intervalId);
@@ -82,20 +81,20 @@ export default function GaugeClient() {
         })}
       />
       <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            pointerEvents: 'none',
-            lineHeight: 1.2,
-            color: '#33B7F7',
-        }}>
-            <div className="gauge-overlay">
-              <div className="gauge-percent">{`${batteryLevel}%`}</div>
-              <div className="gauge-label">{`───────\n${rounded} hours\nRemaining`}</div>
-            </div>
-        </div>
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        textAlign: 'center',
+        pointerEvents: 'none',
+        lineHeight: 1.2,
+        color: '#33B7F7',
+      }}>
+      <div className="gauge-overlay">
+        <div className="gauge-percent">{`${batteryLevel}%`}</div>
+        <div className="gauge-label">{`───────\n${rounded} hours\nRemaining`}</div>
+      </div>
     </div>
+  </div>
   );
 }
