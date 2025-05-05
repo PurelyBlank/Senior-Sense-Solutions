@@ -39,7 +39,7 @@
   border-radius: 15px;
   border: 1px solid lightgray;
   width: 475px;
-  height: 610px !important;
+  height: 630px !important;
   margin-top: 20px;
 }
   
@@ -199,7 +199,7 @@
   width: 100%;
   height: 1px;
   background-color: lightgray;
-  margin-top: 60px;
+  margin-top: 75px;
 }
 
 .overlay {
