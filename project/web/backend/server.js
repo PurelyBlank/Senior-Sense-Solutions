@@ -344,6 +344,24 @@ app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
   }
 });
 
+app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query("DELETE FROM patients WHERE patient_id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    res.json({ message: "Patient deleted successfully" });
+
+  } catch (err) {
+    console.error("Error deleting patient:", err);
+    
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate', async (req, res) => {
   try {

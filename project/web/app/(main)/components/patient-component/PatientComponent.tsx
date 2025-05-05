@@ -223,6 +223,56 @@ export default function PatientInfo() {
     }
   }
 
+  const handleConfirmRemovePatient = async () => {
+    if (!patient) {
+      setError("Please select a patient to remove.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const selectedPatient = patients.find(
+        (p) => `${p.first_name} ${p.last_name}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error("Selected patient not found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+  
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete patient.");
+      }
+  
+      // Remove patient from dropdown
+      setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
+      setPatient('');
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+      setIsRemovePatient(false);
+      setError('');
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Remove patient error:", err);
+    }
+  };
+
   // Helper function to clear all input fields in Add Patient form
   const clearForm = () => {
     setFirstName('');
@@ -528,7 +578,7 @@ export default function PatientInfo() {
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
 
           {/* Continue button */}
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
+          <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
     </div>
