@@ -271,24 +271,23 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <p className="dropdown-label">Select Patient</p>
-            <FormControl fullWidth size="small" style={{ width: 430 }}>
-              <InputLabel id="select-patient">Select</InputLabel>
-              <Select
-                labelId="select-patient-label"
-                id="select-patient"
-                label="Patient"
-                value={patient}
-                onChange={handlePatientChange}
-              >
-                {patients.map((p) => (
-                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
-                    {p.first_name + " " + p.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          <FormControl fullWidth size="small" style={{ width: 430 }}>
+            <InputLabel id="select-patient">Select Patient</InputLabel>
+            <Select
+              labelId="select-patient-label"
+              id="select-patient"
+              label="Patient"
+              value={patient}
+              onChange={handlePatientChange}
+            >
+              {patients.map((p) => (
+                <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                  {p.first_name + " " + p.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
 
           {/* Patient Box */}
           {!isAddPatient ? (
