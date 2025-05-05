@@ -71,17 +71,21 @@
 }
 
 .left-column {
-  flex: 1 1 48%;
-  min-width: 320px;
+  flex: 1 1 50%;
+  /* min-width: 320px; */
   box-sizing: border-box;
+  justify-content: center;
+  /* border: 1px solid gray; */
 }
 
-.patient-dropdown-container {
-  display: block;
-  display: flex;
+.right-column {
+  flex: 1 1 50%;
+  /* min-width: 320px; */
+  box-sizing: border-box;
   justify-content: center;
-  align-items: center;
+  /* border: 1px solid gray; */
 }
+
 
 .gauge-percent {
   font-size: 2em;
