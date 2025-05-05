@@ -59,7 +59,10 @@ export default function PatientInfo() {
           throw new Error("No authentication token found.");
         }
 
-        const response = await fetch("http://localhost:5000/api/patients", {
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/patients`;
+
+        const response = await fetch(apiUrl, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -114,7 +117,10 @@ export default function PatientInfo() {
         weight: weight ? parseInt(weight) : null,
       };
 
-      const response = await fetch("http://localhost:5000/api/patients", {
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,6 +156,123 @@ export default function PatientInfo() {
     }
   };
 
+  // Fetch request for updating Patient attributes (Gender, Age, Height, Weight)
+  const handleSavePatientChanges = async () => {
+    if (!patient) {
+      setError('Please select a patient to edit.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error('No authentication token found.');
+      }
+
+      const selectedPatient = patients.find(
+        (p) => `${p.first_name} ${p.last_name}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error('Selected patient not found.')
+      }
+
+      const patientData = {
+        gender: gender || null,
+        age: age ? parseInt(age) : null,
+        height: height || null,
+        weight: weight ? parseInt(weight) : null,
+      };
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update patient.");
+      }
+
+      // Update patient list locally
+      setPatients(patients.map((p) =>
+        p.patient_id === selectedPatient.patient_id
+          ? {
+            patient_id: p.patient_id,
+            wearable_id: p.wearable_id,
+            first_name: p.first_name,
+            last_name: p.last_name,
+            gender: patientData.gender ?? undefined,
+            age: patientData.age ?? undefined,
+            height: patientData.height ?? undefined,
+            weight: patientData.weight ?? undefined,
+            }
+          : p
+      ));
+
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Update patient error:", err);
+    }
+  }
+
+  const handleConfirmRemovePatient = async () => {
+    if (!patient) {
+      setError("Please select a patient to remove.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const selectedPatient = patients.find(
+        (p) => `${p.first_name} ${p.last_name}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error("Selected patient not found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+  
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete patient.");
+      }
+  
+      // Remove patient from dropdown
+      setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
+      setPatient('');
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+      setIsRemovePatient(false);
+      setError('');
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Remove patient error:", err);
+    }
+  };
+
   // Helper function to clear all input fields in Add Patient form
   const clearForm = () => {
     setFirstName('');
@@ -162,9 +285,28 @@ export default function PatientInfo() {
     setError('');
   };
 
-  // Setters for Patient row attribute changes
+  // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    setPatient(event.target.value as string);
+    const selectedFullName = event.target.value as string;
+    setPatient(selectedFullName);
+
+    // Find the selected patient
+    const selectedPatient = patients.find(
+      (p) => `${p.first_name} ${p.last_name}` === selectedFullName
+    );
+
+    if (selectedPatient) {
+      setGender(selectedPatient.gender || '');
+      setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
+      setHeight(selectedPatient.height || '');
+      setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+    } else {
+      // Clear Patient attribute fields if no Patient is selected
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+    }
   };
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
@@ -179,139 +321,124 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <p className="dropdown-label">Select Patient</p>
-            <FormControl fullWidth size="small" style={{ width: 430 }}>
-              <InputLabel id="select-patient">Select</InputLabel>
-              <Select
-                labelId="select-patient-label"
-                id="select-patient"
-                label="Patient"
-                value={patient}
-                onChange={handlePatientChange}
-              >
-                {patients.map((p) => (
-                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
-                    {p.first_name + " " + p.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          <FormControl fullWidth size="small" style={{ width: 430 }}>
+            <InputLabel id="select-patient">Select Patient</InputLabel>
+            <Select
+              labelId="select-patient-label"
+              id="select-patient"
+              label="Patient"
+              value={patient}
+              onChange={handlePatientChange}
+            >
+              {patients.map((p) => (
+                <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                  {p.first_name + " " + p.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
 
           {/* Patient Box */}
           {!isAddPatient ? (
-          <div className="patient-box">
-            {/* Profile Icon and Patient Name */}
-            <CgProfile className="patient-icon" size={95} />
-            <span className="patient-name">{patient || "Select a patient"}</span>
-            <span className="patient-info">Patient Info</span>
+            <div className="patient-box">
+              {/* Profile Icon and Patient Name */}
+              <CgProfile className="patient-icon" size={95} />
+              <span className="patient-name">{patient || "Select a patient"}</span>
+              <span className="patient-info">Patient Info</span>
+              {error && <div className="error-message" role="alert">{error}</div>}
 
-            {/* Patient Details Rows */}
-            <div className="patient-details">
-              {/* Gender */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Gender</span>
-                  <span className="detail-value">{gender || "None specified"}</span>
+              {/* Patient Details Rows */}
+              <div className="patient-details">
+                {/* Gender */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Gender</span>
+                    <span className="detail-value">{gender || "None specified"}</span>
+                  </div>
+                  <FormControl size="small" className="detail-dropdown">
+                    <InputLabel id="select-gender">Edit</InputLabel>
+                    <Select 
+                      labelId="select-gender-label" 
+                      id="select-gender" 
+                      label="Gender" 
+                      value={gender} 
+                      onChange={handleGenderChange}
+                    >
+                      <MenuItem value="Male">Male</MenuItem>
+                      <MenuItem value="Female">Female</MenuItem>
+                      <MenuItem value="Other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-gender">Edit</InputLabel>
-                  <Select 
-                    labelId="select-gender-label" 
-                    id="select-gender" 
-                    label="Gender" 
-                    value={gender} 
-                    onChange={handleGenderChange}
-                  >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
 
-              {/* Age */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Age</span>
-                  <span className="detail-value">{age || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-age">Edit</InputLabel>
-                  <Select 
-                    labelId="select-age-label"
-                    id="select-age"
-                    label="Age"
+                {/* Age */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Age</span>
+                    <span className="detail-value">{age || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-age-slot"
+                    placeholder="Edit"
+                    type="number"
                     value={age}
                     onChange={handleAgeChange}
-                  >
-                    {[...Array(100)].map((_, i) => (
-                      <MenuItem key={i} value={i + 1}>
-                        {i + 1}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Height */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Height</span>
-                  <span className="detail-value">{height || "None specified"}</span>
+                  />
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-height">Edit</InputLabel>
-                  <Select 
-                    labelId="select-height-label"
-                    id="select-height"
-                    label="Height"
-                    value={height}
-                    onChange={handleHeightChange}
-                  >
-                    {generateHeightOptions().map((heightOption) => (
-                      <MenuItem key={heightOption} value={heightOption}>
-                        {heightOption}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
 
-              {/* Weight */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Weight</span>
-                  <span className="detail-value">{weight || "None specified"}</span>
+                {/* Height */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Height</span>
+                    <span className="detail-value">{height || "None specified"}</span>
+                  </div>
+                  <FormControl size="small" className="detail-dropdown">
+                    <InputLabel id="select-height">Edit</InputLabel>
+                    <Select 
+                      labelId="select-height-label"
+                      id="select-height"
+                      label="Height"
+                      value={height}
+                      onChange={handleHeightChange}
+                    >
+                      {generateHeightOptions().map((heightOption) => (
+                        <MenuItem key={heightOption} value={heightOption}>
+                          {heightOption}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-weight">Edit</InputLabel>
-                  <Select 
-                    labelId="select-weight-label" 
-                    id="select-weight"
-                    label="Weight"
+
+                {/* Weight */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Weight</span>
+                    <span className="detail-value">{weight || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-weight-slot"
+                    placeholder="Edit"
+                    type="number"
                     value={weight}
                     onChange={handleWeightChange}
-                  >
-                    {[...Array(300)].map((_, i) => (
-                      <MenuItem key={i} value={i + 50}>
-                        {i + 50} lbs
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  />
+                </div>
+
+                {/* Save Changes Button */}
+                <button type="button" className="save-changes-button" onClick={handleSavePatientChanges}>Save Changes</button>
+
+                {/* Remove Patient Button */}
+                <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
+
+                {/* Vertical Line Above Add Patient Button */}
+                <div className="vertical-line"></div>
+
+                {/* Add Patient Button */}
+                <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
               </div>
-
-              {/* Remove Patient Button */}
-              <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
-
-              {/* Vertical Line Above Add Patient Button */}
-              <div className="vertical-line"></div>
-
-              {/* Add Patient Button */}
-              <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
-          </div>
           ) : (
           <div className="add-patient-box">
             <h5>Add New Patient</h5>
@@ -351,7 +478,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-gender-label">Gender</InputLabel>
                   <Select
                     labelId="add-gender-label"
@@ -386,7 +513,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-height-label">Height</InputLabel>
                   <Select
                     labelId="add-height-label"
@@ -451,7 +578,7 @@ export default function PatientInfo() {
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
 
           {/* Continue button */}
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
+          <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
     </div>

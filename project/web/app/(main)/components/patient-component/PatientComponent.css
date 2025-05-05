@@ -39,10 +39,9 @@
   border-radius: 15px;
   border: 1px solid lightgray;
   width: 475px;
-  height: 550px;
+  height: 630px !important;
   margin-top: 20px;
 }
-
   
 .patient-icon {
   display: block;
@@ -53,7 +52,7 @@
 }
 
 .error-message {
-  color: red;
+  color: #ff0000;
 }
   
 .patient-name {
@@ -68,6 +67,13 @@
   margin-top: 15px;
   text-align: left;
   font-size: 14px;
+}
+
+.edit-age-slot,
+.edit-weight-slot {
+  width: 105px;
+  max-width: 105px;
+  min-width: 105px;
 }
 
 .add-patient-box {
@@ -89,33 +95,58 @@
   padding-bottom:  60px;
 }
 
-  
-.remove-patient-button {
+.add-detail-dropdown {
+  width: 215px;
+  max-width: 215px;
+  min-width: 215px;
+}
+
+.save-changes-button {
   color: #ffffff;
   background-color: #0F172A;
+  border: #0F172A;
+  border-radius: 10px;
   margin-top: 25px;
   padding-left: 100px;
   padding-right: 100px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.save-changes-button:hover {
+  background-color: #1e2b4e;
+}
+
+.remove-patient-button {
+  color: #ffffff;
+  background-color: #ff0000;
+  border: #ff0000;
   border-radius: 10px;
+  margin-top: 25px;
+  padding-left: 100px;
+  padding-right: 100px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .remove-patient-button:hover {
-  color: #ffffff;
-  background-color: #0F172A;
+  background-color: #ff4848;
 }
 
 .add-patient-button {
   color: #FFFFFF;
   background-color: #0F172A;
+  border: #0F172A;
+  border-radius: 10px;
   margin-top: 20px;
   padding-left: 100px;
   padding-right: 100px;
-  border-radius: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .add-patient-button:hover {
-  color: #FFFFFF;
-  background-color: #0F172A;
+  background-color: #1e2b4e;
 }
 
 .detail-row {
@@ -168,7 +199,7 @@
   width: 100%;
   height: 1px;
   background-color: lightgray;
-  margin-top: 60px;
+  margin-top: 75px;
 }
 
 .overlay {
@@ -204,12 +235,24 @@ input {
   left: 1.5rem;
   background-color: #0F172A;
   color: white;
+  border: #0F172A;
+  border-radius: 10px;
+}
+
+.cancel-button:hover {
+  background-color: #1e2b4e;
 }
 
 .save-button {
   right: 1.5rem;
   background-color: #0F172A;
   color: white;
+  border: #0F172A;
+  border-radius: 10px;
+}
+
+.save-button:hover {
+  background-color: #1e2b4e;
 }
 
 .center-remove-box {
