@@ -1,7 +1,7 @@
 .BatteryTrackerPageContainer {
   display: flex;
   flex-direction: row;
-  padding: 40px;
+  padding-bottom: 80px;
   /* gap: 40px; */
   flex-wrap: wrap;
   box-sizing: border-box;
@@ -71,17 +71,17 @@
 }
 
 .left-column {
-  flex: 1 1 48%;
-  min-width: 320px;
+  flex: 1 1 50%;
   box-sizing: border-box;
+  justify-content: center;
 }
 
-.patient-dropdown-container {
-  display: block;
-  display: flex;
+.right-column {
+  flex: 1 1 50%;
+  box-sizing: border-box;
   justify-content: center;
-  align-items: center;
 }
+
 
 .gauge-percent {
   font-size: 2em;
