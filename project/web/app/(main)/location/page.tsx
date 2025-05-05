@@ -78,7 +78,9 @@ export default function LocationPage() {
               )}
             </GoogleMap>
             
-            <PatientDropdownLocation/>
+            <div className ="location-patient-dropdown-container">
+              <PatientDropdownLocation/>
+            </div>
 
           </>
         ) : (
