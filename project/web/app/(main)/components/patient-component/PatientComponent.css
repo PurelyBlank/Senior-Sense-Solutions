@@ -5,12 +5,7 @@
   min-width: 500px;
   justify-content: center;
   align-items: center;
-}
-
-.dropdown-label {
-  margin-top: -15px;
-  margin-bottom: 10px;
-  font-size: 16px;
+  margin-top: -20px;
 }
 
 .dropdown-wrapper {
@@ -19,12 +14,6 @@
   align-items: flex-start;
   width: 430px; 
 }
-
-.dropdown-label {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
 
 .patient-box {
   display: block;
