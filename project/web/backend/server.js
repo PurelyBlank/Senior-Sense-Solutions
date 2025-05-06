@@ -378,15 +378,22 @@ app.post('/api/patient-heartrate', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const user_id = decoded.user_id;
 
-    if (!user_id) {
-      console.log("No user_id in decoded token");
-      
-      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    const wearable_id = req.body.wearable_id;
+
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here" });
     }
+    console.log(wearable_id);
+    //const user_id = decoded.user_id;
+
+    //if (!user_id) {
+    //  console.log("No user_id in decoded token");
+    //  
+    //  return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    //}
     
-    const result = await pool.query(
+    /*const result = await pool.query(
       `
         SELECT
           c.user_id AS caretaker_id,
@@ -400,17 +407,31 @@ app.post('/api/patient-heartrate', async (req, res) => {
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
         JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 1
+        WHERE c.user_id = $1 AND p.patient_id = $2
         ORDER BY wd.timestamp DESC;
       `,
       [user_id]
+    );*/
+
+    const result = await pool.query(
+      `
+        SELECT
+          wearable_id,
+          timestamp,
+          heart_rate
+        FROM wearable_data 
+        WHERE wearable_id = $1 
+        ORDER BY timestamp DESC;
+      `,
+      [wearable_id]
     );
+
     const patient_data = result.rows[0];
 
     if (!patient_data) {
-      console.log("patient_data not found for user_id:", user_id);
+      console.log("patient_data not found for patient with wearable: ", wearable_id);
 
-      return res.status(404).json({ error: 'patient_data not found.' });
+      return res.status(404).json({ error: 'patient_data not found (heartrate)' });
     }
 
     res.json({ 
@@ -430,6 +451,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
     res.status(500).json({ error: 'Server error.' });
   }
 });
+
 
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
 app.post('/api/caretaker-fullname', async (req, res) => {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useWearable } from "../../context/Wearable-context"; 
+
 
 import { CgProfile } from "react-icons/cg";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
@@ -84,6 +86,7 @@ export default function PatientInfo() {
 
     fetchPatients();
   }, []);
+
 
   // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
@@ -285,21 +288,31 @@ export default function PatientInfo() {
     setError('');
   };
 
+  const { setWearable_id } = useWearable();
+
   // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    const selectedFullName = event.target.value as string;
-    setPatient(selectedFullName);
+    //const selectedPatientAll: Patient = JSON.parse(event.target.value);
+    //setPatient( selectedPatientAll.first_name + " " + selectedPatientAll.last_name); 
+    const selectedId = Number(event.target.value); 
+    const selectedPatient = patients.find((p) => p.patient_id === selectedId);
+
+    //const selectedFullName = selectedPatientAll.first_name + " " + selectedPatientAll.last_name;
 
     // Find the selected patient
-    const selectedPatient = patients.find(
-      (p) => `${p.first_name} ${p.last_name}` === selectedFullName
-    );
+    //const selectedPatient = patients.find(
+    //  (p) => `${p.first_name} ${p.last_name}` === selectedFullName
+    //);
 
     if (selectedPatient) {
+      setPatient(`${selectedPatient.first_name} ${selectedPatient.last_name}`);
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
       setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+      if (selectedPatient.wearable_id !== undefined) {
+        setWearable_id(selectedPatient.wearable_id);
+      }
     } else {
       // Clear Patient attribute fields if no Patient is selected
       setGender('');
@@ -307,6 +320,8 @@ export default function PatientInfo() {
       setHeight('');
       setWeight('');
     }
+
+
   };
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
@@ -331,7 +346,7 @@ export default function PatientInfo() {
               onChange={handlePatientChange}
             >
               {patients.map((p) => (
-                <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                <MenuItem key={p.patient_id} value={p.patient_id}>
                   {p.first_name + " " + p.last_name}
                 </MenuItem>
               ))}
