@@ -1,7 +1,8 @@
 "use client"
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import styles from "./charts.module.css";
+
 
 Chart.register(...registerables);
 
@@ -9,6 +10,9 @@ Chart.register(...registerables);
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
+  const [activateFallChart, setactivateFallChart] = useState(false); 
+
+  
 
   useEffect(() => {
     if (chartRef.current) {
@@ -36,7 +40,12 @@ export default function FallChart() {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-        
+
+          onClick : (event, element) =>{
+            if (element.length > 0 ){
+              setactivateFallChart(true);
+            }
+          },
           scales: {
             x: {
               grid: {
@@ -57,6 +66,8 @@ export default function FallChart() {
               display: false,
             },
           },
+
+        
         }
         
         
@@ -72,6 +83,7 @@ export default function FallChart() {
 
   return (
     <div className={styles.DoubleBarChart}>
+      
         {/* Header */}
         <div className={styles.BarChartHeader}>
             <h1>Fall Chart</h1>
@@ -100,6 +112,26 @@ export default function FallChart() {
                 <p>Showing total falls over the last six weeks</p>
             </div>
         </div>
+
+        {activateFallChart && (
+          <div className="overlay">
+            <div className="center-remove-box">
+              {/* Warning text */}
+              <p className="title-bold">Past Falls From 1/20-1/26</p>
+              <p>Click on a date to see more details about the event</p>
+
+              <div className = {styles.fallDetailsContainer}>
+                <h1 className = {styles.fallButton}>January 22, 2025 </h1>
+                <h1 className = {styles.fallButton}>January 24, 2025</h1>
+              </div>
+              {/* Cancel button */}
+              <button type='button' className='cancel-button' onClick={() => setactivateFallChart(false)}>Exit</button>
+              {/* Continue button */}
+            </div>
+            
+          </div>
+        )}
+
 
     </div>
   );

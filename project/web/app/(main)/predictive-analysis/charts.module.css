@@ -7,6 +7,37 @@
   box-sizing: border-box;
 }
 
+.fallDetailsContainer{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.fallDetailsContainer{
+  font-size : 25px;
+}
+
+.fallButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: .5px;
+  border-style: solid; 
+  border-color: grey;
+  border-radius: 12px;
+  width: 100%;
+  min-height: 50px;
+  font-size: 20px !important;
+  
+}
+
+.fallButton:hover {
+  background-color: #e7e7e7;
+  cursor: pointer;
+}
+
+
 .BarChart {
   max-width: 550px;
   min-width: 300px;
@@ -63,6 +94,8 @@
 .BarChartDescription p {
     font-size: 13px !important;
 }
+
+
 
 @media (max-width: 600px) {
   .BarChart {
