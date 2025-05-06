@@ -23,14 +23,15 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  // Receive success parameter sent from successful account registration & activate Snackbar
   const searchParams = useSearchParams();
-
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
       setOpenSnackbar(true);
     }
   }, [searchParams]);
 
+  // Fetch POST request to handle login attempt
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

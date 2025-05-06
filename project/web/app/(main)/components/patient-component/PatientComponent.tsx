@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-import { CgProfile } from "react-icons/cg";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import Link from "next/link";
+
+import { CgProfile } from "react-icons/cg";
+
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PatientComponent.css";
@@ -33,6 +35,8 @@ export default function PatientInfo() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
 
   // Generate possible height options
@@ -150,6 +154,9 @@ export default function PatientInfo() {
       setIsAddPatient(false);
       clearForm();
 
+      // Upon successfully adding a patient, display Snackbar
+      showSuccessSnackbar("Patient added successfully!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
@@ -217,6 +224,10 @@ export default function PatientInfo() {
       ));
 
       setError('');
+
+      // Upon successfully saving changes, display Snackbar
+      showSuccessSnackbar("Patient changes saved!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Update patient error:", err);
@@ -266,6 +277,9 @@ export default function PatientInfo() {
       setWeight('');
       setIsRemovePatient(false);
       setError('');
+
+      // Upon successfully removing patient, display Snackbar
+      showSuccessSnackbar("Patient removed successfully.");
       
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
@@ -313,6 +327,15 @@ export default function PatientInfo() {
   const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
+
+  const showSuccessSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   return (
     <div className="p-3">
@@ -581,6 +604,21 @@ export default function PatientInfo() {
           <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={handleSnackbarClose}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity="success" 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
