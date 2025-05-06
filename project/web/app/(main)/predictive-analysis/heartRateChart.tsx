@@ -19,7 +19,7 @@ export default function HeartRateChart() {
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "line",
         data: {
-          labels: ["8AM", "10AM", "12PM", "2PM", "4PM", "6PM", "8PM"],
+          labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           datasets: [
             {
               label: "Heart Rate BPM",
@@ -82,7 +82,7 @@ export default function HeartRateChart() {
             <div className={styles.BarChartChart}>
                 <div className = {styles.BarChartChartHeader}>
                     <h1>Heart Rate </h1>
-                    <p>Mar 8, 2025</p>
+                    <p>Week 1 (2/3 - 2/9)</p>
                 </div>
                 <canvas ref={chartRef} />
             </div>

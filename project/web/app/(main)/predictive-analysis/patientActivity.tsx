@@ -19,7 +19,7 @@ export default function PatientActivity() {
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "bar",
         data: {
-          labels: ["8AM", "10AM", "12PM", "2PM", "4PM", "6PM", "8PM"],
+          labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           datasets: [
             {
               label: "# of steps",
@@ -79,7 +79,7 @@ export default function PatientActivity() {
       <div className={styles.BarChartChart}>
         <div className={styles.BarChartChartHeader}>
           <h1>Patient Activity (steps)</h1>
-          <p>Mar 8, 2025</p>
+          <p>Week 1 (2/3 - 2/9)</p>
         </div>
 
         <div className={styles.chartWrapper}>
