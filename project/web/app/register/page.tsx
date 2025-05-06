@@ -8,9 +8,6 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-import Alert from '@mui/material/Alert';
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./register.css";
 
@@ -24,7 +21,6 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const router = useRouter();
 
@@ -60,27 +56,16 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // On success, redirect to Login page
+      // On success, redirect to Login page & send success parameter
       router.push("/");
+      router.push("/?registered=true");
 
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
 
     } finally {
       setIsLoading(false);
-      setOpenSnackbar(true);
     }
-  };
-
-  const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   return (
@@ -179,22 +164,6 @@ export default function RegisterPage() {
           <button type="submit" className="register" disabled={isLoading}>
             {isLoading ? "Registering..." : "Register"}
           </button>
-
-          {/* Snackbar */}
-          <Snackbar
-            open={openSnackbar} 
-            autoHideDuration={6000} 
-            onClose={handleCloseSnackbar}
-          >
-            <Alert
-              onClose={handleCloseSnackbar}
-              severity="success"
-              variant="filled"
-              sx={{ width: '100%' }}
-            >
-              Account successfully created!
-            </Alert>
-          </Snackbar>
         </form>
 
         {/* Login link */}
