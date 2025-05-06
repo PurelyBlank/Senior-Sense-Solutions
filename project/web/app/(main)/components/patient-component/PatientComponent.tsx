@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-import { CgProfile } from "react-icons/cg";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import Link from "next/link";
+
+import { CgProfile } from "react-icons/cg";
+
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PatientComponent.css";
@@ -33,6 +35,8 @@ export default function PatientInfo() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
 
   // Generate possible height options
@@ -150,6 +154,9 @@ export default function PatientInfo() {
       setIsAddPatient(false);
       clearForm();
 
+      // Upon successfully adding a patient, display Snackbar
+      showSuccessSnackbar("Patient added successfully!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
@@ -217,11 +224,68 @@ export default function PatientInfo() {
       ));
 
       setError('');
+
+      // Upon successfully saving changes, display Snackbar
+      showSuccessSnackbar("Patient changes saved!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Update patient error:", err);
     }
   }
+
+  const handleConfirmRemovePatient = async () => {
+    if (!patient) {
+      setError("Please select a patient to remove.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const selectedPatient = patients.find(
+        (p) => `${p.first_name} ${p.last_name}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error("Selected patient not found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+  
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete patient.");
+      }
+  
+      // Remove patient from dropdown
+      setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
+      setPatient('');
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+      setIsRemovePatient(false);
+      setError('');
+
+      // Upon successfully removing patient, display Snackbar
+      showSuccessSnackbar("Patient removed successfully.");
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Remove patient error:", err);
+    }
+  };
 
   // Helper function to clear all input fields in Add Patient form
   const clearForm = () => {
@@ -264,6 +328,15 @@ export default function PatientInfo() {
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
 
+  const showSuccessSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <div className="p-3">
       {isRemovePatient && <div className="overlay"></div>}
@@ -271,24 +344,23 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <p className="dropdown-label">Select Patient</p>
-            <FormControl fullWidth size="small" style={{ width: 430 }}>
-              <InputLabel id="select-patient">Select</InputLabel>
-              <Select
-                labelId="select-patient-label"
-                id="select-patient"
-                label="Patient"
-                value={patient}
-                onChange={handlePatientChange}
-              >
-                {patients.map((p) => (
-                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
-                    {p.first_name + " " + p.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          <FormControl fullWidth size="small" style={{ width: 430 }}>
+            <InputLabel id="select-patient">Select Patient</InputLabel>
+            <Select
+              labelId="select-patient-label"
+              id="select-patient"
+              label="Patient"
+              value={patient}
+              onChange={handlePatientChange}
+            >
+              {patients.map((p) => (
+                <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                  {p.first_name + " " + p.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
 
           {/* Patient Box */}
           {!isAddPatient ? (
@@ -529,9 +601,24 @@ export default function PatientInfo() {
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
 
           {/* Continue button */}
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
+          <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={handleSnackbarClose}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity="success" 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
