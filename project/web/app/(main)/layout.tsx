@@ -79,9 +79,9 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     handleFetchCaretakerFirstAndLastName();
   }, []);
-
+//WearableProvider, allows all layout.txs children to use setWearable_id and wearable_id 
   return (
-    <WearableProvider>
+    <WearableProvider> 
     <div className="flex h-screen flex-col">
       {/* Top Bar */}
       <div className="top-bar">

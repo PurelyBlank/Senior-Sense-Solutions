@@ -323,13 +323,10 @@ export default function PatientInfo() {
     // Using this wont lead to any errors in case patients share the same first_name and last_name combination
     const selectedPatient = patients.find((p) => p.patient_id === selectedId); 
 
-    //Previos code for finding patient
+    //Previous code for finding patient
     //const selectedPatient = patients.find(
     //  (p) => `${p.first_name} ${p.last_name}` === selectedFullName
     //);
-    //const selectedFullName = selectedPatientAll.first_name + " " + selectedPatientAll.last_name;
-
-
 
     if (selectedPatient) {
       setPatient(`${selectedPatient.patient_id}`); //Changed to store the patient_id, as its a unique attribute in every patient

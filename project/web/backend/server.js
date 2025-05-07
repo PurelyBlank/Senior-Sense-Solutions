@@ -385,33 +385,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
       return res.status(400).json({ error: "wearable_id not here" });
     }
     console.log(wearable_id);
-    //const user_id = decoded.user_id;
-
-    //if (!user_id) {
-    //  console.log("No user_id in decoded token");
-    //  
-    //  return res.status(400).json({ error: 'Invalid token: user_id not found.' });
-    //}
-    
-    /*const result = await pool.query(
-      `
-        SELECT
-          c.user_id AS caretaker_id,
-          c.first_name AS caretaker_first_name,
-          p.patient_id,
-          p.first_name AS patient_first_name,
-          p.wearable_id,
-          wd.timestamp,
-          wd.heart_rate,
-          wd.blood_oxygen
-        FROM caretaker c
-        JOIN patients p ON c.user_id = p.caretaker_id
-        JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = $2
-        ORDER BY wd.timestamp DESC;
-      `,
-      [user_id]
-    );*/
 
     const result = await pool.query(
       `

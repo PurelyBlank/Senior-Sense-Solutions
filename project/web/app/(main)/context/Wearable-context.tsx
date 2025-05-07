@@ -17,7 +17,7 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook to use the context
+// Custom hook to use the context, use this in components to set and get the wearable_id
 export const useWearable = (): WearableContextType => {
   const context = useContext(WearableContext);
   if (!context) {
