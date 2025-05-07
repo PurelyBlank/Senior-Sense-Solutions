@@ -29,7 +29,6 @@
   width: 100%;
   min-height: 50px;
   font-size: 20px !important;
-  
 }
 
 .fallButton:hover {
@@ -37,6 +36,24 @@
   cursor: pointer;
 }
 
+.detailedFallReport {
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-start;
+  width: 100%;                    
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.detailedFallReport > div:first-child {
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.detailedFallReport > div:last-child {
+  margin-left: auto;             
+  text-align: right;
+}
 
 .BarChart {
   max-width: 550px;

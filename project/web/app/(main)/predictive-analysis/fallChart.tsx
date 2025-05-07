@@ -12,8 +12,6 @@ export default function FallChart() {
   const [activateFallChart, setactivateFallChart] = useState(false); 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-
-
   useEffect(() => {
     if (chartRef.current) {
       if (chartInstanceRef.current) {
@@ -114,19 +112,88 @@ export default function FallChart() {
             ) : (
               <>
                 <h1 className="title-bold mb-5">Detailed Fall Report for {selectedDate}</h1>
-                <p>Date and Time: </p>
-                <p>Location: </p>
-                <p>Fall Type: </p>
-                <p>Injury Outcome: </p>
-                <p>Assistance Required: </p>
-                <p>Cause: </p>
-                <p>Extra Notes: </p>
 
+                  <div>
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Date and Time: </p>
+                        </div>
+
+                        <div>
+                          <p> January 24, 2025 7:23 PM</p>
+                        </div>
+                    </div>
+
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Location: </p>
+                        </div>
+
+                        <div>
+                          <p> Aldrich Park, Irvine CA 92617</p>
+                        </div>
+                    </div>
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Fall Type: </p>
+                        </div>
+
+                        <div>
+                          <p> Slip </p>
+                        </div>
+                    </div>
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Injury Outcome: </p>
+                        </div>
+
+                        <div>
+                          <p> Small bruises </p>
+                        </div>
+                    </div>
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Assistance Required: </p>
+                        </div>
+
+                        <div>
+                          <p> None</p>
+                        </div>
+                    </div>
+
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Cause: </p>
+                        </div>
+
+                        <div>
+                          <p> Fatigue </p>
+                        </div>
+                    </div>
+
+                    <div className = {styles.detailedFallReport}>
+                        <div>
+                          <p>Extra Notes: </p>
+                        </div>
+
+                        <div>
+                          <p> N/A</p>
+                        </div>
+                    </div>
+
+                  </div>
                 <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
                   Back
                 </button>
               </>
             )}
+
+
           </div>
         </div>
       )}
