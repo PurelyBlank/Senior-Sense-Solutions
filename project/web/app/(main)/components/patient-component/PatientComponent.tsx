@@ -178,9 +178,14 @@ export default function PatientInfo() {
       if (!token) {
         throw new Error('No authentication token found.');
       }
+      //const selectedPatient = patients.find(
+      //  (p) => `${p.first_name} ${p.last_name}` === patient
+      //);
 
+      //Changed to find using the patient_id instead of first_name and last_name, as patients can share the same name, in this case the query could lead to issues
+      //For this to work I also changed patient to store the patient_id instead of the first_name + last_name
       const selectedPatient = patients.find(
-        (p) => `${p.first_name} ${p.last_name}` === patient
+        (p) => `${p.patient_id}` === patient
       );
       if (!selectedPatient) {
         throw new Error('Selected patient not found.')
@@ -248,9 +253,15 @@ export default function PatientInfo() {
       if (!token) {
         throw new Error("No authentication token found.");
       }
-  
+      
+      //const selectedPatient = patients.find(
+      //  (p) => `${p.first_name} ${p.last_name}` === patient
+      //);
+
+      //Changed to find using the patient_id instead of first_name and last_name, as patients can share the same name, in this case the query could lead to issues
+      //For this to work I also changed patient to store the patient_id instead of the first_name + last_name
       const selectedPatient = patients.find(
-        (p) => `${p.first_name} ${p.last_name}` === patient
+        (p) => `${p.patient_id}` === patient
       );
       if (!selectedPatient) {
         throw new Error("Selected patient not found.");
@@ -306,26 +317,31 @@ export default function PatientInfo() {
 
   // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    //const selectedPatientAll: Patient = JSON.parse(event.target.value);
-    //setPatient( selectedPatientAll.first_name + " " + selectedPatientAll.last_name); 
-    const selectedId = Number(event.target.value); 
-    const selectedPatient = patients.find((p) => p.patient_id === selectedId);
+    const selectedId = Number(event.target.value); // In the html I return the patient_id as the value. 
 
-    //const selectedFullName = selectedPatientAll.first_name + " " + selectedPatientAll.last_name;
+    // Instead of looking for the patient with last_name and first_name combination, we look using the patient_id which is unique
+    // Using this wont lead to any errors in case patients share the same first_name and last_name combination
+    const selectedPatient = patients.find((p) => p.patient_id === selectedId); 
 
-    // Find the selected patient
+    //Previos code for finding patient
     //const selectedPatient = patients.find(
     //  (p) => `${p.first_name} ${p.last_name}` === selectedFullName
     //);
+    //const selectedFullName = selectedPatientAll.first_name + " " + selectedPatientAll.last_name;
+
+
 
     if (selectedPatient) {
-      setPatient(`${selectedPatient.first_name} ${selectedPatient.last_name}`);
+      setPatient(`${selectedPatient.patient_id}`); //Changed to store the patient_id, as its a unique attribute in every patient
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
       setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
-      if (selectedPatient.wearable_id !== undefined) {
-        setWearable_id(selectedPatient.wearable_id);
+
+      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : ''); //firstName is used for html instead of patient
+      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : ''); //lastName is used for html insead of patient 
+      if (selectedPatient.wearable_id !== undefined) { 
+        setWearable_id(selectedPatient.wearable_id); // Set wearable_id here, when user selects a patient in the dropdown
       }
     } else {
       // Clear Patient attribute fields if no Patient is selected
@@ -382,7 +398,7 @@ export default function PatientInfo() {
             <div className="patient-box">
               {/* Profile Icon and Patient Name */}
               <CgProfile className="patient-icon" size={95} />
-              <span className="patient-name">{patient || "Select a patient"}</span>
+              <span className="patient-name">{firstName + " " + lastName || "Select a patient"}</span>
               <span className="patient-info">Patient Info</span>
               {error && <div className="error-message" role="alert">{error}</div>}
 
