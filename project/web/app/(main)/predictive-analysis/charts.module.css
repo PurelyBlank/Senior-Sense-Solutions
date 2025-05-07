@@ -7,6 +7,54 @@
   box-sizing: border-box;
 }
 
+.fallDetailsContainer{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.fallDetailsContainer{
+  font-size : 25px;
+}
+
+.fallButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: .5px;
+  border-style: solid; 
+  border-color: grey;
+  border-radius: 12px;
+  width: 100%;
+  min-height: 50px;
+  font-size: 20px !important;
+}
+
+.fallButton:hover {
+  background-color: #e7e7e7;
+  cursor: pointer;
+}
+
+.detailedFallReport {
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-start;
+  width: 100%;                    
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.detailedFallReport > div:first-child {
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.detailedFallReport > div:last-child {
+  margin-left: auto;             
+  text-align: right;
+}
+
 .BarChart {
   max-width: 550px;
   min-width: 300px;
@@ -63,6 +111,8 @@
 .BarChartDescription p {
     font-size: 13px !important;
 }
+
+
 
 @media (max-width: 600px) {
   .BarChart {
