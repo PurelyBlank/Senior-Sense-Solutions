@@ -350,6 +350,7 @@ export default function PatientInfo() {
       setHeight('');
       setWeight('');
     }
+    
 
 
   };
