@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
+import { useWearable } from "../../context/WearableContext"; 
+
 import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
@@ -88,6 +90,7 @@ export default function PatientInfo() {
 
     fetchPatients();
   }, []);
+
 
   // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
@@ -177,7 +180,7 @@ export default function PatientInfo() {
       }
 
       const selectedPatient = patients.find(
-        (p) => `${p.first_name} ${p.last_name}` === patient
+        (p) => `${p.patient_id}` === patient
       );
       if (!selectedPatient) {
         throw new Error('Selected patient not found.')
@@ -245,9 +248,9 @@ export default function PatientInfo() {
       if (!token) {
         throw new Error("No authentication token found.");
       }
-  
+      
       const selectedPatient = patients.find(
-        (p) => `${p.first_name} ${p.last_name}` === patient
+        (p) => `${p.patient_id}` === patient
       );
       if (!selectedPatient) {
         throw new Error("Selected patient not found.");
@@ -299,21 +302,29 @@ export default function PatientInfo() {
     setError('');
   };
 
+  const { setWearable_id } = useWearable();
+
   // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    const selectedFullName = event.target.value as string;
-    setPatient(selectedFullName);
+    const selectedId = Number(event.target.value);
 
-    // Find the selected patient
     const selectedPatient = patients.find(
-      (p) => `${p.first_name} ${p.last_name}` === selectedFullName
+      (p) => p.patient_id === selectedId
     );
 
     if (selectedPatient) {
+      setPatient(`${selectedPatient.patient_id}`);
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
       setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+
+      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : '');
+      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : '');
+      if (selectedPatient.wearable_id !== undefined) { 
+        // Set wearable_id when user selects a patient in the dropdown
+        setWearable_id(selectedPatient.wearable_id);
+      }
     } else {
       // Clear Patient attribute fields if no Patient is selected
       setGender('');
@@ -354,7 +365,7 @@ export default function PatientInfo() {
               onChange={handlePatientChange}
             >
               {patients.map((p) => (
-                <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
+                <MenuItem key={p.patient_id} value={p.patient_id}>
                   {p.first_name + " " + p.last_name}
                 </MenuItem>
               ))}
@@ -367,7 +378,9 @@ export default function PatientInfo() {
             <div className="patient-box">
               {/* Profile Icon and Patient Name */}
               <CgProfile className="patient-icon" size={95} />
-              <span className="patient-name">{patient || "Select a patient"}</span>
+              <span className="patient-name">
+                {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Select a Patient"}
+              </span>
               <span className="patient-info">Patient Info</span>
               {error && <div className="error-message" role="alert">{error}</div>}
 
