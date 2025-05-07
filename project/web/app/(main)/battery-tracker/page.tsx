@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 
-import GaugeClient from './batteryGauge';
+import GaugeClient from './BatteryGauge';
 import PatientInfo from "../components/patient-component/PatientComponent";
 
-import "./battery-tracker.css";
+import "./page.css";
 
 export default function BatteryTrackerPage() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');

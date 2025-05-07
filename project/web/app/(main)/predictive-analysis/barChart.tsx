@@ -1,10 +1,12 @@
 "use client"
+
 import { useEffect, useRef } from "react";
+
 import { Chart, registerables } from "chart.js";
-import "./barChart.css";
+
+import "./BarChart.css";
 
 Chart.register(...registerables);
-
 
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);

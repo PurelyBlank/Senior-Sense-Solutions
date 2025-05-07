@@ -1,14 +1,11 @@
 .BarChartContainer  {
     min-width: 475px;
     min-height: 396px;
-
     max-width: 475px;
     max-height: 396px; 
-
     border: 1px solid lightgray;
     border-radius: 11.26px;
     padding : 10px; 
-
 }
 
 .BarChartHeader h1{
