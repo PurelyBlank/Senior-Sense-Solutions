@@ -1,9 +1,13 @@
 "use client"
 
-import { FaHeartbeat } from "react-icons/fa";
 import { useState, useEffect } from 'react';
 
+import { FaHeartbeat } from "react-icons/fa";
+
 import { useWearable } from '../context/WearableContext';
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./page.css";
 
 export default function HeartRateChart(){
   const [patientHeartRate, setPatientHeartRate] = useState('');
@@ -73,8 +77,7 @@ export default function HeartRateChart(){
       <p className="heartrate-bpm fw-semibold">{patientHeartRate || "..."} BPM</p>
       <p className="heartrate-summary fw-semibold">
         <em>
-          *Note: This heart rate reading shows the patient&apos;s pulse right now. To understand what a healthy heart rate range is, please refer to the guidelines
-          Please consult the guidelines <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">link/reference</a> for proper interpretation.
+          *Note: This heart rate reading shows the patient&apos;s pulse right now. To understand what a healthy heart rate range is, please consult these <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">guidelines</a> for proper interpretation.
         </em>
       </p>
     </div>
