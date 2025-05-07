@@ -134,58 +134,7 @@ export default function FallChart() {
                           <p> Aldrich Park, Irvine CA 92617</p>
                         </div>
                     </div>
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Fall Type: </p>
-                        </div>
-
-                        <div>
-                          <p> Slip </p>
-                        </div>
-                    </div>
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Injury Outcome: </p>
-                        </div>
-
-                        <div>
-                          <p> Small bruises </p>
-                        </div>
-                    </div>
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Assistance Required: </p>
-                        </div>
-
-                        <div>
-                          <p> None</p>
-                        </div>
-                    </div>
-
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Cause: </p>
-                        </div>
-
-                        <div>
-                          <p> Fatigue </p>
-                        </div>
-                    </div>
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Extra Notes: </p>
-                        </div>
-
-                        <div>
-                          <p> N/A</p>
-                        </div>
-                    </div>
-
+                    
                   </div>
                 <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
                   Back
