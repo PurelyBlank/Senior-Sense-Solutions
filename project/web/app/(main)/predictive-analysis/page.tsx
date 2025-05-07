@@ -4,7 +4,7 @@ import HeartRateChart from "./heartRateChart";
 
 import './predictiveAnalysis.css'
 import PatientInfo from "../components/patient-component/PatientComponent";
-import PatientDropdown from "../components/patient-component/patient-dropdown";
+import PatientDropdown from "../components/patient-component/PatientDropdown";
 
 export default function PredictiveAnalysisPage() {
     return (

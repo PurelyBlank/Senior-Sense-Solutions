@@ -7,7 +7,7 @@ import { FaHeartbeat } from "react-icons/fa";
 import { useWearable } from '../context/WearableContext';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./homepage.css";
+import "./page.css";
 
 export default function HeartRateChart(){
   const [patientHeartRate, setPatientHeartRate] = useState('');

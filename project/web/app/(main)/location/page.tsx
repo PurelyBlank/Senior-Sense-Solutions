@@ -1,13 +1,16 @@
 "use client"
 
 import { useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+
 import Image from 'next/image';
 import loader from './loader.gif';
 
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+
+import PatientDropdownLocation from '../components/patient-component/PatientDropdownLocation';
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./location.css";
-import PatientDropdownLocation from '../components/patient-component/patient-dropdown-location';
 
 const center = {
   lat: 33.6846,

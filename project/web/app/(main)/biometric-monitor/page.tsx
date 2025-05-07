@@ -6,10 +6,10 @@ import NotificationChart from './NotificationChart';
 import StepCounterChart from './StepCounterChart';
 import HeartRateChart from './HeartRateChart';
 import PatientInfo from '../components/patient-component/PatientComponent';
-import PatientDropdown from '../components/patient-component/patient-dropdown';
+import PatientDropdown from '../components/patient-component/PatientDropdown';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./homepage.css";
+import "./page.css";
 
 export default function HomePage() {
   const [isRemovePatient, setIsRemovePatient] = useState(false);
