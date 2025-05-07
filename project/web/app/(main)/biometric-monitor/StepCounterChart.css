@@ -85,11 +85,9 @@
 }
 
 .stepcounter-tabs .Mui-selected {
-  background-color: rgba(0, 0, 0, 0.5); 
-  color: white;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .stepcounter-tabs .Mui-selected:hover {
-  background-color: rgba(0, 0, 0, 0.5); 
-  color: white;
+  background-color: rgba(0, 0, 0, 0.2);
 }

@@ -1,6 +1,8 @@
 "use client"
+
 import { useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js";
+
 import styles from "./charts.module.css";
 
 Chart.register(...registerables);

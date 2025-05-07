@@ -9,7 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./register.css";
+import "./page.css";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
