@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import "./patient-dropdown.css"
+import "./PatientDropdown.css"
 import PatientInfo from "./PatientComponent";
 
-export default function PatientDropdownLocation() {
+export default function PatientDropdown() {
     const [collapsed, setCollapsed] = useState(true);
   
     return (
@@ -20,7 +20,7 @@ export default function PatientDropdownLocation() {
         </div>
   
         {!collapsed && (
-          <div className="location-patient-dropdown-panel">
+          <div className="sidebarDropdown-panel">
             <div className="patient-dropdown-content">
               <PatientInfo />
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { WearableProvider } from "./context/WearableContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -78,8 +79,9 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     handleFetchCaretakerFirstAndLastName();
   }, []);
-
+//WearableProvider, allows all layout.txs children to use setWearable_id and wearable_id 
   return (
+    <WearableProvider> 
     <div className="flex h-screen flex-col">
       {/* Top Bar */}
       <div className="top-bar">
@@ -129,5 +131,6 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
         <div className="main-content">{children}</div>
       </div>
     </div>
+    </WearableProvider>
   );
 }
