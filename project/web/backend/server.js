@@ -489,12 +489,9 @@ app.post('/api/battery-tracker', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const wearable_id = req.body.wearable_id;
-
     if (!wearable_id) {
       return res.status(400).json({ error: "wearable_id not here" });
     }
-    //console.log(wearable_id)
-
 
     const result = await pool.query(
       `

@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 
 import { useWearable } from '../context/WearableContext';
 
-
 export default function GaugeClient() {
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [, setError] = useState('');
