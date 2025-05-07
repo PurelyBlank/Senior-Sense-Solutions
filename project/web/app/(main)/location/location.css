@@ -59,3 +59,7 @@ p, span {
 button.gm-ui-hover-effect {
     visibility: hidden;
 }
+
+.location-patient-dropdown-container{
+    padding: 15px;
+}
