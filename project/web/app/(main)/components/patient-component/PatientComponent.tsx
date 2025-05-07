@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useWearable } from "../../context/Wearable-context"; 
 
+import { useWearable } from "../../context/WearableContext"; 
 
 import Link from "next/link";
 
@@ -178,12 +178,7 @@ export default function PatientInfo() {
       if (!token) {
         throw new Error('No authentication token found.');
       }
-      //const selectedPatient = patients.find(
-      //  (p) => `${p.first_name} ${p.last_name}` === patient
-      //);
 
-      //Changed to find using the patient_id instead of first_name and last_name, as patients can share the same name, in this case the query could lead to issues
-      //For this to work I also changed patient to store the patient_id instead of the first_name + last_name
       const selectedPatient = patients.find(
         (p) => `${p.patient_id}` === patient
       );
@@ -254,12 +249,6 @@ export default function PatientInfo() {
         throw new Error("No authentication token found.");
       }
       
-      //const selectedPatient = patients.find(
-      //  (p) => `${p.first_name} ${p.last_name}` === patient
-      //);
-
-      //Changed to find using the patient_id instead of first_name and last_name, as patients can share the same name, in this case the query could lead to issues
-      //For this to work I also changed patient to store the patient_id instead of the first_name + last_name
       const selectedPatient = patients.find(
         (p) => `${p.patient_id}` === patient
       );
@@ -317,28 +306,24 @@ export default function PatientInfo() {
 
   // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    const selectedId = Number(event.target.value); // In the html I return the patient_id as the value. 
+    const selectedId = Number(event.target.value);
 
-    // Instead of looking for the patient with last_name and first_name combination, we look using the patient_id which is unique
-    // Using this wont lead to any errors in case patients share the same first_name and last_name combination
-    const selectedPatient = patients.find((p) => p.patient_id === selectedId); 
-
-    //Previous code for finding patient
-    //const selectedPatient = patients.find(
-    //  (p) => `${p.first_name} ${p.last_name}` === selectedFullName
-    //);
+    const selectedPatient = patients.find(
+      (p) => p.patient_id === selectedId
+    );
 
     if (selectedPatient) {
-      setPatient(`${selectedPatient.patient_id}`); //Changed to store the patient_id, as its a unique attribute in every patient
+      setPatient(`${selectedPatient.patient_id}`);
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
       setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
 
-      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : ''); //firstName is used for html instead of patient
-      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : ''); //lastName is used for html insead of patient 
+      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : '');
+      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : '');
       if (selectedPatient.wearable_id !== undefined) { 
-        setWearable_id(selectedPatient.wearable_id); // Set wearable_id here, when user selects a patient in the dropdown
+        // Set wearable_id when user selects a patient in the dropdown
+        setWearable_id(selectedPatient.wearable_id);
       }
     } else {
       // Clear Patient attribute fields if no Patient is selected
@@ -347,9 +332,6 @@ export default function PatientInfo() {
       setHeight('');
       setWeight('');
     }
-    
-
-
   };
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
@@ -396,7 +378,9 @@ export default function PatientInfo() {
             <div className="patient-box">
               {/* Profile Icon and Patient Name */}
               <CgProfile className="patient-icon" size={95} />
-              <span className="patient-name">{firstName + " " + lastName || "Select a patient"}</span>
+              <span className="patient-name">
+                {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Select a Patient"}
+              </span>
               <span className="patient-info">Patient Info</span>
               {error && <div className="error-message" role="alert">{error}</div>}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { WearableProvider } from "./context/Wearable-context";
+import { WearableProvider } from "./context/WearableContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 

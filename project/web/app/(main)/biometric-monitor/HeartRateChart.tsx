@@ -3,16 +3,14 @@
 import { FaHeartbeat } from "react-icons/fa";
 import { useState, useEffect } from 'react';
 
-import { useWearable } from '../context/Wearable-context';
-
+import { useWearable } from '../context/WearableContext';
 
 export default function HeartRateChart(){
   const [patientHeartRate, setPatientHeartRate] = useState('');
   const [, setError] = useState('');
+
   const { wearable_id } = useWearable();
   const { setWearable_id } = useWearable();
-  //setWearable_id(-1);
-
 
   const handleFetchPatientHeartRate = async () => {
     setError("");  // Reset error before fetching
@@ -44,18 +42,7 @@ export default function HeartRateChart(){
 
       const data = await response.json();
 
-
       setPatientHeartRate(data.patientHeartRate);
-
-      
-      if (!response.ok) {
-        //setWearable_id(-1) // Stop fetching for patient, they dont have wearable_data
-        //throw new Error(data.error || "Failed to fetch heart rate, they probably have no data");
-      }
-      if (!data.patientHeartRate) {
-        //setWearable_id(-1) // Stop fetching for patient, they dont have wearable_data
-        //throw new Error("Heart rate not found in response, they probably have no data");
-      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred.";
@@ -66,7 +53,10 @@ export default function HeartRateChart(){
   };
 
   useEffect(() => {
-    if (wearable_id === -1) return;
+    if (wearable_id === -1) {
+      return;
+    }
+    
     // Fetch heart rate 
     handleFetchPatientHeartRate();
 
