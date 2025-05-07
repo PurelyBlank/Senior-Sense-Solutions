@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import styles from "./charts.module.css";
 
-
 Chart.register(...registerables);
-
 
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -21,6 +19,7 @@ export default function FallChart() {
         chartInstanceRef.current.destroy(); 
       }
 
+      /*this data will be retrived from the database at some point? */
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "bar",
         data: {
@@ -121,14 +120,13 @@ export default function FallChart() {
               <p>Click on a date to see more details about the event</p>
 
               <div className = {styles.fallDetailsContainer}>
-                <h1 className = {styles.fallButton}>January 22, 2025 </h1>
-                <h1 className = {styles.fallButton}>January 24, 2025</h1>
+                <h1 className = {styles.fallButton} onClick = {() => console.log("sdfsdf")}>January 22, 2025 </h1>
+                <h1 className = {styles.fallButton} onClick = {() => console.log("test")}>January 24, 2025 </h1>
               </div>
               {/* Cancel button */}
               <button type='button' className='cancel-button' onClick={() => setactivateFallChart(false)}>Exit</button>
               {/* Continue button */}
             </div>
-            
           </div>
         )}
 
