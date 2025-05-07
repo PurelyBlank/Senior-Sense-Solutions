@@ -48,14 +48,14 @@ export default function HeartRateChart(){
       setPatientHeartRate(data.patientHeartRate);
 
       
-      if (!response.ok) {
+      //if (!response.ok) {
         //setWearable_id(-1) // Stop fetching for patient, they dont have wearable_data
         //throw new Error(data.error || "Failed to fetch heart rate, they probably have no data");
-      }
-      if (!data.patientHeartRate) {
+      //}
+      //if (!data.patientHeartRate) {
         //setWearable_id(-1) // Stop fetching for patient, they dont have wearable_data
         //throw new Error("Heart rate not found in response, they probably have no data");
-      }
+      //}
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred.";
