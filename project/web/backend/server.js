@@ -384,7 +384,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
     if (!wearable_id) {
       return res.status(400).json({ error: "wearable_id not here" });
     }
-    console.log(wearable_id);
+    //console.log(wearable_id);
 
     const result = await pool.query(
       `
@@ -489,32 +489,28 @@ app.post('/api/battery-tracker', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const user_id = decoded.user_id;
 
-    if (!user_id) {
-      console.log('No user in decoded token.');
-      
-      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    const wearable_id = req.body.wearable_id;
+
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here" });
     }
+    //console.log(wearable_id)
+
 
     const result = await pool.query(
       `
-      SELECT
-          c.user_id AS caretaker_id,
-          c.first_name AS caretaker_first_name,
-          p.patient_id,
-          p.first_name AS patient_first_name,
-          p.wearable_id,
-          wd.timestamp,
-          wd.battery_level
-        FROM caretaker c
-        JOIN patients p ON c.user_id = p.caretaker_id
-        JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 1
-        ORDER BY wd.timestamp DESC;
-    `,
-      [user_id]
+        SELECT
+          wearable_id,
+          timestamp,
+          battery_level
+        FROM wearable_data 
+        WHERE wearable_id = $1 
+        ORDER BY timestamp DESC;
+      `,
+      [wearable_id]
     );
+
     const wearable_data = result.rows[0];
 
     if (!wearable_data) {
