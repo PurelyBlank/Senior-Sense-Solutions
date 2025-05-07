@@ -1,0 +1,95 @@
+.stepCounter-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid lightgray;
+  background-color: #FFFFFF;
+  min-height: 355px;
+  max-height: 500px;
+  width: 100%;
+  min-width: 0;
+  max-width: 500px;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.walking-icon {
+  position: absolute;
+  color: #333;
+}
+
+.step-stats {
+  text-align: right;
+}
+
+.step-average {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.step-sub {
+  font-size: 12px;
+  color: #777;
+}
+
+.stepCounter-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: #444;
+  text-align: center;
+}
+
+.stepcounter-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.stepcounter-tabs .MuiToggleButtonGroup-root {
+  width: 100%;
+  background-color: #f0f0f0; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  border: 1px solid black; 
+}
+
+.stepcounter-tabs .MuiToggleButton-root {
+  flex: 1;
+  color: black;
+  font-weight: 500;
+  border-right: 1px solid black; 
+  border-radius: 0 !important;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.stepcounter-tabs .MuiToggleButton-root:last-child {
+  border-right: none;
+}
+
+.stepcounter-tabs .Mui-selected {
+  background-color: rgba(0, 0, 0, 0.5); 
+  color: white;
+}
+
+.stepcounter-tabs .Mui-selected:hover {
+  background-color: rgba(0, 0, 0, 0.5); 
+  color: white;
+}

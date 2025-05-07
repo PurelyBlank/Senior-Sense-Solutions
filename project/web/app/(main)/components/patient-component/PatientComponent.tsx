@@ -355,8 +355,8 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <FormControl fullWidth size="small" style={{ width: 430 }}>
-            <InputLabel id="select-patient">Select Patient</InputLabel>
+          <FormControl fullWidth size="small" style={{ width: 435 }}>
+            <InputLabel id="select-patient">Select</InputLabel>
             <Select
               labelId="select-patient-label"
               id="select-patient"
