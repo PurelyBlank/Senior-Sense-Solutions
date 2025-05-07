@@ -3,12 +3,22 @@
 import { FaHeartbeat } from "react-icons/fa";
 import { useState, useEffect } from 'react';
 
+import { useWearable } from '../context/WearableContext';
+
 export default function HeartRateChart(){
   const [patientHeartRate, setPatientHeartRate] = useState('');
   const [, setError] = useState('');
 
+  const { wearable_id } = useWearable();
+  const { setWearable_id } = useWearable();
+
   const handleFetchPatientHeartRate = async () => {
     setError("");  // Reset error before fetching
+
+    if (!wearable_id) {
+      setError("Wearable ID error");
+      return;
+    }
   
     try {
       const token = localStorage.getItem("authToken");
@@ -25,16 +35,12 @@ export default function HeartRateChart(){
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          wearable_id,  
+        }),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch caretaker name.");
-      }
-      if (!data.patientHeartRate) {
-        throw new Error("Caretaker first name not found in response.");
-      }
 
       setPatientHeartRate(data.patientHeartRate);
 
@@ -47,6 +53,10 @@ export default function HeartRateChart(){
   };
 
   useEffect(() => {
+    if (wearable_id === -1) {
+      return;
+    }
+    
     // Fetch heart rate 
     handleFetchPatientHeartRate();
 
@@ -54,7 +64,7 @@ export default function HeartRateChart(){
     const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
 
     return () => clearInterval(intervalId);
-  }, []); 
+  }, [wearable_id]); 
 
   return(
     <div className="heartrate-box">
