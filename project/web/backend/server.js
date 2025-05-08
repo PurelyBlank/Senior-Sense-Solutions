@@ -349,18 +349,28 @@ app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Retrieve the wearable_id of the patient to be deleted
+    const patientResult = await pool.query('SELECT wearable_id FROM patients WHERE patient_id = $1', [id]);
+    if (patientResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found.'});
+    }
+    const { wearable_id } = patientResult.rows[0];
+
+    // Delete all rows from wearable_data table associated with deleted patient's wearable_id
+    await pool.query('DELETE FROM wearable_data WHERE wearable_id = $1', [wearable_id]);
+
     // Delete row from Patients table
     const result = await pool.query("DELETE FROM patients WHERE patient_id = $1", [id]);
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Patient not found" });
+      return res.status(404).json({ error: "Patient not found." });
     }
 
-    res.json({ message: "Patient deleted successfully" });
+    res.json({ message: "Patient and all associated wearable data deleted successfully." });
 
   } catch (err) {
     console.error("Error deleting patient:", err);
     
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
