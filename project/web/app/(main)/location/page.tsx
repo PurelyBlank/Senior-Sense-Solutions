@@ -21,7 +21,7 @@ const center = {
 export default function LocationPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [markerPosition, setMarkerPosition] = useState(center);
+  const [markerPosition, setMarkerPosition] = useState<null | { lat: number; lng: number }>(null);
 
   const { wearable_id } = useWearable();
 
@@ -34,6 +34,8 @@ export default function LocationPage() {
   useEffect(() => {
     const fetchLocation = async () => {
       if (!wearable_id) {
+        setMarkerPosition(null);
+
         return;
       }
 
@@ -65,6 +67,8 @@ export default function LocationPage() {
         });
       } catch (err) {
         console.error("Fetch location error:", err);
+
+        setMarkerPosition(null);
       }
     };
 
@@ -90,31 +94,35 @@ export default function LocationPage() {
               center={center}
               zoom={10}
             >
-              {/* Red marker icon */}
-              <Marker
-                position={markerPosition}
-                onMouseOver={() => setInfoOpen(true)}
-                onMouseOut={() => setInfoOpen(false)}
-              />
-
-              {/* Display InfoWindow component if Marker is hovered over */}
-              {infoOpen && (
-                <InfoWindow
-                  position={markerPosition}
-                  options={{ pixelOffset: new google.maps.Size(0, -40) }}
-                >
-                  <div 
-                    className="info-window"
+              {markerPosition && (
+                <>
+                  {/* Red marker icon */}
+                  <Marker
+                    position={markerPosition}
                     onMouseOver={() => setInfoOpen(true)}
                     onMouseOut={() => setInfoOpen(false)}
-                  >
-                    <h3>Patient Location</h3>
-                    <div className="lat-lng">
-                      <p className="text-secondary">Latitude: {markerPosition.lat}</p>
-                      <p className="text-secondary">Longitude: {markerPosition.lng}</p>
-                    </div>
-                  </div>
-                </InfoWindow>
+                  />
+
+                  {/* Display InfoWindow component if Marker is hovered over */}
+                  {infoOpen && (
+                    <InfoWindow
+                      position={markerPosition}
+                      options={{ pixelOffset: new google.maps.Size(0, -40) }}
+                    >
+                      <div 
+                        className="info-window"
+                        onMouseOver={() => setInfoOpen(true)}
+                        onMouseOut={() => setInfoOpen(false)}
+                      >
+                        <h3>Patient Location</h3>
+                        <div className="lat-lng">
+                          <p className="text-secondary">Latitude: {markerPosition.lat}</p>
+                          <p className="text-secondary">Longitude: {markerPosition.lng}</p>
+                        </div>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </>
               )}
             </GoogleMap>
             
