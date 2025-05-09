@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import loader from './loader.gif';
 
+import { Snackbar, Alert } from '@mui/material';
+
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 
 import PatientDropdownLocation from '../components/patient-component/PatientDropdownLocation';
@@ -22,6 +24,9 @@ export default function LocationPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<null | { lat: number; lng: number }>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
   const { wearable_id } = useWearable();
 
@@ -33,8 +38,13 @@ export default function LocationPage() {
 
   useEffect(() => {
     const fetchLocation = async () => {
+      // If wearable_id is available, set location to null & display error message
       if (!wearable_id) {
         setMarkerPosition(null);
+
+        setSnackbarMessage("No patient selected.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
 
         return;
       }
@@ -65,15 +75,29 @@ export default function LocationPage() {
           lat: data.latitude,
           lng: data.longitude,
         });
+
+        // Upon success, display success message
+        setSnackbarMessage("Patient successfully located!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+
       } catch (err) {
         console.error("Fetch location error:", err);
 
         setMarkerPosition(null);
+
+        setSnackbarMessage("Failed to fetch location data. Please select a patient.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       }
     };
 
     fetchLocation();
   }, [wearable_id]);
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  }
 
   return (
     <div className="google-maps">
@@ -94,6 +118,7 @@ export default function LocationPage() {
               center={center}
               zoom={10}
             >
+              {/* Render marker only if a patient is selected */}
               {markerPosition && (
                 <>
                   {/* Red marker icon */}
@@ -137,6 +162,22 @@ export default function LocationPage() {
           </div>
         )}
       </LoadScript>
+
+      {/* Snackbar for displaying success/error message(s) */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={handleSnackbarClose}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity={snackbarSeverity} 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
