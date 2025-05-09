@@ -517,7 +517,6 @@ app.post('/api/battery-tracker', async (req, res) => {
     );
 
     const wearable_data = result.rows[0];
-
     if (!wearable_data) {
       return res.status(404).json({ error: 'wearable_data not found.' });
     }
@@ -537,6 +536,47 @@ app.post('/api/battery-tracker', async (req, res) => {
     res.status(500).json({ error: 'Server error.' });
   }
 });
+
+// Location endpoint to retrieve a patient's latest location by longitude & latitude (GET request)
+app.get('/api/location/:wearable_id', authenticateToken, async (req, res) => {
+  const { wearable_id } = req.params;
+
+  try {
+    // Query for the latest location data for given wearable_id
+    const result = await pool.query (
+      `
+      SELECT longitude, latitude
+      FROM wearable_data
+      WHERE wearable_id = $1
+      ORDER BY timestamp DESC
+      LIMIT 1;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No location data found for wearable_id.' });
+    }
+
+    const wearable_data = result.rows[0];
+    if (!wearable_data) {
+      return res.status(404).json({ error: 'wearable_data not found.' });
+    }
+
+    res.json({ longitude: wearable_data.longitude, latitude: wearable_data.latitude });
+
+  } catch (err) {
+    console.error('Location error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+})
 
 // Wearable data endpoint (POST request)
 app.post('/api/wearable_data/insert', async (req, res) => {
