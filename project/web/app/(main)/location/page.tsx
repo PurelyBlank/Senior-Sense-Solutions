@@ -31,6 +31,7 @@ export default function LocationPage() {
 
   const { wearable_id } = useWearable();
 
+  // Reference to Google Maps instance
   const mapRef = useRef<google.maps.Map | null>(null);
 
   // Use JavaScript Google Maps API key defined in .env file
@@ -40,6 +41,9 @@ export default function LocationPage() {
   }
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    // Fetch patient location, first name, & last name from database
     const fetchLocationAndPatient = async () => {
       // If wearable_id is available, set location to null & display error message
       if (!wearable_id) {
@@ -100,11 +104,6 @@ export default function LocationPage() {
           mapRef.current.panTo(newMarkerPosition);
         }
 
-        // Upon success, display success message
-        setSnackbarMessage("Patient successfully located!");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
-
       } catch (err) {
         console.error("Fetch location error:", err);
 
@@ -117,7 +116,15 @@ export default function LocationPage() {
       }
     };
 
-    fetchLocationAndPatient();
+    // Make fetch request every 1 second
+    if (wearable_id) {
+      intervalId = setInterval(fetchLocationAndPatient, 1000);
+    }
+
+    // Clear interval when component unmounts or wearable_id changes
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [wearable_id]);
 
   const handleSnackbarClose = () => {
