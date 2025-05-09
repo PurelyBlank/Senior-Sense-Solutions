@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import Image from 'next/image';
 import loader from './loader.gif';
@@ -30,6 +30,8 @@ export default function LocationPage() {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
   const { wearable_id } = useWearable();
+
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   // Use JavaScript Google Maps API key defined in .env file
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -86,11 +88,17 @@ export default function LocationPage() {
         }
 
         // Update marker position with fetched latitude and longitude
-        setMarkerPosition({
+        const newMarkerPosition = {
           lat: locationData.latitude,
           lng: locationData.longitude,
-        });
+        }
+        setMarkerPosition(newMarkerPosition);
         setPatientName(`${patientData.first_name} ${patientData.last_name}`);
+
+        // Set map to pan to patient's retrieved position
+        if (mapRef.current) {
+          mapRef.current.panTo(newMarkerPosition);
+        }
 
         // Upon success, display success message
         setSnackbarMessage("Patient successfully located!");
@@ -134,6 +142,9 @@ export default function LocationPage() {
               mapContainerClassName="map-container"
               center={center}
               zoom={10}
+              onLoad={(map) => {
+                mapRef.current = map;
+              }}
             >
               {/* Render marker only if a patient is selected */}
               {markerPosition && (
