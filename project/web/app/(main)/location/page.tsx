@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 import loader from './loader.gif';
@@ -8,6 +8,7 @@ import loader from './loader.gif';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 
 import PatientDropdownLocation from '../components/patient-component/PatientDropdownLocation';
+import { useWearable } from '../context/WearableContext';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./location.css";
@@ -17,22 +18,58 @@ const center = {
   lng: -117.8265
 };
 
-// Track position of map marker
-// REPLACE WITH COORDINATES OF THE WATCH AFTER RETRIEVING FROM DATABASE
-const markerPosition = {
-  lat: 33.6846,
-  lng: -117.8265
-};
-
 export default function LocationPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [markerPosition, setMarkerPosition] = useState(center);
+
+  const { wearable_id } = useWearable();
 
   // Use JavaScript Google Maps API key defined in .env file
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     throw new Error("Google Maps API key is not defined in environment variables.");
   }
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (!wearable_id) {
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          throw new Error("No authentication token found.");
+        }
+
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/location/${wearable_id}`;
+
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch location data.");
+        }
+
+        // Update marker position with fetched latitude and longitude
+        setMarkerPosition({
+          lat: data.latitude,
+          lng: data.longitude,
+        });
+      } catch (err) {
+        console.error("Fetch location error:", err);
+      }
+    };
+
+    fetchLocation();
+  }, [wearable_id]);
 
   return (
     <div className="google-maps">
@@ -71,7 +108,7 @@ export default function LocationPage() {
                     onMouseOver={() => setInfoOpen(true)}
                     onMouseOut={() => setInfoOpen(false)}
                   >
-                    <h3>Bruce Wayne</h3>
+                    <h3>Patient Location</h3>
                     <div className="lat-lng">
                       <p className="text-secondary">Latitude: {markerPosition.lat}</p>
                       <p className="text-secondary">Longitude: {markerPosition.lng}</p>
@@ -84,7 +121,6 @@ export default function LocationPage() {
             <div className ="location-patient-dropdown-container">
               <PatientDropdownLocation/>
             </div>
-
           </>
         ) : (
           <div className="loader">
