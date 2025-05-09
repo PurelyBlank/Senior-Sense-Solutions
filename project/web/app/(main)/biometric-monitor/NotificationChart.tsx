@@ -9,6 +9,15 @@ export default function NotificationChart(){
     const [patientHeartRate, setPatientHeartRate] = useState('');
     const [, setError] = useState('');
 
+    const [fallData, setFallData] = useState<
+    null | Array<{
+      patient_name: string,
+      timestamp: string,
+      longitude: number,
+      latitude: number
+    }>
+  >(null);
+
     const handleFetchPatientHeartRate = async () => {
         setError("");  // Reset error before fetching
   
@@ -48,12 +57,47 @@ export default function NotificationChart(){
     }
   };
 
+  const fetchFallData = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No auth token");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/fall-alert`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      // If there are fall notifications, set the state
+      if (data.falls && data.falls.length > 0) {
+        setFallData(data.falls);
+      } else {
+        setFallData(null); // No fall alerts
+      }
+
+    } catch (err) {
+      console.error("Fall alert fetch error:", err);
+    }
+  };
+
+
   useEffect(() => {
     // Fetch heart rate 
     handleFetchPatientHeartRate();
+    fetchFallData();
 
     // Set interval to fetch heart rate every 3 seconds 
-    const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
+    const intervalId = setInterval(() => {
+      handleFetchPatientHeartRate();
+      fetchFallData();
+    }, 3000);
 
     return () => clearInterval(intervalId);
   }, []); 
@@ -107,15 +151,18 @@ export default function NotificationChart(){
                     </div>
                 )}
 
-                <div className="notifications-row">
+                {fallData && fallData.length > 0 && fallData.map((fall, index) => (
+                  <div key={index} className="notifications-row">
                     <IoPersonOutline size={20} />
                     <div className="notifications-text">
-                        <span className="notifications-title">Accelerometer</span>
-                        <span className="notifications-summary">A drop 2 min ago, check in with the patient</span>
+                      <span className="notifications-title">Fall Detected</span>
+                      <span className="notifications-summary">
+                        {fall.patient_name} has fallen at {new Date(fall.timestamp).toLocaleTimeString()}.<br />
+                        Location: ({fall.latitude.toFixed(4)}, {fall.longitude.toFixed(4)})
+                      </span>
                     </div>
-                </div>
-
-                
+                  </div>
+                ))}
             </div>
         </div>
     )
