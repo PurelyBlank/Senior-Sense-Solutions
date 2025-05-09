@@ -31,6 +31,27 @@ pool.connect((err) => {
   }
 });
 
+// Middleware to verify JSON Web Token (JWT)
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    console.error('Authentication error: No token provided');
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    next();
+    
+  } catch (err) {
+    console.error('Authentication error: Invalid token', err.message);
+    return res.status(403).json({ error: 'Invalid or expired token.' });
+  }
+};
+
 // Login endpoint (POST request)
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -138,7 +159,7 @@ app.post('/api/caretaker-firstname', async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to add Patient (POST request)
+// Patient component endpoint to add new Patient (POST request)
 app.post('/api/patients', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -164,21 +185,26 @@ app.post('/api/patients', async (req, res) => {
       weight,
     } = req.body;
 
-    // Validate input fields
+    // Validate required input fields
     if (!first_name || !last_name || !wearable_id) {
       return res.status(400).json({ error: 'First name, last name, and wearable ID are required fields.' });
+    }
+
+    // Validate age input field
+    if (age < 0 || age > 150) {
+      return res.status(400).json({ error: 'Age is invalid.' });
     }
 
     // Validate wearable_id exists
     const wearableCheck = await pool.query('SELECT wearable_id FROM wearable WHERE wearable_id = $1', [wearable_id]);
     if (wearableCheck.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid wearable ID: device not found.' });
+      return res.status(400).json({ error: 'Device not found.' });
     }
 
     // Validate wearable_id is not already assigned to a patient
     const patientCheck = await pool.query('SELECT wearable_id FROM patients WHERE wearable_id = $1', [wearable_id]);
     if (patientCheck.rows.length > 0) {
-      return res.status(400).json({ error: 'Invalid wearable ID: wearable ID already assigned to another patient.' });
+      return res.status(400).json({ error: 'Wearable ID is already assigned to a patient.' });
     }
 
     // Insert new patient in Patient table
@@ -197,7 +223,7 @@ app.post('/api/patients', async (req, res) => {
     console.error('Add patient error:', err);
 
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'Wearable ID already assigned.' });
+      return res.status(409).json({ error: 'Wearable ID is already assigned to a patient.' });
     }
     if (err.code === '22P02') {
       return res.status(400).json({ error: 'Invalid data format.' });
@@ -207,7 +233,7 @@ app.post('/api/patients', async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve Patient rows (GET request)
+// Patient component endpoint to retrieve Patient rows (GET request)
 app.get('/api/patients', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -258,6 +284,96 @@ app.get('/api/patients', async (req, res) => {
   }
 });
 
+// Patient component endpoint to update Patient attributes (Gender, Age, Height, Weight)
+app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const caretaker_id = req.user.user_id;
+  const { gender, age, height, weight } = req.body;
+
+  try {
+    // Verify Patient exists and belongs to current user
+    const patientCheck = await pool.query(
+      'SELECT * FROM patients WHERE patient_id = $1 AND caretaker_id = $2',
+      [id, caretaker_id]
+    );
+    if (patientCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found or not authorized.' });
+    }
+
+    // Build dynamic update query
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    if (gender !== undefined) {
+      fields.push(`gender = $${index++}`);
+      values.push(gender);
+    }
+    if (age !== undefined) {
+      fields.push(`age = $${index++}`);
+      values.push(age);
+    }
+    if (height !== undefined) {
+      fields.push(`height = $${index++}`);
+      values.push(height);
+    }
+    if (weight !== undefined) {
+      fields.push(`weight = $${index++}`);
+      values.push(weight);
+    }
+
+    // Prevent update attempt if no input fields are filled
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No fields provided to update.' });
+    }
+
+    // Update gender, age, height, or weight for current Patient
+    const query = `UPDATE patients SET ${fields.join(', ')} WHERE patient_id = $${index} AND caretaker_id = $${index + 1} RETURNING *`;
+    values.push(id, caretaker_id);
+    
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found.' });
+    }
+
+    res.json({ patient: result.rows[0] });
+
+  } catch (err) {
+    console.error('Update Patient error:', err);
+    res.status(500).json({ error: 'Failed to update Patient.' });
+  }
+});
+
+// Patient component endpoint to delete a patient row
+app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Retrieve the wearable_id of the patient to be deleted
+    const patientResult = await pool.query('SELECT wearable_id FROM patients WHERE patient_id = $1', [id]);
+    if (patientResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found.'});
+    }
+    const { wearable_id } = patientResult.rows[0];
+
+    // Delete all rows from wearable_data table associated with deleted patient's wearable_id
+    await pool.query('DELETE FROM wearable_data WHERE wearable_id = $1', [wearable_id]);
+
+    // Delete row from Patients table
+    const result = await pool.query("DELETE FROM patients WHERE patient_id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Patient not found." });
+    }
+
+    res.json({ message: "Patient and all associated wearable data deleted successfully." });
+
+  } catch (err) {
+    console.error("Error deleting patient:", err);
+    
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 // Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate', async (req, res) => {
   try {
@@ -272,39 +388,31 @@ app.post('/api/patient-heartrate', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const user_id = decoded.user_id;
 
-    if (!user_id) {
-      console.log("No user_id in decoded token");
-      
-      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here" });
     }
-    
+
     const result = await pool.query(
       `
         SELECT
-          c.user_id AS caretaker_id,
-          c.first_name AS caretaker_first_name,
-          p.patient_id,
-          p.first_name AS patient_first_name,
-          p.wearable_id,
-          wd.timestamp,
-          wd.heart_rate,
-          wd.blood_oxygen
-        FROM caretaker c
-        JOIN patients p ON c.user_id = p.caretaker_id
-        JOIN wearable_data wd ON p.wearable_id = wd.wearable_id
-        WHERE c.user_id = $1 AND p.patient_id = 2
-        ORDER BY wd.timestamp DESC;
+          wearable_id,
+          timestamp,
+          heart_rate
+        FROM wearable_data 
+        WHERE wearable_id = $1 
+        ORDER BY timestamp DESC;
       `,
-      [user_id]
+      [wearable_id]
     );
+
     const patient_data = result.rows[0];
 
     if (!patient_data) {
-      console.log("patient_data not found for user_id:", user_id);
+      console.log("patient_data not found for patient with wearable: ", wearable_id);
 
-      return res.status(404).json({ error: 'patient_data not found.' });
+      return res.status(404).json({ error: 'patient_data not found (heartrate)' });
     }
 
     res.json({ 
@@ -505,6 +613,65 @@ app.post('/api/caretaker-fullname', async (req, res) => {
 
   } catch (err) {
     console.error('Error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Battery tracker endpoint (POST request)
+app.post('/api/battery-tracker', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log('No authorization header provided.');
+
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      console.log('Malformed authorization header.');
+
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here" });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT
+          wearable_id,
+          timestamp,
+          battery_level
+        FROM wearable_data 
+        WHERE wearable_id = $1 
+        ORDER BY timestamp DESC;
+      `,
+      [wearable_id]
+    );
+
+    const wearable_data = result.rows[0];
+
+    if (!wearable_data) {
+      return res.status(404).json({ error: 'wearable_data not found.' });
+    }
+
+    res.json({ batteryLevel: wearable_data.battery_level });
+
+  } catch (err) {
+    console.error('Battery tracker error:', err);
 
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });

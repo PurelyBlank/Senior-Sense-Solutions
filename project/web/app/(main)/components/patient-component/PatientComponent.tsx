@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from 'react';
 
-import { CgProfile } from "react-icons/cg";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { useWearable } from "../../context/WearableContext"; 
+
 import Link from "next/link";
+
+import { CgProfile } from "react-icons/cg";
+
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PatientComponent.css";
@@ -33,6 +37,8 @@ export default function PatientInfo() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
 
   // Generate possible height options
@@ -59,7 +65,10 @@ export default function PatientInfo() {
           throw new Error("No authentication token found.");
         }
 
-        const response = await fetch("http://localhost:5000/api/patients", {
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/patients`;
+
+        const response = await fetch(apiUrl, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -81,6 +90,7 @@ export default function PatientInfo() {
 
     fetchPatients();
   }, []);
+
 
   // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
@@ -114,7 +124,10 @@ export default function PatientInfo() {
         weight: weight ? parseInt(weight) : null,
       };
 
-      const response = await fetch("http://localhost:5000/api/patients", {
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,9 +157,136 @@ export default function PatientInfo() {
       setIsAddPatient(false);
       clearForm();
 
+      // Upon successfully adding a patient, display Snackbar
+      showSuccessSnackbar("Patient added successfully!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
+    }
+  };
+
+  // Fetch request for updating Patient attributes (Gender, Age, Height, Weight)
+  const handleSavePatientChanges = async () => {
+    if (!patient) {
+      setError('Please select a patient to edit.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error('No authentication token found.');
+      }
+
+      const selectedPatient = patients.find(
+        (p) => `${p.patient_id}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error('Selected patient not found.')
+      }
+
+      const patientData = {
+        gender: gender || null,
+        age: age ? parseInt(age) : null,
+        height: height || null,
+        weight: weight ? parseInt(weight) : null,
+      };
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update patient.");
+      }
+
+      // Update patient list locally
+      setPatients(patients.map((p) =>
+        p.patient_id === selectedPatient.patient_id
+          ? {
+            patient_id: p.patient_id,
+            wearable_id: p.wearable_id,
+            first_name: p.first_name,
+            last_name: p.last_name,
+            gender: patientData.gender ?? undefined,
+            age: patientData.age ?? undefined,
+            height: patientData.height ?? undefined,
+            weight: patientData.weight ?? undefined,
+            }
+          : p
+      ));
+
+      setError('');
+
+      // Upon successfully saving changes, display Snackbar
+      showSuccessSnackbar("Patient changes saved!");
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Update patient error:", err);
+    }
+  }
+
+  const handleConfirmRemovePatient = async () => {
+    if (!patient) {
+      setError("Please select a patient to remove.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+      
+      const selectedPatient = patients.find(
+        (p) => `${p.patient_id}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error("Selected patient not found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+  
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete patient.");
+      }
+  
+      // Remove patient from dropdown
+      setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
+      setPatient('');
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+      setIsRemovePatient(false);
+      setError('');
+
+      // Upon successfully removing patient, display Snackbar
+      showSuccessSnackbar("Patient removed successfully.");
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Remove patient error:", err);
     }
   };
 
@@ -162,15 +302,51 @@ export default function PatientInfo() {
     setError('');
   };
 
-  // Setters for Patient row attribute changes
+  const { setWearable_id } = useWearable();
+
+  // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    setPatient(event.target.value as string);
+    const selectedId = Number(event.target.value);
+
+    const selectedPatient = patients.find(
+      (p) => p.patient_id === selectedId
+    );
+
+    if (selectedPatient) {
+      setPatient(`${selectedPatient.patient_id}`);
+      setGender(selectedPatient.gender || '');
+      setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
+      setHeight(selectedPatient.height || '');
+      setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+
+      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : '');
+      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : '');
+      if (selectedPatient.wearable_id !== undefined) { 
+        // Set wearable_id when user selects a patient in the dropdown
+        setWearable_id(selectedPatient.wearable_id);
+      }
+    } else {
+      // Clear Patient attribute fields if no Patient is selected
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+    }
   };
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
   const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
+
+  const showSuccessSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   return (
     <div className="p-3">
@@ -179,139 +355,126 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <p className="dropdown-label">Select Patient</p>
-            <FormControl fullWidth size="small" style={{ width: 430 }}>
-              <InputLabel id="select-patient">Select</InputLabel>
-              <Select
-                labelId="select-patient-label"
-                id="select-patient"
-                label="Patient"
-                value={patient}
-                onChange={handlePatientChange}
-              >
-                {patients.map((p) => (
-                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
-                    {p.first_name + " " + p.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          <FormControl fullWidth size="small" style={{ width: 435 }}>
+            <InputLabel id="select-patient">Select</InputLabel>
+            <Select
+              labelId="select-patient-label"
+              id="select-patient"
+              label="Patient"
+              value={patient}
+              onChange={handlePatientChange}
+            >
+              {patients.map((p) => (
+                <MenuItem key={p.patient_id} value={p.patient_id}>
+                  {p.first_name + " " + p.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
 
           {/* Patient Box */}
           {!isAddPatient ? (
-          <div className="patient-box">
-            {/* Profile Icon and Patient Name */}
-            <CgProfile className="patient-icon" size={95} />
-            <span className="patient-name">{patient || "Select a patient"}</span>
-            <span className="patient-info">Patient Info</span>
+            <div className="patient-box">
+              {/* Profile Icon and Patient Name */}
+              <CgProfile className="patient-icon" size={95} />
+              <span className="patient-name">
+                {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Select a Patient"}
+              </span>
+              <span className="patient-info">Patient Info</span>
+              {error && <div className="error-message" role="alert">{error}</div>}
 
-            {/* Patient Details Rows */}
-            <div className="patient-details">
-              {/* Gender */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Gender</span>
-                  <span className="detail-value">{gender || "None specified"}</span>
+              {/* Patient Details Rows */}
+              <div className="patient-details">
+                {/* Gender */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Gender</span>
+                    <span className="detail-value">{gender || "None specified"}</span>
+                  </div>
+                  <FormControl size="small" className="detail-dropdown">
+                    <InputLabel id="select-gender">Edit</InputLabel>
+                    <Select 
+                      labelId="select-gender-label" 
+                      id="select-gender" 
+                      label="Gender" 
+                      value={gender} 
+                      onChange={handleGenderChange}
+                    >
+                      <MenuItem value="Male">Male</MenuItem>
+                      <MenuItem value="Female">Female</MenuItem>
+                      <MenuItem value="Other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-gender">Edit</InputLabel>
-                  <Select 
-                    labelId="select-gender-label" 
-                    id="select-gender" 
-                    label="Gender" 
-                    value={gender} 
-                    onChange={handleGenderChange}
-                  >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
 
-              {/* Age */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Age</span>
-                  <span className="detail-value">{age || "None specified"}</span>
-                </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-age">Edit</InputLabel>
-                  <Select 
-                    labelId="select-age-label"
-                    id="select-age"
-                    label="Age"
+                {/* Age */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Age</span>
+                    <span className="detail-value">{age || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-age-slot"
+                    placeholder="Edit"
+                    type="number"
                     value={age}
                     onChange={handleAgeChange}
-                  >
-                    {[...Array(100)].map((_, i) => (
-                      <MenuItem key={i} value={i + 1}>
-                        {i + 1}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Height */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Height</span>
-                  <span className="detail-value">{height || "None specified"}</span>
+                  />
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-height">Edit</InputLabel>
-                  <Select 
-                    labelId="select-height-label"
-                    id="select-height"
-                    label="Height"
-                    value={height}
-                    onChange={handleHeightChange}
-                  >
-                    {generateHeightOptions().map((heightOption) => (
-                      <MenuItem key={heightOption} value={heightOption}>
-                        {heightOption}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
 
-              {/* Weight */}
-              <div className="detail-row">
-                <div className="detail-text">
-                  <span className="detail-label">Weight</span>
-                  <span className="detail-value">{weight || "None specified"}</span>
+                {/* Height */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Height</span>
+                    <span className="detail-value">{height || "None specified"}</span>
+                  </div>
+                  <FormControl size="small" className="detail-dropdown">
+                    <InputLabel id="select-height">Edit</InputLabel>
+                    <Select 
+                      labelId="select-height-label"
+                      id="select-height"
+                      label="Height"
+                      value={height}
+                      onChange={handleHeightChange}
+                    >
+                      {generateHeightOptions().map((heightOption) => (
+                        <MenuItem key={heightOption} value={heightOption}>
+                          {heightOption}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </div>
-                <FormControl size="small" className="detail-dropdown">
-                  <InputLabel id="select-weight">Edit</InputLabel>
-                  <Select 
-                    labelId="select-weight-label" 
-                    id="select-weight"
-                    label="Weight"
+
+                {/* Weight */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Weight</span>
+                    <span className="detail-value">{weight || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-weight-slot"
+                    placeholder="Edit"
+                    type="number"
                     value={weight}
                     onChange={handleWeightChange}
-                  >
-                    {[...Array(300)].map((_, i) => (
-                      <MenuItem key={i} value={i + 50}>
-                        {i + 50} lbs
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  />
+                </div>
+
+                {/* Save Changes Button */}
+                <button type="button" className="save-changes-button" onClick={handleSavePatientChanges}>Save Changes</button>
+
+                {/* Remove Patient Button */}
+                <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
+
+                {/* Vertical Line Above Add Patient Button */}
+                <div className="vertical-line"></div>
+
+                {/* Add Patient Button */}
+                <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
               </div>
-
-              {/* Remove Patient Button */}
-              <button type="button" className="remove-patient-button" onClick={handleRemovePatient}>Remove Patient</button>
-
-              {/* Vertical Line Above Add Patient Button */}
-              <div className="vertical-line"></div>
-
-              {/* Add Patient Button */}
-              <button type="button" className="add-patient-button" onClick={handleAddPatient}>Add Patient</button>
             </div>
-          </div>
           ) : (
           <div className="add-patient-box">
             <h5>Add New Patient</h5>
@@ -351,7 +514,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Gender</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-gender-label">Gender</InputLabel>
                   <Select
                     labelId="add-gender-label"
@@ -386,7 +549,7 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Height</span>
                 </div>
-                <FormControl size="small" fullWidth>
+                <FormControl className="add-detail-dropdown" size="small">
                   <InputLabel id="add-height-label">Height</InputLabel>
                   <Select
                     labelId="add-height-label"
@@ -451,9 +614,24 @@ export default function PatientInfo() {
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
 
           {/* Continue button */}
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
+          <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={handleSnackbarClose}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity="success" 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

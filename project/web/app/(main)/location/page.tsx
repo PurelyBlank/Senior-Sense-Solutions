@@ -1,9 +1,13 @@
 "use client"
 
 import { useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+
 import Image from 'next/image';
 import loader from './loader.gif';
+
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+
+import PatientDropdownLocation from '../components/patient-component/PatientDropdownLocation';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./location.css";
@@ -43,38 +47,45 @@ export default function LocationPage() {
       >
         {/* Display Google Maps if loading is complete, show loader icon while it is incomplete */}
         {isLoaded ? (
-          <GoogleMap 
-            mapContainerClassName="map-container"
-            center={center}
-            zoom={10}
-          >
-            {/* Red marker icon */}
-            <Marker
-              position={markerPosition}
-              onMouseOver={() => setInfoOpen(true)}
-              onMouseOut={() => setInfoOpen(false)}
-            />
-
-            {/* Display InfoWindow component if Marker is hovered over */}
-            {infoOpen && (
-              <InfoWindow
+          <>
+            <GoogleMap 
+              mapContainerClassName="map-container"
+              center={center}
+              zoom={10}
+            >
+              {/* Red marker icon */}
+              <Marker
                 position={markerPosition}
-                options={{ pixelOffset: new google.maps.Size(0, -40) }}
-              >
-                <div 
-                  className="info-window"
-                  onMouseOver={() => setInfoOpen(true)}
-                  onMouseOut={() => setInfoOpen(false)}
+                onMouseOver={() => setInfoOpen(true)}
+                onMouseOut={() => setInfoOpen(false)}
+              />
+
+              {/* Display InfoWindow component if Marker is hovered over */}
+              {infoOpen && (
+                <InfoWindow
+                  position={markerPosition}
+                  options={{ pixelOffset: new google.maps.Size(0, -40) }}
                 >
-                  <h3>Bruce Wayne</h3>
-                  <div className="lat-lng">
-                    <p className="text-secondary">Latitude: {markerPosition.lat}</p>
-                    <p className="text-secondary">Longitude: {markerPosition.lng}</p>
+                  <div 
+                    className="info-window"
+                    onMouseOver={() => setInfoOpen(true)}
+                    onMouseOut={() => setInfoOpen(false)}
+                  >
+                    <h3>Bruce Wayne</h3>
+                    <div className="lat-lng">
+                      <p className="text-secondary">Latitude: {markerPosition.lat}</p>
+                      <p className="text-secondary">Longitude: {markerPosition.lng}</p>
+                    </div>
                   </div>
-                </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+            
+            <div className ="location-patient-dropdown-container">
+              <PatientDropdownLocation/>
+            </div>
+
+          </>
         ) : (
           <div className="loader">
             <Image src={loader} alt="Loading" />

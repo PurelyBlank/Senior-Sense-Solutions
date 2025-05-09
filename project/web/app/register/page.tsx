@@ -9,7 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./register.css";
+import "./page.css";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,8 +56,9 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // On success, redirect to Login page
+      // On success, redirect to Login page & send success parameter
       router.push("/");
+      router.push("/?registered=true");
 
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");

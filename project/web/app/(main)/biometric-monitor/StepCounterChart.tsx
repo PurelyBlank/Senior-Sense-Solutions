@@ -5,8 +5,7 @@ import { Chart, registerables } from "chart.js";
 import { useEffect, useRef, useState } from "react";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
-import "./stepCounter.css";
-
+import "./StepCounterChart.css";
 
 Chart.register(...registerables);
 
@@ -140,7 +139,6 @@ const generateData = (type: string) => {
             ))}
           </ToggleButtonGroup>
         </div>
-        
   
         <div style={{ height: "200px" }}>
           <canvas ref={chartRef}></canvas>

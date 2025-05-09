@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -18,7 +21,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  // Receive success parameter sent from successful account registration & activate Snackbar
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("registered") === "true") {
+      setOpenSnackbar(true);
+    }
+  }, [searchParams]);
+
+  // Fetch POST request to handle login attempt
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -143,6 +156,21 @@ export default function LoginPage() {
           <FcGoogle size={48} /> Google
         </button>
       </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          Account successfully created!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
