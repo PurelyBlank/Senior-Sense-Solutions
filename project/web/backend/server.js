@@ -576,7 +576,39 @@ app.get('/api/location/:wearable_id', authenticateToken, async (req, res) => {
     
     res.status(500).json({ error: 'Server error.' });
   }
-})
+});
+
+// Location endpoint to retrieve a patient's first name and last name by wearable_id (GET request)
+app.get('/api/patients/:wearable_id', authenticateToken, async (req, res) => {
+  const { wearable_id } = req.params;
+
+  try {
+    // Query for patient's first name and last name by wearable_id
+    const result = await pool.query (
+      `
+      SELECT first_name, last_name
+      FROM patients
+      WHERE wearable_id = $1;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No patient found for wearable_id.' });
+    }
+
+    const patientData = result.rows[0];
+
+    res.json({
+      first_name: patientData.first_name,
+      last_name: patientData.last_name
+    });
+
+  } catch (err) {
+    console.error('Error retrieving patient data:', err);
+
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
 
 // Wearable data endpoint (POST request)
 app.post('/api/wearable_data/insert', async (req, res) => {

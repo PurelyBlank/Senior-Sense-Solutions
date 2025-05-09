@@ -24,6 +24,7 @@ export default function LocationPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<null | { lat: number; lng: number }>(null);
+  const [patientName, setPatientName] = useState<string | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
@@ -37,10 +38,11 @@ export default function LocationPage() {
   }
 
   useEffect(() => {
-    const fetchLocation = async () => {
+    const fetchLocationAndPatient = async () => {
       // If wearable_id is available, set location to null & display error message
       if (!wearable_id) {
         setMarkerPosition(null);
+        setPatientName(null);
 
         setSnackbarMessage("No patient selected.");
         setSnackbarSeverity("error");
@@ -56,25 +58,39 @@ export default function LocationPage() {
         }
 
         const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-        const apiUrl = `${baseApiUrl}/location/${wearable_id}`;
+        const locationApiUrl = `${baseApiUrl}/location/${wearable_id}`;
+        const patientApiUrl = `${baseApiUrl}/patients/${wearable_id}`;
 
-        const response = await fetch(apiUrl, {
+        const locationResponse = await fetch(locationApiUrl, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch location data.");
+        const locationData = await locationResponse.json();
+        if (!locationResponse.ok) {
+          throw new Error(locationData.error || "Failed to fetch location data.");
+        }
+
+        const patientResponse = await fetch(patientApiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const patientData = await patientResponse.json();
+        if (!patientResponse.ok) {
+          throw new Error(locationData.error || "Failed to fetch patient data.");
         }
 
         // Update marker position with fetched latitude and longitude
         setMarkerPosition({
-          lat: data.latitude,
-          lng: data.longitude,
+          lat: locationData.latitude,
+          lng: locationData.longitude,
         });
+        setPatientName(`${patientData.first_name} ${patientData.last_name}`);
 
         // Upon success, display success message
         setSnackbarMessage("Patient successfully located!");
@@ -85,6 +101,7 @@ export default function LocationPage() {
         console.error("Fetch location error:", err);
 
         setMarkerPosition(null);
+        setPatientName(null);
 
         setSnackbarMessage("Failed to fetch location data. Please select a patient.");
         setSnackbarSeverity("error");
@@ -92,7 +109,7 @@ export default function LocationPage() {
       }
     };
 
-    fetchLocation();
+    fetchLocationAndPatient();
   }, [wearable_id]);
 
   const handleSnackbarClose = () => {
@@ -139,7 +156,7 @@ export default function LocationPage() {
                         onMouseOver={() => setInfoOpen(true)}
                         onMouseOut={() => setInfoOpen(false)}
                       >
-                        <h3>Patient Location</h3>
+                        <h3>{patientName}</h3>
                         <div className="lat-lng">
                           <p className="text-secondary">Latitude: {markerPosition.lat}</p>
                           <p className="text-secondary">Longitude: {markerPosition.lng}</p>
