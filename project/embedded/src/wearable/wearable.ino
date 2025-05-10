@@ -52,11 +52,14 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
-constexpr float fallThreshold = 80;
-const float stillnessThreshold = 10;   // g
+constexpr float fallAccelThreshold = 2.5;
+constexpr float fallGyroThreshold = 10;
+const float stillnessThreshold = 20;   // g
 constexpr int fallBufLen = 20;
-float fallBuf[fallBufLen];
-int fallBufIndex = 0;
+float fallBufAccel[fallBufLen];
+float fallBufGyro[fallBufLen];
+int fallBufAccelIndex = 0;
+int fallBufGyroIndex = 0;
 
 int fallCount = 0;
 bool potentialFall = false;
@@ -65,9 +68,9 @@ const unsigned long stillWindow = 2000;  // 2 seconds
 
 
 constexpr float stepThreshold = 0.2;   // Adjust this threshold for step detection sensitivity
-constexpr int bufferLength = 15;  // Number of accelerometer readings in the buffer
-float buffer[bufferLength];
-int bufferIndex = 0;
+constexpr int stepBufferLength = 15;  // Number of accelerometer readings in the buffer
+float stepBuffer[stepBufferLength];
+int stepBufferIndex = 0;
 int stepCount = 0;
 bool stepDetected = false;
 
@@ -169,11 +172,10 @@ void retrieveBiometricData(void* parameter) {
     
     // Continuously loop to get steps
     getStep();
-    printf("%d\n", stepCount);
+    // printf("%d\n", stepCount);
 
     // Continuously monitor fall detection
     hasFallen();
-
     // printf("%d\n", fallCount);
     
     vTaskDelay(pdMS_TO_TICKS(100));
@@ -270,15 +272,15 @@ void getCurrentLocation() {
 
 void getStep() {
   float accelerationMagnitude = getAccelMagnitude();
-  buffer[bufferIndex] = accelerationMagnitude;
-  bufferIndex = (bufferIndex + 1) % bufferLength;
+  stepBuffer[stepBufferIndex] = accelerationMagnitude;
+  stepBufferIndex = (stepBufferIndex + 1) % stepBufferLength;
 
   // Detect a step if the current magnitude is greater than the average of the buffer by the step threshold
   float avgMagnitude = 0;
-  for (int i = 0; i < bufferLength; i++) {
-    avgMagnitude += buffer[i];
+  for (int i = 0; i < stepBufferLength; i++) {
+    avgMagnitude += stepBuffer[i];
   }
-  avgMagnitude /= bufferLength;
+  avgMagnitude /= stepBufferLength;
 
   // printf("%.2f %.2f\n", accelerationMagnitude, avgMagnitude);
 
@@ -296,37 +298,50 @@ void getStep() {
 }
 
 void hasFallen() {
-  // float mag = getAccelMagnitude();
-  // fallBuf[fallBufIndex] = mag;
-  // fallBufIndex = (fallBufIndex + 1) % fallBufLen;
+  float accelMag = getAccelMagnitude();
+  float gyroMag = getGyroMagnitude();
 
-  // float avgMagnitude = 0;
-  // for (int i = 0; i < fallBufLen; i++) {
-  //   avgMagnitude += fallBuf[i];
-  // }
-  // avgMagnitude /= fallBufLen;
+  fallBufAccel[fallBufAccelIndex] = accelMag;
+  fallBufAccelIndex = (fallBufAccelIndex + 1) % fallBufLen;
 
-  // unsigned long t = millis();
-  // // printf("%.2f %.2f\n", mag, avgMagnitude);
+  fallBufGyro[fallBufGyroIndex] = gyroMag;
+  fallBufGyroIndex = (fallBufGyroIndex + 1) % fallBufLen;
+
+  float avgAccelMagnitude = 0;
+  float avgGyroMagnitude = 0;
+  for (int i = 0; i < fallBufLen; i++) {
+    avgAccelMagnitude += fallBufAccel[i];
+    avgGyroMagnitude += fallBufGyro[i];
+  }
+  avgAccelMagnitude /= fallBufLen;
+  avgGyroMagnitude /= fallBufLen;
+
+  unsigned long t = millis();
+  // printf("%.2f %.2f %.2f %.2f\n", accelMag, avgAccelMagnitude + fallAccelThreshold, gyroMag, avgGyroMagnitude + fallGyroThreshold);
+
   // // 1) Impact spike
-  // if (mag > (avgMagnitude + fallThreshold) && !potentialFall) {
-  //   potentialFall = true;
-  // }
-  // potentialFall = false;
-  // // 2) Check for stillness
-  // if (potentialFall) {
-  //   int totalIterations = 0;
-  //   float totalMag = 0;
-  //   for (unsigned long s = millis(); millis() - s < stillWindow; ++totalIterations) {
-  //     totalMag += getAccelMagnitude();
-  //     vTaskDelay(100);
-  //   }
-  //   // printf("%.2f\n", totalMag / totalIterations);
-  //   if (totalMag / totalIterations < stillnessThreshold) {
-  //     ++fallCount;
-  //   }
-  //   potentialFall = false;
-  // }
+  if (accelMag > (avgAccelMagnitude + fallAccelThreshold) && gyroMag > (avgGyroMagnitude + fallGyroThreshold) && !potentialFall) {
+    potentialFall = true;
+  }
+
+  // 2) Check for stillness
+  if (potentialFall) {
+    vTaskDelay(500); // ensure stillness
+    int totalIterations = 0;
+    float totalAccelMag = 0;
+    float totalGyroMag = 0;
+    for (unsigned long s = millis(); millis() - s < stillWindow; ++totalIterations) {
+      totalAccelMag += getAccelMagnitude();
+      totalGyroMag += getGyroMagnitude();
+      vTaskDelay(100);
+    }
+    // printf("%.2f | %.2f\n", totalAccelMag / totalIterations, totalGyroMag / totalIterations);
+
+    if (totalGyroMag / totalIterations < stillnessThreshold) {
+      ++fallCount;
+    }
+    potentialFall = false;
+  }
 }
 
 void setup() {
@@ -342,7 +357,7 @@ void setup() {
   BAT_Init();
   I2C_Init();
   QMI8658_Init();
-  calibrateGyroscope();  // Run this once
+  // calibrateGyroscope();  // Run this once
   PCF85063_Init();
   printf("Gyro Calibration Complete\n");
 
