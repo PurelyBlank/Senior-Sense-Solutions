@@ -32,9 +32,8 @@ constexpr int milliseconds = 5000;
 
 //-----------------------------------------------------------------//
 // For WiFi
-// constexpr char* ssid = "<SSID>";
-// constexpr char* password = "<PASSWORD>";
-
+constexpr char* ssid = "<SSID>";
+constexpr char* password = "<PASSWORD>";
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -42,14 +41,11 @@ constexpr int WIFI_STACK_SIZE = 4096;        // Increased stack size for WiFi ta
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
-// For location (requires WiFi)
-String payload = "";
-
+// // For location (requires WiFi)
 HTTPClient http;
-DynamicJsonDocument doc(1048);
 
-String latitude = "";
-String longitude = "";
+String payload = "";
+DynamicJsonDocument doc(1048);
 
 constexpr char* locationURL = "http://ip-api.com/json/";
 //-----------------------------------------------------------------//
@@ -58,6 +54,26 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 // For endpoint
 constexpr char* serverName = "http://<IP>/<ENDPOINT>";
 //-----------------------------------------------------------------//
+
+std::pair<String, String> getCurrentLocation() {
+  String latitude = "";
+  String longitude = "";
+
+  if (WiFi.status() == WL_CONNECTED) {
+    http.begin(locationURL);
+    int httpCode = http.GET();
+    if (httpCode > 0) {
+      payload = http.getString();
+      deserializeJson(doc, payload);
+
+      // update value retrieval if location API changes
+      latitude = String(doc["lat"]);
+      longitude = String(doc["lon"]);
+    }
+    http.end();
+  }
+  return std::make_pair(latitude, longitude);
+}
 
 // *IN PROGRESS...
 int httpPostBiometricData(double heartRate) {  // add additional arguments as needed
@@ -69,10 +85,10 @@ int httpPostBiometricData(double heartRate) {  // add additional arguments as ne
     data["wearable_id"] = wearable_id;
     data["timestamp"] = NULL;
     data["battery_level"] = NULL;
-    data["heart_rate"] = heartRate;
+    data["heart_rate"] = NULL;
     data["blood_oxygen"] = -1;
-    data["longitude"] = longitude;
-    data["latitude"] = latitude;
+    data["longitude"] = NULL;
+    data["latitude"] = NULL;
     data["num_falls"] = NULL;
     data["num_steps"] = NULL;
 
@@ -226,22 +242,6 @@ void Driver_Loop() {
     0
   );
 
-}
-
-void getCurrentLocation() {
-  if (WiFi.status() == WL_CONNECTED) {
-    http.begin(locationURL);
-    int httpCode = http.GET();
-    if (httpCode > 0) {
-      payload = http.getString();
-      deserializeJson(doc, payload);
-
-      // update value retrieval if location API changes
-      latitude = String(doc["lat"]);
-      longitude = String(doc["lon"]);
-    }
-    http.end();
-  }
 }
 
 void setup() {
