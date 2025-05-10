@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 
 namespace StepDetection {
 

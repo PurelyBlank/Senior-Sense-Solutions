@@ -1,5 +1,5 @@
 #include "step_detection.h"
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 
 namespace StepDetection {
 

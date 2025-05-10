@@ -1,4 +1,5 @@
 // Project Libraries
+#include "fall_detection.h"
 #include "heart_rate.h"
 #include "step_detection.h"
 
@@ -11,7 +12,7 @@
 
 #include "BAT_driver.h"
 #include "I2C_Driver.h"
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 #include "RTC_PCF85063.h"
 
 
@@ -31,8 +32,9 @@ constexpr int milliseconds = 5000;
 
 //-----------------------------------------------------------------//
 // For WiFi
-constexpr char* ssid = "Puerta-MyCampusNet-Legacy";
-constexpr char* password = "Violet-Liechtenstein-33!";
+// constexpr char* ssid = "<SSID>";
+// constexpr char* password = "<PASSWORD>";
+
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -50,34 +52,6 @@ String latitude = "";
 String longitude = "";
 
 constexpr char* locationURL = "http://ip-api.com/json/";
-//-----------------------------------------------------------------//
-
-//-----------------------------------------------------------------//
-constexpr float fallAccelThreshold = 2.5;
-constexpr float fallGyroThreshold = 10;
-const float stillnessThreshold = 20;   // g
-constexpr int fallBufLen = 20;
-float fallBufAccel[fallBufLen];
-float fallBufGyro[fallBufLen];
-int fallBufAccelIndex = 0;
-int fallBufGyroIndex = 0;
-
-int fallCount = 0;
-bool potentialFall = false;
-unsigned long fallImpactTime = 0;
-const unsigned long stillWindow = 2000;  // 2 seconds
-
-
-// constexpr float stepThreshold = 0.2;   // Adjust this threshold for step detection sensitivity
-// constexpr int stepBufferLength = 15;  // Number of accelerometer readings in the buffer
-// float stepBuffer[stepBufferLength];
-// int stepBufferIndex = 0;
-// int stepCount = 0;
-// bool stepDetected = false;
-
-// constexpr unsigned long debounceDelay = 500;  // Debounce delay in milliseconds
-// unsigned long lastStepTime = 0;
-
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
@@ -169,17 +143,16 @@ void keepWiFiAlive(void* parameter) {
 void retrieveBiometricData(void* parameter) {
   while (1) {
     // Get heart rate
-    double heartRate = heart_rate();
-    
+    double heartRate = HeartRate::heart_rate();
+    // printf("%.2lf\n", heartRate);
+
     // Continuously loop to get steps
     StepDetection::getStep();
-    printf("%d\n", StepDetection::stepCount);
+    // printf("%d\n", StepDetection::stepCount);
 
     // Continuously monitor fall detection
-    hasFallen();
-    // printf("%d\n", fallCount);
-    
-    vTaskDelay(pdMS_TO_TICKS(100));
+    FallDetection::hasFallen();
+    // printf("%d\n", FallDetection::fallCount);
   }
   // unsigned long currentSecond = millis();
   // if (currentSecond - previousSecond >= milliseconds) {
@@ -199,7 +172,7 @@ void retrieveBiometricData(void* parameter) {
 void DriverTask(void *parameter) {
   while(1){    
     // Own sensors
-    heart_rate();
+    HeartRate::heart_rate();
 
     // Other sensors
     // PWR_Loop();
@@ -271,80 +244,6 @@ void getCurrentLocation() {
   }
 }
 
-// void getStep() {
-//   float accelerationMagnitude = getAccelMagnitude();
-//   stepBuffer[stepBufferIndex] = accelerationMagnitude;
-//   stepBufferIndex = (stepBufferIndex + 1) % stepBufferLength;
-
-//   // Detect a step if the current magnitude is greater than the average of the buffer by the step threshold
-//   float avgMagnitude = 0;
-//   for (int i = 0; i < stepBufferLength; i++) {
-//     avgMagnitude += stepBuffer[i];
-//   }
-//   avgMagnitude /= stepBufferLength;
-
-//   // printf("%.2f %.2f\n", accelerationMagnitude, avgMagnitude);
-
-//   unsigned long currentMillis = millis();
-
-//   if (accelerationMagnitude > (avgMagnitude + stepThreshold)) {
-//     if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
-//       stepCount++;
-//       stepDetected = true;
-//       lastStepTime = currentMillis;
-//     }
-//   } else {
-//     stepDetected = false;
-//   }
-// }
-
-void hasFallen() {
-  float accelMag = getAccelMagnitude();
-  float gyroMag = getGyroMagnitude();
-
-  fallBufAccel[fallBufAccelIndex] = accelMag;
-  fallBufAccelIndex = (fallBufAccelIndex + 1) % fallBufLen;
-
-  fallBufGyro[fallBufGyroIndex] = gyroMag;
-  fallBufGyroIndex = (fallBufGyroIndex + 1) % fallBufLen;
-
-  float avgAccelMagnitude = 0;
-  float avgGyroMagnitude = 0;
-  for (int i = 0; i < fallBufLen; i++) {
-    avgAccelMagnitude += fallBufAccel[i];
-    avgGyroMagnitude += fallBufGyro[i];
-  }
-  avgAccelMagnitude /= fallBufLen;
-  avgGyroMagnitude /= fallBufLen;
-
-  unsigned long t = millis();
-  // printf("%.2f %.2f %.2f %.2f\n", accelMag, avgAccelMagnitude + fallAccelThreshold, gyroMag, avgGyroMagnitude + fallGyroThreshold);
-
-  // // 1) Impact spike
-  if (accelMag > (avgAccelMagnitude + fallAccelThreshold) && gyroMag > (avgGyroMagnitude + fallGyroThreshold) && !potentialFall) {
-    potentialFall = true;
-  }
-
-  // 2) Check for stillness
-  if (potentialFall) {
-    vTaskDelay(500); // ensure stillness
-    int totalIterations = 0;
-    float totalAccelMag = 0;
-    float totalGyroMag = 0;
-    for (unsigned long s = millis(); millis() - s < stillWindow; ++totalIterations) {
-      totalAccelMag += getAccelMagnitude();
-      totalGyroMag += getGyroMagnitude();
-      vTaskDelay(100);
-    }
-    // printf("%.2f | %.2f\n", totalAccelMag / totalIterations, totalGyroMag / totalIterations);
-
-    if (totalGyroMag / totalIterations < stillnessThreshold) {
-      ++fallCount;
-    }
-    potentialFall = false;
-  }
-}
-
 void setup() {
   Serial.begin(115200);
   Serial.println("Initializing...");
@@ -352,7 +251,7 @@ void setup() {
   delay(1000);
 
   // initialize all modules and sensors
-  initialize_heart_rate_sensor();
+  HeartRate::initialize_heart_rate_sensor();
 
   // initialize others
   BAT_Init();

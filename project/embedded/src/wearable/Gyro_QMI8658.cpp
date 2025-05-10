@@ -1,4 +1,4 @@
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 
 IMUdata Accel;
 IMUdata Gyro;
@@ -286,9 +286,6 @@ void getGyroscope(void)
     Gyro.y = Gyro.y * gyroScales;
     Gyro.z = Gyro.z * gyroScales;
 }
-
-
-
 
 // Own functions
 float getGyroMagnitude() {
