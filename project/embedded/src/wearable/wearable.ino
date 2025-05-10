@@ -1,5 +1,6 @@
 // Project Libraries
 #include "heart_rate.h"
+#include "step_detection.h"
 
 // Library Includes
 #include <Wire.h>
@@ -67,15 +68,15 @@ unsigned long fallImpactTime = 0;
 const unsigned long stillWindow = 2000;  // 2 seconds
 
 
-constexpr float stepThreshold = 0.2;   // Adjust this threshold for step detection sensitivity
-constexpr int stepBufferLength = 15;  // Number of accelerometer readings in the buffer
-float stepBuffer[stepBufferLength];
-int stepBufferIndex = 0;
-int stepCount = 0;
-bool stepDetected = false;
+// constexpr float stepThreshold = 0.2;   // Adjust this threshold for step detection sensitivity
+// constexpr int stepBufferLength = 15;  // Number of accelerometer readings in the buffer
+// float stepBuffer[stepBufferLength];
+// int stepBufferIndex = 0;
+// int stepCount = 0;
+// bool stepDetected = false;
 
-constexpr unsigned long debounceDelay = 500;  // Debounce delay in milliseconds
-unsigned long lastStepTime = 0;
+// constexpr unsigned long debounceDelay = 500;  // Debounce delay in milliseconds
+// unsigned long lastStepTime = 0;
 
 //-----------------------------------------------------------------//
 
@@ -171,8 +172,8 @@ void retrieveBiometricData(void* parameter) {
     double heartRate = heart_rate();
     
     // Continuously loop to get steps
-    getStep();
-    // printf("%d\n", stepCount);
+    StepDetection::getStep();
+    printf("%d\n", StepDetection::stepCount);
 
     // Continuously monitor fall detection
     hasFallen();
@@ -270,32 +271,32 @@ void getCurrentLocation() {
   }
 }
 
-void getStep() {
-  float accelerationMagnitude = getAccelMagnitude();
-  stepBuffer[stepBufferIndex] = accelerationMagnitude;
-  stepBufferIndex = (stepBufferIndex + 1) % stepBufferLength;
+// void getStep() {
+//   float accelerationMagnitude = getAccelMagnitude();
+//   stepBuffer[stepBufferIndex] = accelerationMagnitude;
+//   stepBufferIndex = (stepBufferIndex + 1) % stepBufferLength;
 
-  // Detect a step if the current magnitude is greater than the average of the buffer by the step threshold
-  float avgMagnitude = 0;
-  for (int i = 0; i < stepBufferLength; i++) {
-    avgMagnitude += stepBuffer[i];
-  }
-  avgMagnitude /= stepBufferLength;
+//   // Detect a step if the current magnitude is greater than the average of the buffer by the step threshold
+//   float avgMagnitude = 0;
+//   for (int i = 0; i < stepBufferLength; i++) {
+//     avgMagnitude += stepBuffer[i];
+//   }
+//   avgMagnitude /= stepBufferLength;
 
-  // printf("%.2f %.2f\n", accelerationMagnitude, avgMagnitude);
+//   // printf("%.2f %.2f\n", accelerationMagnitude, avgMagnitude);
 
-  unsigned long currentMillis = millis();
+//   unsigned long currentMillis = millis();
 
-  if (accelerationMagnitude > (avgMagnitude + stepThreshold)) {
-    if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
-      stepCount++;
-      stepDetected = true;
-      lastStepTime = currentMillis;
-    }
-  } else {
-    stepDetected = false;
-  }
-}
+//   if (accelerationMagnitude > (avgMagnitude + stepThreshold)) {
+//     if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
+//       stepCount++;
+//       stepDetected = true;
+//       lastStepTime = currentMillis;
+//     }
+//   } else {
+//     stepDetected = false;
+//   }
+// }
 
 void hasFallen() {
   float accelMag = getAccelMagnitude();
