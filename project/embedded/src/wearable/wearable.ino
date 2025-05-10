@@ -11,6 +11,7 @@
 #include "BAT_driver.h"
 #include "I2C_Driver.h"
 #include "gyro.h"
+#include "RTC_PCF85063.h"
 
 
 constexpr int FAILURE = 0;
@@ -153,14 +154,13 @@ void keepWiFiAlive(void* parameter) {
 
 void retrieveBiometricData(void* parameter) {
   while (1) {
+    // Get heart rate
     double heartRate = heart_rate();
+    
+    // Continuously loop to get steps
     getStep();
-    // printf("%.2f%\n", getBatteryPercentage());
-
-    // printf("%lf", heartRate);
-    // printf("\n");
-
-    // printf("%i\n", stepCount);
+    
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
   // unsigned long currentSecond = millis();
   // if (currentSecond - previousSecond >= milliseconds) {
@@ -177,6 +177,20 @@ void retrieveBiometricData(void* parameter) {
   // }
 }
 
+void DriverTask(void *parameter) {
+  while(1){    
+    // Own sensors
+    heart_rate();
+
+    // Other sensors
+    // PWR_Loop();
+    BAT_Get_Volts();
+    RTC_Loop();
+    QMI8658_Loop(); 
+    // Psram_Inquiry();
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
 
 void Driver_Loop() {
   // Create WiFi task on core 1 (usually safer for network tasks)
@@ -187,7 +201,8 @@ void Driver_Loop() {
     NULL,
     4,
     NULL,
-    1);
+    1
+  );
 
   // Wait a bit for the system to stabilize
   vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -195,6 +210,18 @@ void Driver_Loop() {
   if (wifiTaskCreated != pdPASS) {
     printf("Failed to create WiFi task! Error code: %d\n", wifiTaskCreated);
   }
+
+  xTaskCreatePinnedToCore(
+    DriverTask,
+    "DriverTask",
+    4096,
+    NULL,
+    3,
+    NULL,
+    0
+  );
+
+  vTaskDelay(500 / portTICK_PERIOD_MS);
 
   // Create loop to get data
   xTaskCreatePinnedToCore(
@@ -204,7 +231,9 @@ void Driver_Loop() {
     NULL,
     3,
     NULL,
-    0);
+    0
+  );
+
 }
 
 void getCurrentLocation() {
@@ -276,6 +305,7 @@ void setup() {
   I2C_Init();
   QMI8658_Init();
   calibrateGyroscope();  // Run this once
+  PCF85063_Init();
   printf("Gyro Calibration Complete\n");
 
   // Start background tasks after everything is initialized
