@@ -30,8 +30,8 @@ constexpr int milliseconds = 5000;
 
 //-----------------------------------------------------------------//
 // For WiFi
-constexpr char* ssid = "<SSID>";
-constexpr char* password = "<PASSWORD>";
+constexpr char* ssid = "Puerta-MyCampusNet-Legacy";
+constexpr char* password = "Violet-Liechtenstein-33!";
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -52,16 +52,26 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
-constexpr float fallThreshold = 50;
+constexpr float fallThreshold = 80;
+const float stillnessThreshold = 10;   // g
+constexpr int fallBufLen = 20;
+float fallBuf[fallBufLen];
+int fallBufIndex = 0;
 
-constexpr float threshold = 10;   // Adjust this threshold for step detection sensitivity
+int fallCount = 0;
+bool potentialFall = false;
+unsigned long fallImpactTime = 0;
+const unsigned long stillWindow = 2000;  // 2 seconds
+
+
+constexpr float stepThreshold = 0.2;   // Adjust this threshold for step detection sensitivity
 constexpr int bufferLength = 15;  // Number of accelerometer readings in the buffer
 float buffer[bufferLength];
 int bufferIndex = 0;
 int stepCount = 0;
 bool stepDetected = false;
 
-constexpr unsigned long debounceDelay = 1000;  // Debounce delay in milliseconds
+constexpr unsigned long debounceDelay = 500;  // Debounce delay in milliseconds
 unsigned long lastStepTime = 0;
 
 //-----------------------------------------------------------------//
@@ -159,6 +169,12 @@ void retrieveBiometricData(void* parameter) {
     
     // Continuously loop to get steps
     getStep();
+    printf("%d\n", stepCount);
+
+    // Continuously monitor fall detection
+    hasFallen();
+
+    // printf("%d\n", fallCount);
     
     vTaskDelay(pdMS_TO_TICKS(100));
   }
@@ -252,31 +268,23 @@ void getCurrentLocation() {
   }
 }
 
-float getAccelMagnitude() {
-  getGyroscope();
-  float gx = Gyro.x - GyroOffset.x;
-  float gy = Gyro.y - GyroOffset.y;
-  float gz = Gyro.z - GyroOffset.z;
-  // printf("Gyroscope Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", gx, gy, gz);
-
-  return sqrt(gx * gx + gy * gy + gz * gz);
-}
-
 void getStep() {
   float accelerationMagnitude = getAccelMagnitude();
   buffer[bufferIndex] = accelerationMagnitude;
   bufferIndex = (bufferIndex + 1) % bufferLength;
 
-  // Detect a step if the current magnitude is greater than the average of the buffer by the threshold
+  // Detect a step if the current magnitude is greater than the average of the buffer by the step threshold
   float avgMagnitude = 0;
   for (int i = 0; i < bufferLength; i++) {
     avgMagnitude += buffer[i];
   }
   avgMagnitude /= bufferLength;
 
+  // printf("%.2f %.2f\n", accelerationMagnitude, avgMagnitude);
+
   unsigned long currentMillis = millis();
 
-  if (accelerationMagnitude > (avgMagnitude + threshold)) {
+  if (accelerationMagnitude > (avgMagnitude + stepThreshold)) {
     if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
       stepCount++;
       stepDetected = true;
@@ -287,8 +295,38 @@ void getStep() {
   }
 }
 
-bool hasFallen() {
-  return true;
+void hasFallen() {
+  // float mag = getAccelMagnitude();
+  // fallBuf[fallBufIndex] = mag;
+  // fallBufIndex = (fallBufIndex + 1) % fallBufLen;
+
+  // float avgMagnitude = 0;
+  // for (int i = 0; i < fallBufLen; i++) {
+  //   avgMagnitude += fallBuf[i];
+  // }
+  // avgMagnitude /= fallBufLen;
+
+  // unsigned long t = millis();
+  // // printf("%.2f %.2f\n", mag, avgMagnitude);
+  // // 1) Impact spike
+  // if (mag > (avgMagnitude + fallThreshold) && !potentialFall) {
+  //   potentialFall = true;
+  // }
+  // potentialFall = false;
+  // // 2) Check for stillness
+  // if (potentialFall) {
+  //   int totalIterations = 0;
+  //   float totalMag = 0;
+  //   for (unsigned long s = millis(); millis() - s < stillWindow; ++totalIterations) {
+  //     totalMag += getAccelMagnitude();
+  //     vTaskDelay(100);
+  //   }
+  //   // printf("%.2f\n", totalMag / totalIterations);
+  //   if (totalMag / totalIterations < stillnessThreshold) {
+  //     ++fallCount;
+  //   }
+  //   potentialFall = false;
+  // }
 }
 
 void setup() {

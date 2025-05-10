@@ -161,3 +161,7 @@ float getGyroZ();
 void getAccelerometer(void);
 void getGyroscope(void);
 void calibrateGyroscope(int samples = 100);
+
+// Own functions
+float getGyroMagnitude();
+float getAccelMagnitude();

@@ -303,3 +303,22 @@ void calibrateGyroscope(int samples) {
   GyroOffset.y /= samples;
   GyroOffset.z /= samples;
 }
+
+// Own functions
+float getGyroMagnitude() {
+  float gx = Gyro.x;
+  float gy = Gyro.y;
+  float gz = Gyro.z;
+  // printf("Gyroscope Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", gx, gy, gz);
+
+  return sqrt(gx * gx + gy * gy + gz * gz);
+}
+
+float getAccelMagnitude() {
+  float ax = Accel.x;
+  float ay = Accel.y;
+  float az = Accel.z;
+  // printf("Accelerometer Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", ax, ay, az);
+
+  return sqrt(ax * ax + ay * ay + az * az);
+}
