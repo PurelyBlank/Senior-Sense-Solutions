@@ -135,7 +135,6 @@ typedef struct __IMUdata {
 
 extern IMUdata Accel;
 extern IMUdata Gyro;
-extern IMUdata GyroOffset;
 
 void QMI8658_Init(void);
 void QMI8658_Loop(void);
@@ -160,4 +159,7 @@ float getGyroY();
 float getGyroZ();
 void getAccelerometer(void);
 void getGyroscope(void);
-void calibrateGyroscope(int samples = 100);
+
+// Own functions
+float getGyroMagnitude();
+float getAccelMagnitude();

@@ -1,5 +1,7 @@
 // Project Libraries
+#include "fall_detection.h"
 #include "heart_rate.h"
+#include "step_detection.h"
 
 // Library Includes
 #include <Wire.h>
@@ -10,7 +12,7 @@
 
 #include "BAT_driver.h"
 #include "I2C_Driver.h"
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 #include "RTC_PCF85063.h"
 
 
@@ -39,37 +41,39 @@ constexpr int WIFI_STACK_SIZE = 4096;        // Increased stack size for WiFi ta
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
-// For location (requires WiFi)
-String payload = "";
-
+// // For location (requires WiFi)
 HTTPClient http;
+
+String payload = "";
 DynamicJsonDocument doc(1048);
 
-String latitude = "";
-String longitude = "";
-
 constexpr char* locationURL = "http://ip-api.com/json/";
-//-----------------------------------------------------------------//
-
-//-----------------------------------------------------------------//
-constexpr float fallThreshold = 50;
-
-constexpr float threshold = 10;   // Adjust this threshold for step detection sensitivity
-constexpr int bufferLength = 15;  // Number of accelerometer readings in the buffer
-float buffer[bufferLength];
-int bufferIndex = 0;
-int stepCount = 0;
-bool stepDetected = false;
-
-constexpr unsigned long debounceDelay = 1000;  // Debounce delay in milliseconds
-unsigned long lastStepTime = 0;
-
 //-----------------------------------------------------------------//
 
 //-----------------------------------------------------------------//
 // For endpoint
 constexpr char* serverName = "http://<IP>/<ENDPOINT>";
 //-----------------------------------------------------------------//
+
+std::pair<String, String> getCurrentLocation() {
+  String latitude = "";
+  String longitude = "";
+
+  if (WiFi.status() == WL_CONNECTED) {
+    http.begin(locationURL);
+    int httpCode = http.GET();
+    if (httpCode > 0) {
+      payload = http.getString();
+      deserializeJson(doc, payload);
+
+      // update value retrieval if location API changes
+      latitude = String(doc["lat"]);
+      longitude = String(doc["lon"]);
+    }
+    http.end();
+  }
+  return std::make_pair(latitude, longitude);
+}
 
 // *IN PROGRESS...
 int httpPostBiometricData(double heartRate) {  // add additional arguments as needed
@@ -81,10 +85,10 @@ int httpPostBiometricData(double heartRate) {  // add additional arguments as ne
     data["wearable_id"] = wearable_id;
     data["timestamp"] = NULL;
     data["battery_level"] = NULL;
-    data["heart_rate"] = heartRate;
+    data["heart_rate"] = NULL;
     data["blood_oxygen"] = -1;
-    data["longitude"] = longitude;
-    data["latitude"] = latitude;
+    data["longitude"] = NULL;
+    data["latitude"] = NULL;
     data["num_falls"] = NULL;
     data["num_steps"] = NULL;
 
@@ -155,12 +159,16 @@ void keepWiFiAlive(void* parameter) {
 void retrieveBiometricData(void* parameter) {
   while (1) {
     // Get heart rate
-    double heartRate = heart_rate();
-    
+    double heartRate = HeartRate::heart_rate();
+    // printf("%.2lf\n", heartRate);
+
     // Continuously loop to get steps
-    getStep();
-    
-    vTaskDelay(pdMS_TO_TICKS(100));
+    StepDetection::getStep();
+    // printf("%d\n", StepDetection::stepCount);
+
+    // Continuously monitor fall detection
+    FallDetection::hasFallen();
+    // printf("%d\n", FallDetection::fallCount);
   }
   // unsigned long currentSecond = millis();
   // if (currentSecond - previousSecond >= milliseconds) {
@@ -180,7 +188,7 @@ void retrieveBiometricData(void* parameter) {
 void DriverTask(void *parameter) {
   while(1){    
     // Own sensors
-    heart_rate();
+    HeartRate::heart_rate();
 
     // Other sensors
     // PWR_Loop();
@@ -236,61 +244,6 @@ void Driver_Loop() {
 
 }
 
-void getCurrentLocation() {
-  if (WiFi.status() == WL_CONNECTED) {
-    http.begin(locationURL);
-    int httpCode = http.GET();
-    if (httpCode > 0) {
-      payload = http.getString();
-      deserializeJson(doc, payload);
-
-      // update value retrieval if location API changes
-      latitude = String(doc["lat"]);
-      longitude = String(doc["lon"]);
-    }
-    http.end();
-  }
-}
-
-float getAccelMagnitude() {
-  getGyroscope();
-  float gx = Gyro.x - GyroOffset.x;
-  float gy = Gyro.y - GyroOffset.y;
-  float gz = Gyro.z - GyroOffset.z;
-  // printf("Gyroscope Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", gx, gy, gz);
-
-  return sqrt(gx * gx + gy * gy + gz * gz);
-}
-
-void getStep() {
-  float accelerationMagnitude = getAccelMagnitude();
-  buffer[bufferIndex] = accelerationMagnitude;
-  bufferIndex = (bufferIndex + 1) % bufferLength;
-
-  // Detect a step if the current magnitude is greater than the average of the buffer by the threshold
-  float avgMagnitude = 0;
-  for (int i = 0; i < bufferLength; i++) {
-    avgMagnitude += buffer[i];
-  }
-  avgMagnitude /= bufferLength;
-
-  unsigned long currentMillis = millis();
-
-  if (accelerationMagnitude > (avgMagnitude + threshold)) {
-    if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
-      stepCount++;
-      stepDetected = true;
-      lastStepTime = currentMillis;
-    }
-  } else {
-    stepDetected = false;
-  }
-}
-
-bool hasFallen() {
-  return true;
-}
-
 void setup() {
   Serial.begin(115200);
   Serial.println("Initializing...");
@@ -298,13 +251,13 @@ void setup() {
   delay(1000);
 
   // initialize all modules and sensors
-  initialize_heart_rate_sensor();
+  HeartRate::initialize_heart_rate_sensor();
 
   // initialize others
   BAT_Init();
   I2C_Init();
   QMI8658_Init();
-  calibrateGyroscope();  // Run this once
+  // calibrateGyroscope();  // Run this once
   PCF85063_Init();
   printf("Gyro Calibration Complete\n");
 
