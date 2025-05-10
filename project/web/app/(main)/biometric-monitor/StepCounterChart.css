@@ -2,27 +2,27 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 30px;
-  border-radius: 15px;
+  padding: clamp(1rem, 4vw, 2rem);
+  border-radius: 1rem;
   border: 1px solid lightgray;
   background-color: #FFFFFF;
-  min-height: 355px;
-  max-height: 500px;
+  min-height: 22rem;  
+  max-height: 31.25rem;  
   width: 100%;
   min-width: 0;
-  max-width: 500px;
+  max-width: 31.25rem;  
 }
 
 .top-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .progress-ring {
   position: relative;
-  width: 80px;
-  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,7 +30,12 @@
 
 .walking-icon {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(1rem, 3vw, 2rem); /* Scales with container */
   color: #333;
+  pointer-events: none; /* optional: avoid capturing mouse events */
 }
 
 .step-stats {
@@ -38,20 +43,20 @@
 }
 
 .step-average {
-  font-size: 20px;
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
   font-weight: bold;
   color: #333;
 }
 
 .step-sub {
-  font-size: 12px;
+  font-size: clamp(0.65rem, 1.3vw, 0.75rem);
   color: #777;
 }
 
 .stepCounter-header {
-  font-size: 18px;
+  font-size: clamp(1rem, 2vw, 1.125rem);
   font-weight: 600;
-  margin: 20px 0 10px;
+  margin: clamp(1rem, 2.5vw, 1.25rem) 0 clamp(0.5rem, 2vw, 0.625rem);
   color: #444;
   text-align: center;
 }
@@ -64,17 +69,17 @@
 
 .stepcounter-tabs .MuiToggleButtonGroup-root {
   width: 100%;
-  background-color: #f0f0f0; 
-  border-radius: 12px; 
-  overflow: hidden; 
-  border: 1px solid black; 
+  background-color: #f0f0f0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid black;
 }
 
 .stepcounter-tabs .MuiToggleButton-root {
   flex: 1;
   color: black;
   font-weight: 500;
-  border-right: 1px solid black; 
+  border-right: 1px solid black;
   border-radius: 0 !important;
   background-color: transparent;
   transition: background-color 0.2s ease;
@@ -85,9 +90,48 @@
 }
 
 .stepcounter-tabs .Mui-selected {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
 }
 
-.stepcounter-tabs .Mui-selected:hover {
-  background-color: rgba(0, 0, 0, 0.2);
+.tab {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background-color: #dcdcdc;
+}
+
+.tab.active {
+  background-color: #33B7F7;
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .stepCounter-box {
+    padding: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .step-stats {
+    text-align: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .progress-ring {
+    width: clamp(2rem, 6vw, 4rem);
+    height: clamp(2rem, 6vw, 4rem);
+  }
+
+  .walking-icon {
+    font-size: clamp(0.75rem, 2.5vw, 1.25rem);
+  }
 }
