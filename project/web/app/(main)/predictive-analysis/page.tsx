@@ -1,6 +1,6 @@
-import FallChart from "./FallChart";
-import HeartRateChart from "./HeartRateChart";
-import PatientActivity from "./PatientActivity";
+import FallChart from "./fallChart";
+import HeartRateChart from "./heartRateChart";
+import PatientActivity from "./patientActivity";
 import PatientInfo from "../components/patient-component/PatientComponent";
 import PatientDropdown from "../components/patient-component/PatientDropdown";
 
