@@ -45,9 +45,11 @@ export default function HeartRateChart(){
       });
 
       const data = await response.json();
-      //if (!response.ok) {
-      //  throw new Error(data.error || "Failed to fetch heart rate data.");
-      //}
+      if (!response.ok) {
+        setPatientHeartRate("");
+        
+        throw new Error(data.error || "Failed to fetch heart rate data.");
+      }
 
       setPatientHeartRate(data.patientHeartRate);
 
