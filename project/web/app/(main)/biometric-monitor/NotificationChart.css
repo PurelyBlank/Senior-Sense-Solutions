@@ -29,6 +29,10 @@
   max-width: 100%;
 }
 
+.notifications-row:hover {
+  background-color: #f0f0f0;
+}
+
 .notifications-header {
   display: flex;
   align-items: center;
