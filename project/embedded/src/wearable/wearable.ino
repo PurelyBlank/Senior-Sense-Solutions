@@ -26,8 +26,11 @@ constexpr int wearable_id = 1;
 
 //-----------------------------------------------------------------//
 // For WiFi
-constexpr char* ssid = "<SSID>";
-constexpr char* password = "<PASSWORD>";
+// constexpr char* ssid = "<SSID>";
+// constexpr char* password = "<PASSWORD>";
+
+constexpr char* ssid = "UCInet Mobile Access";
+constexpr char* password = "";
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -46,7 +49,7 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 
 //-----------------------------------------------------------------//
 // For endpoint
-constexpr char* serverName = "http://34.220.161.249/api/wearable_data/insert";
+constexpr char* serverName = "<ENDPOINT URL>";
 
 unsigned int previousDataSendTime = 0;
 constexpr int dataSendTimeout = 3000;   // Do not go under 3 milliseconds as location uses API which we must be polite towards
