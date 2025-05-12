@@ -97,7 +97,7 @@ const generateData = (type: string) => {
         if (!response.ok) {
           setStepCounting("");
           
-          throw new Error(data.error || "Failed to fetch heart rate data.");
+          throw new Error(data.error || "Failed to fetch step count data.");
         }
   
         setStepCounting(data.stepCounting);
