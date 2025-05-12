@@ -132,9 +132,8 @@ export default function LoginPage() {
           <button 
             type="submit" 
             className="login" 
-            disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Logging in" : "Login"}
           </button>
         </form>
 

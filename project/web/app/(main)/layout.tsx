@@ -4,7 +4,7 @@ import { WearableProvider } from "./context/WearableContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { BiUser } from "react-icons/bi";
 import { AiOutlineHome } from "react-icons/ai";
@@ -21,6 +21,10 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   const [caretakerFirstName, setCaretakerFirstName] = useState('');
   const [caretakerLastName, setCaretakerLastName] = useState('');
   const [, setError] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Ref for caretaker user dropdown
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const pageNames: Record<string, string> = {
     "/biometric-monitor": "Home",
@@ -79,58 +83,98 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     handleFetchCaretakerFirstAndLastName();
   }, []);
-//WearableProvider, allows all layout.txs children to use setWearable_id and wearable_id 
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+  
   return (
     <WearableProvider> 
-    <div className="flex h-screen flex-col">
-      {/* Top Bar */}
-      <div className="top-bar">
-        <div className="logo">Senior Sense Solutions</div>
-        <div className="dash">Dashboard</div>
-        <div className="icon">
-          <button><BiUser size={24} /></button>
-          <span>{caretakerFirstName || "Caretaker"}{" "}{caretakerLastName || "User"}</span>
-          <button style={{ fontSize: "1.5rem" }}>▾</button>
-        </div>
-      </div>
-
-      {/* Page Title */}
-      <div className="page-name-bar">{pageNames[pathname] || "Dashboard"}</div>
-
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-          <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
-            {collapsed ? "▸" : "◂"}
-          </button>
-
-          {/* Navigation Links */}
-          <nav className="nav-links">
-            <Link href="/biometric-monitor" className={`nav-links ${pathname === "/biometric-monitor" ? "active" : ""}`}>
-              <AiOutlineHome size={34} /> {collapsed ? "" : "Home"}
-            </Link> 
-            <Link href="/predictive-analysis" className={`nav-links ${pathname === "/predictive-analysis" ? "active" : ""}`}>
-              <TbActivityHeartbeat size={34} /> {collapsed ? "" : "Predictive Analysis"}
-            </Link>
-            <Link href="/battery-tracker" className={`nav-links ${pathname === "/battery-tracker" ? "active" : ""}`}>
-              <LuBatteryCharging size={34} /> {collapsed ? "" : "Battery Tracker"}
-            </Link>
-            <Link href="/location" className={`nav-links ${pathname === "/location" ? "active" : ""}`}>
-              <FaRegMap size={34} /> {collapsed ? "" : "Location"}
-            </Link>
-            <button className="nav-button" onClick={() => {
-                localStorage.removeItem("authToken"); // Remove token
-                router.push("/"); // Redirect to main layout (which shows login)
-            }}>
-                <IoLogInOutline size={34}/> {collapsed ? "" : "Sign Out"}
+      <div className="flex h-screen flex-col">
+        {/* Top Bar */}
+        <div className="top-bar">
+          <div className="logo">Senior Sense Solutions</div>
+          <div className="dash">Dashboard</div>
+          <div className="icon">
+            <button>
+              <BiUser size={24} />
             </button>
-          </nav>
+            <span>
+              {caretakerFirstName || "Caretaker"}{" "}{caretakerLastName || "User"}
+            </span>
+            <div className="dropdown-container">
+              <button className="dropdown-toggle" style={{ fontSize: "1.5rem" }}></button>
+              <div className="dropdown-menu">
+                <button
+                  className="dropdown-item-settings"
+                  onClick={() => {
+                    router.push("/settings");
+                  }}
+                >
+                  Settings
+                </button>
+                <button
+                  className="dropdown-item-signout"
+                  onClick={() => {
+                    localStorage.removeItem("authToken");
+                    router.push("/");
+                  }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="main-content">{children}</div>
+        {/* Page Title */}
+        <div className="page-name-bar">{pageNames[pathname] || "Dashboard"}</div>
+
+        <div className="flex flex-1">
+          {/* Sidebar */}
+          <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+            <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
+              {collapsed ? "▸" : "◂"}
+            </button>
+
+            {/* Navigation Links */}
+            <nav className="nav-links">
+              <Link href="/biometric-monitor" className={`nav-links ${pathname === "/biometric-monitor" ? "active" : ""}`}>
+                <AiOutlineHome size={34} /> {collapsed ? "" : "Home"}
+              </Link> 
+              <Link href="/predictive-analysis" className={`nav-links ${pathname === "/predictive-analysis" ? "active" : ""}`}>
+                <TbActivityHeartbeat size={34} /> {collapsed ? "" : "Predictive Analysis"}
+              </Link>
+              <Link href="/battery-tracker" className={`nav-links ${pathname === "/battery-tracker" ? "active" : ""}`}>
+                <LuBatteryCharging size={34} /> {collapsed ? "" : "Battery Tracker"}
+              </Link>
+              <Link href="/location" className={`nav-links ${pathname === "/location" ? "active" : ""}`}>
+                <FaRegMap size={34} /> {collapsed ? "" : "Location"}
+              </Link>
+              <button className="nav-button" onClick={() => {
+                  localStorage.removeItem("authToken"); // Remove token
+                  router.push("/"); // Redirect to main layout (which shows login)
+              }}>
+                  <IoLogInOutline size={34}/> {collapsed ? "" : "Sign Out"}
+              </button>
+            </nav>
+          </div>
+
+          {/* Main Content */}
+          <div className="main-content">{children}</div>
+        </div>
       </div>
-    </div>
     </WearableProvider>
   );
 }
