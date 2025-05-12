@@ -29,6 +29,9 @@ constexpr int wearable_id = 1;
 // constexpr char* ssid = "<SSID>";
 // constexpr char* password = "<PASSWORD>";
 
+constexpr char* ssid = "UCInet Mobile Access";
+constexpr char* password = "";
+
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
 constexpr int WIFI_STACK_SIZE = 4096;        // Increased stack size for WiFi task
@@ -46,7 +49,7 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 
 //-----------------------------------------------------------------//
 // For endpoint
-constexpr char* serverName = "http://<IP>/<ENDPOINT>";
+constexpr char* serverName = "<ENDPOINT URL>";
 
 unsigned int previousDataSendTime = 0;
 constexpr int dataSendTimeout = 3000;   // Do not go under 3 milliseconds as location uses API which we must be polite towards
@@ -72,15 +75,14 @@ std::pair<String, String> getCurrentLocation() {
   return std::make_pair(latitude, longitude);
 }
 
-// *IN PROGRESS...
-int httpPostBiometricData(double heartRate, String latitude, String longitude, double batteryLevel, int numFalls, int numSteps) {
+int httpPostBiometricData(String timeStr, double heartRate, String latitude, String longitude, double batteryLevel, int numFalls, int numSteps) {
   if (WiFi.status() == WL_CONNECTED) {
     http.begin(serverName);
     http.addHeader("Content-Type", "application/json");
 
     StaticJsonDocument<200> data;
     data["wearable_id"] = wearable_id;
-    data["timestamp"] = NULL;
+    data["timestamp"] = timeStr;
     data["battery_level"] = batteryLevel;
     data["heart_rate"] = heartRate;
     data["blood_oxygen"] = -1;    // not implemented
@@ -113,9 +115,11 @@ void sendDataTask(void* parameter) {
     double heartRate = HeartRate::heart_rate();
     auto [latitude, longitude] = getCurrentLocation();
     double batteryLevel = getBatteryPercentage();
+    char timeStr[64];
+    datetime_to_str(timeStr, datetime);
 
     // Send POST Request to Website Endpoint
-    int response = httpPostBiometricData(heartRate, latitude, longitude, batteryLevel,
+    int response = httpPostBiometricData(timeStr, heartRate, latitude, longitude, batteryLevel,
                                          FallDetection::getFallCount(), StepDetection::getStepCount());
     if (response == SUCCESS) {
       StepDetection::resetStepCount();
@@ -127,23 +131,6 @@ void sendDataTask(void* parameter) {
 
     vTaskDelay(pdMS_TO_TICKS(dataSendTimeout));
   }
-  // unsigned long currentSecond = millis();
-  // if (currentSecond - previousDataSendTime >= dataSendTimeout) {
-  //     previousDataSendTime = currentSecond;
-      
-  //     double heartRate = heart_rate();
-  //     auto [latitude, longitude] = getCurrentLocation();
-  //     double batteryLevel = getBatteryPercentage();
-
-  //     // Send POST Request to Website Endpoint
-  //     int response = httpPostBiometricData();
-  //     if (response == UNREACHED) {
-  //       printf("Unable to send data to endpoint\n");
-  //     }
-
-  //     StepDetection::stepCount = 0;
-  //     FallDetection::fallCount = 0;
-  // }
 }
 
 
@@ -208,7 +195,7 @@ void retrieveBiometricData(void* parameter) {
     // printf("%d\n", FallDetection::fallCount);
     // vTaskDelay(pdMS_TO_TICKS(100));
 
-    output_current_time();
+    // output_current_time();
   }
 }
 
