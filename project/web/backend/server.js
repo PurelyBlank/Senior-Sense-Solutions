@@ -374,7 +374,7 @@ app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
+// Biometric Monitor page & Predictive Analysis page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -386,8 +386,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
     if (!token) {
       return res.status(401).json({ error: 'Malformed token.' });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
@@ -432,7 +430,6 @@ app.post('/api/patient-heartrate', async (req, res) => {
     res.status(500).json({ error: 'Server error.' });
   }
 });
-
 
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
 app.post('/api/caretaker-fullname', async (req, res) => {
@@ -495,8 +492,6 @@ app.post('/api/battery-tracker', async (req, res) => {
 
       return res.status(401).json({ error: 'Malformed token.' });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
