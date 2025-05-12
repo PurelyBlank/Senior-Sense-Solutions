@@ -3,12 +3,14 @@
 import { FiBell } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { useState, useEffect } from 'react';
+import { useWearable } from '../context/WearableContext';
+
 import "./NotificationChart.css"
 
 export default function NotificationChart(){
     const [patientHeartRate, setPatientHeartRate] = useState('');
     const [, setError] = useState('');
-
+    const { wearable_id } = useWearable();
     const [fallData, setFallData] = useState<
     null | Array<{
       patient_name: string,
@@ -36,6 +38,9 @@ export default function NotificationChart(){
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          wearable_id,  
+        }),
       });
 
       const data = await response.json();
