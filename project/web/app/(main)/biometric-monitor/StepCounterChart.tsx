@@ -7,7 +7,7 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 import "./stepCounter.css";
 
-
+{/*create stepcounter endpoints and requests to get steps from wearable. move on from hardcode*/}
 Chart.register(...registerables);
 
 const generateData = (type: string) => {

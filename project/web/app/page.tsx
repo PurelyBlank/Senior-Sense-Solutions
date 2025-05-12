@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       const apiUrl = `${baseApiUrl}/login`;
-
+      console.log(apiUrl);
       // Make POST request to login endpoint in backend
       const response = await fetch(apiUrl, {
         method: "POST",
