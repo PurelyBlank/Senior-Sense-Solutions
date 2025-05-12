@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import GaugeClient from './BatteryGauge';
+import GaugeClient from './batteryGauge';
 import PatientInfo from "../components/patient-component/PatientComponent";
 
 import "./page.css";
