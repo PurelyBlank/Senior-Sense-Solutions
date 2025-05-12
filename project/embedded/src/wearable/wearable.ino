@@ -116,10 +116,10 @@ void sendDataTask(void* parameter) {
 
     // Send POST Request to Website Endpoint
     int response = httpPostBiometricData(heartRate, latitude, longitude, batteryLevel,
-                                         FallDetection::fallCount, StepDetection::stepCount);
+                                         FallDetection::getFallCount(), StepDetection::getStepCount());
     if (response == SUCCESS) {
-      StepDetection::stepCount = 0;
-      FallDetection::fallCount = 0;
+      StepDetection::resetStepCount();
+      FallDetection::resetFallCount();
       printf("Successfully sent data!\n");
     } else {
       printf("Unable to send data to endpoint.\n");
