@@ -14,7 +14,11 @@ export default function FallChart() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
 
-  
+  // watch makes api request
+  // if proper data 
+  // then we set detectFall -> true 
+  // then go from there
+
   useEffect(() => {
     if (chartRef.current) {
       if (chartInstanceRef.current) {
@@ -91,6 +95,20 @@ export default function FallChart() {
 
       {/* Overlay for fall details */}
       {activateFallChart && (
+        <div className="overlay">
+          <div className="center-remove-box">
+            {!selectedDate ? (
+              <FallReport
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                setactivateFallChart={setactivateFallChart}
+              />
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {detectFall && (
         <div className="overlay">
           <div className="center-remove-box">
             {!selectedDate ? (
