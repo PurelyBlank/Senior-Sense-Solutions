@@ -56,6 +56,7 @@ export default function PatientInfo() {
     return heights;
   };
 
+  const { wearable_id } = useWearable();
   // Fetch Patient rows for Select dropdown upon mount
   useEffect(() => {
     const fetchPatients = async () => {
@@ -79,6 +80,20 @@ export default function PatientInfo() {
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch patients.");
         }
+
+        //Fetching the selected Patient every time we change pages, using wearable_id
+        const patients: Patient[] = data.patients;
+        const selectedPatient = patients.find((p) => p.wearable_id === wearable_id);
+        if (selectedPatient) {
+          setPatient(selectedPatient.patient_id.toString());
+          setFirstName(selectedPatient.first_name);
+          setLastName(selectedPatient.last_name);
+          setGender(selectedPatient.gender || '');
+          setAge(selectedPatient.age?.toString() || '');
+          setHeight(selectedPatient.height || '');
+          setWeight(selectedPatient.weight?.toString() || '');
+        }
+
 
         setPatients(data.patients);
 

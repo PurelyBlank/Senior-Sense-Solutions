@@ -1,7 +1,11 @@
-#ifndef HEART_RATE
-#define HEART_RATE
+#pragma once
 
-void initialize_heart_rate_sensor();
-double heart_rate();
+#include <Wire.h>
+#include "MAX30105.h"
 
-#endif
+#include "heartRate.h" // MAX30105.h library helper file
+
+namespace HeartRate {
+    void initialize_heart_rate_sensor();
+    double heart_rate();
+}

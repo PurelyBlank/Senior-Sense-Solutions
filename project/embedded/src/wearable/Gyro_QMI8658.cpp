@@ -1,15 +1,13 @@
-#include "gyro.h"
+#include "Gyro_QMI8658.h"
 
 IMUdata Accel;
 IMUdata Gyro;
-IMUdata GyroOffset = {0, 0, 0};
 
 uint8_t Device_addr ; // default for SD0/SA0 low, 0x6A if high
 acc_scale_t acc_scale = ACC_RANGE_4G;
 gyro_scale_t gyro_scale = GYR_RANGE_64DPS;
 acc_odr_t acc_odr = acc_odr_norm_8000;
-// gyro_odr_t gyro_odr = gyro_odr_norm_8000;
-gyro_odr_t gyro_odr = gyro_odr_norm_250;
+gyro_odr_t gyro_odr = gyro_odr_norm_8000;
 sensor_state_t sensor_state = sensor_default;
 lpf_t acc_lpf;
 
@@ -45,8 +43,7 @@ void QMI8658_Init(void)
 
     setGyroScale(gyro_scale);              
     setGyroODR(gyro_odr);                       
-    // setGyroLPF(LPF_MODE_3);          
-    setGyroLPF(LPF_MODE_0);      
+    setGyroLPF(LPF_MODE_3);                
     switch (gyro_scale) {                  
         // Possible gyro scales (and their register bit settings) are:
         // 250 DPS (00), 500 DPS (01), 1000 DPS (10), and 2000 DPS  (11).
@@ -65,6 +62,7 @@ void QMI8658_Init(void)
 void QMI8658_Loop(void)
 {
   getAccelerometer();
+  getGyroscope();
 }
 
 /**
@@ -289,17 +287,21 @@ void getGyroscope(void)
     Gyro.z = Gyro.z * gyroScales;
 }
 
-void calibrateGyroscope(int samples) {
-  GyroOffset = {0, 0, 0};
-  for (int i = 0; i < samples; i++) {
-    getGyroscope();
-    GyroOffset.x += Gyro.x;
-    GyroOffset.y += Gyro.y;
-    GyroOffset.z += Gyro.z;
-    delay(10);  // Wait between samples
-  }
+// Own functions
+float getGyroMagnitude() {
+  float gx = Gyro.x;
+  float gy = Gyro.y;
+  float gz = Gyro.z;
+  // printf("Gyroscope Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", gx, gy, gz);
 
-  GyroOffset.x /= samples;
-  GyroOffset.y /= samples;
-  GyroOffset.z /= samples;
+  return sqrt(gx * gx + gy * gy + gz * gz);
+}
+
+float getAccelMagnitude() {
+  float ax = Accel.x;
+  float ay = Accel.y;
+  float az = Accel.z;
+  // printf("Accelerometer Data [dps] -> X: %.2f | Y: %.2f | Z: %.2f\n", ax, ay, az);
+
+  return sqrt(ax * ax + ay * ay + az * az);
 }
