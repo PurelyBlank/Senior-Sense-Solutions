@@ -1,13 +1,68 @@
 "use client"
 
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+
 import { Chart, registerables } from "chart.js";
 
+import { useWearable } from '../context/WearableContext';
+
+import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./charts.module.css";
 
 Chart.register(...registerables);
 
 export default function HeartRateChart() {
+  const [patientHeartRate, setPatientHeartRate] = useState('');
+  const [, setError] = useState('');
+
+  const { wearable_id } = useWearable();
+
+  const handleFetchPatientHeartRate = async () => {
+    setError("");  // Reset error before fetching
+
+    if (!wearable_id) {
+      setError("Wearable ID error.");
+
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patient-heartrate`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id,  
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setPatientHeartRate("");
+        
+        throw new Error(data.error || "Failed to fetch heart rate data.");
+      }
+
+      setPatientHeartRate(data.patientHeartRate);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+
+      console.error(err);
+    }
+  };
+
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -59,13 +114,25 @@ export default function HeartRateChart() {
       });
     }
 
+    if (wearable_id === -1) {
+      return;
+    }
+
+    // Fetch patient heart rate
+    handleFetchPatientHeartRate();
+
+    // Set interval to fetch heart rate every 3 seconds 
+    const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
+
     // Cleanup function to destroy the chart instance
     return () => {
+      clearInterval(intervalId)
+
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
     };
-  }, []);
+  }, [wearable_id]);
 
   return (
     <div className={styles.BarChart}>
