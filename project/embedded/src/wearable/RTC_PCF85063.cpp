@@ -28,10 +28,10 @@ void PCF85063_Init()
   datetime_t Now_datetime= {0};
   Now_datetime.year = 2025;
   Now_datetime.month = 5;
-  Now_datetime.day = 9;
-  Now_datetime.dotw = 5;
-  Now_datetime.hour = 7;
-  Now_datetime.minute = 46;
+  Now_datetime.day = 12;
+  Now_datetime.dotw = 1;
+  Now_datetime.hour = 1;
+  Now_datetime.minute = 24;
   Now_datetime.second = 0;
   PCF85063_Set_All(Now_datetime);
 }
@@ -225,7 +225,7 @@ Info:
 ******************************************************************************/
 void datetime_to_str(char *datetime_str,datetime_t time)
 {
-	sprintf(datetime_str, " %d.%d.%d  %d %d:%d:%d ", time.year, time.month, 
+	sprintf(datetime_str, "%d.%d.%d.%d.%d.%d.%d ", time.year, time.month, 
 			time.day, time.dotw, time.hour, time.minute, time.second);
 } 
 
