@@ -13,18 +13,19 @@ export default function HeartRateChart() {
 
   useEffect(() => {
     if (chartRef.current) {
-      // clean up chart if needed 
+      // Clean up chart, if necessary
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy(); 
       }
 
+      // Create a new chart instance
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "line",
         data: {
           labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           datasets: [
             {
-              label: "Heart Rate BPM",
+              label: "Beats per minute (BPM)",
               data: [90, 100, 95, 78, 92, 94, 99],
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
@@ -48,19 +49,17 @@ export default function HeartRateChart() {
                       display: true  
                     }
                 },
-
             },
             plugins: {
                 legend: {
                     display: false
                 },
-            }
-            
-        },
-        
+            }  
+        },   
       });
     }
-    // cleanup 
+
+    // Cleanup function to destroy the chart instance
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
@@ -72,12 +71,11 @@ export default function HeartRateChart() {
     <div className={styles.BarChart}>
         {/* Header */}
         <div className={styles.BarChartHeader}>
-            <h1>Heart Rate Chart </h1>
+            <h1>Beats per Minute (BPM)</h1>
         </div>
 
         {/* Divider */}
-        <div className={styles.BarChartDivider}>
-        </div>
+        <div className={styles.BarChartDivider}></div>
     
         <div className = {styles.BarChartContent}>
             {/* Chart */}
@@ -91,11 +89,10 @@ export default function HeartRateChart() {
 
             {/* Description */}
             <div className={styles.BarChartDescription}>
-                <h1>Trending up by 5.2% this today</h1>
-                <p>Showing average heart rate measured in beats per minute (bpm) </p>
+                <h1>Trending up by 5.2% today</h1>
+                <p>Showing average heart rate measured in beats per minute (BPM) </p>
             </div>
         </div>
-
     </div>
   );
-}
+};
