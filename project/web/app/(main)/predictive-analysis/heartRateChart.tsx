@@ -12,17 +12,19 @@ import styles from "./charts.module.css";
 Chart.register(...registerables);
 
 export default function HeartRateChart() {
-  const [patientHeartRate, setPatientHeartRate] = useState('');
-  const [patientTimestamp, setPatientTimestamp] = useState('');
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
 
-  const handleFetchPatientHeartRate = async () => {
-    setError("");  // Reset error before fetching
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
+
+  const fetchHeartRateData = async () => {
+    // Reset error before fetching
+    setError("");
 
     if (!wearable_id) {
-      setError("Wearable ID error.");
+      setError("Wearable ID is not provided.");
 
       return;
     }
@@ -42,36 +44,38 @@ export default function HeartRateChart() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          wearable_id,  
-        }),
+        body: JSON.stringify({ wearable_id }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        setPatientHeartRate("");
-        setPatientTimestamp("")
-        
         throw new Error(data.error || "Failed to fetch patient data.");
       }
 
-      setPatientHeartRate(data.patientHeartRate);
-      setPatientTimestamp(data.patienTimestamp);
+      return data.heartRateData;
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred.";
       setError(errorMessage);
-
       console.error(err);
+
+      return null;
     }
   };
 
-  const chartRef = useRef<HTMLCanvasElement | null>(null);
-  const chartInstanceRef = useRef<Chart | null>(null);
-
   useEffect(() => {
-    if (chartRef.current) {
-      // Clean up chart, if necessary
+    const updateChart = async () => {
+      if (!chartRef.current) {
+        return;
+      }
+
+      // Fetch heart rate data
+      const heartRateData = await fetchHeartRateData();
+      if (!heartRateData) {
+        return;
+      }
+
+      // Clean up existing chart instance
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy(); 
       }
@@ -80,57 +84,48 @@ export default function HeartRateChart() {
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "line",
         data: {
-          labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
           datasets: [
             {
-              label: "Beats per minute (BPM)",
-              data: [90, 100, 95, 78, 92, 94, 99],
+              label: "Average Beats per Minute (BPM)",
+              data: heartRateData,
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
             },
           ],
         },
-
         options: {
-            scales: {
-                x: {
-                  grid: {
-                    display: false 
-                  }
-                },
-                y: {
-                    ticks: {
-                        precision : 0
-                    }, 
-                    grid: {
-                      display: true  
-                    }
-                },
+          scales: {
+            x: {
+              grid: {
+                display: false 
+              },
             },
-            plugins: {
-                legend: {
-                    display: false
-                },
-            }  
+            y: {
+              ticks: {
+                  precision : 0,
+              }, 
+              grid: {
+                display: true,
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+            },
+          },  
         },   
       });
+    };
+
+    if (wearable_id) {
+      updateChart();
     }
-
-    if (wearable_id === -1) {
-      return;
-    }
-
-    // Fetch patient heart rate
-    handleFetchPatientHeartRate();
-
-    // Set interval to fetch heart rate every 3 seconds 
-    const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
 
     // Cleanup function to destroy the chart instance
     return () => {
-      clearInterval(intervalId)
-
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -139,30 +134,30 @@ export default function HeartRateChart() {
 
   return (
     <div className={styles.BarChart}>
-        {/* Header */}
-        <div className={styles.BarChartHeader}>
-            <h1>Beats per Minute (BPM)</h1>
+      {/* Header */}
+      <div className={styles.BarChartHeader}>
+          <h1>Beats per Minute (BPM)</h1>
+      </div>
+
+      {/* Divider */}
+      <div className={styles.BarChartDivider}></div>
+  
+      <div className = {styles.BarChartContent}>
+        {/* Chart */}
+        <div className={styles.BarChartChart}>
+          <div className = {styles.BarChartChartHeader}>
+            <h1>Heart Rate </h1>
+            <p>This Week&apos;s Summary (5/11/25 - 5/17/25)</p>
+          </div>
+          <canvas ref={chartRef} />
         </div>
 
-        {/* Divider */}
-        <div className={styles.BarChartDivider}></div>
-    
-        <div className = {styles.BarChartContent}>
-            {/* Chart */}
-            <div className={styles.BarChartChart}>
-                <div className = {styles.BarChartChartHeader}>
-                    <h1>Heart Rate </h1>
-                    <p>Week 1 (2/3 - 2/9)</p>
-                </div>
-                <canvas ref={chartRef} />
-            </div>
-
-            {/* Description */}
-            <div className={styles.BarChartDescription}>
-                <h1>Trending up by 5.2% today</h1>
-                <p>Showing average heart rate measured in beats per minute (BPM) </p>
-            </div>
+        {/* Description */}
+        <div className={styles.BarChartDescription}>
+          <h1>Trending up by 5.2% today</h1>
+          <p>Average heart rate measured in beats per minute (BPM)</p>
         </div>
+      </div>
     </div>
   );
 };
