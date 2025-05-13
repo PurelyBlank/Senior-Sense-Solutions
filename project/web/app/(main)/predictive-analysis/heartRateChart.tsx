@@ -13,6 +13,7 @@ Chart.register(...registerables);
 
 export default function HeartRateChart() {
   const [patientHeartRate, setPatientHeartRate] = useState('');
+  const [patientTimestamp, setPatientTimestamp] = useState('');
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
@@ -49,11 +50,13 @@ export default function HeartRateChart() {
       const data = await response.json();
       if (!response.ok) {
         setPatientHeartRate("");
+        setPatientTimestamp("")
         
-        throw new Error(data.error || "Failed to fetch heart rate data.");
+        throw new Error(data.error || "Failed to fetch patient data.");
       }
 
       setPatientHeartRate(data.patientHeartRate);
+      setPatientTimestamp(data.patienTimestamp);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred.";

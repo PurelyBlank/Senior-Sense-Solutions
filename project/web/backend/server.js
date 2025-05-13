@@ -415,6 +415,7 @@ app.post('/api/patient-heartrate', async (req, res) => {
 
     res.json({ 
       patientHeartRate: patient_data.heart_rate,
+      patientTimestamp: patient_data.timestamp,
     });
 
   } catch (err) {
