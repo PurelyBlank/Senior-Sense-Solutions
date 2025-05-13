@@ -760,9 +760,14 @@ app.get('/api/patients/:wearable_id', authenticateToken, async (req, res) => {
 app.post('/api/wearable_data/insert', async (req, res) => {
   try {
     body = req.body;
+    
+    unparsed = body["timestamp"];
+    const parts = unparsed.split('.').map(Number);
+    const [year,month,day,dayOfWeek,hour,minute,second] = parts;
+    const parsed = new Date(year,month-1,day,hour,minute,second);
 
     wearable_id = body["wearable_id"];
-    timestamp = new Date().toISOString(); // get current timestamp according to database timestamp type
+    timestamp = parsed.toISOString(); // get current timestamp according to database timestamp type
     battery_level = body["battery_level"];
     heart_rate = body["heart_rate"];
     blood_oxygen = body["blood_oxygen"];

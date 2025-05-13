@@ -15,5 +15,6 @@ namespace StepDetection {
   inline unsigned long lastStepTime = 0;
 
   void getStep();
-
+  int getStepCount();
+  void resetStepCount();
 }
