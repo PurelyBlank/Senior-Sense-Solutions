@@ -12,6 +12,7 @@ import styles from "./charts.module.css";
 Chart.register(...registerables);
 
 export default function HeartRateChart() {
+  const [weekRange, setWeekRange] = useState<string>("");
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
@@ -19,6 +20,7 @@ export default function HeartRateChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
+  // Fetch current patient's heart rate data from backend
   const fetchHeartRateData = async () => {
     // Reset error before fetching
     setError("");
@@ -26,7 +28,7 @@ export default function HeartRateChart() {
     if (!wearable_id) {
       setError("Wearable ID is not provided.");
 
-      return;
+      return null;
     }
   
     try {
@@ -61,6 +63,31 @@ export default function HeartRateChart() {
 
       return null;
     }
+  };
+
+  // Helper function to calculate the current week range
+  const calculateWeekRange = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+
+    // Calculate the start dates of the current week
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
+
+    // Calculate the end dates of the current week
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (6 - dayOfWeek));
+
+    // Format the dates as MM/DD/YY
+    const formatDate = (date: Date) => {
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${month}/${day}/${year}`;
+    };
+
+    setWeekRange(`${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`);
   };
 
   useEffect(() => {
@@ -122,11 +149,15 @@ export default function HeartRateChart() {
 
     let intervalId: NodeJS.Timeout;
 
-    // Fetch heart rate data and update chart every 1 second
     if (wearable_id) {
+      // Calculate the current week range
+      calculateWeekRange();
+
+      // Fetch heart rate data, update chart
       updateChart();
 
-      intervalId = setInterval(updateChart, 1000);
+      // Update chart every 10 seconds
+      intervalId = setInterval(updateChart, 10000);
     }
 
     // Cleanup function to destroy the chart instance
@@ -156,7 +187,7 @@ export default function HeartRateChart() {
         <div className={styles.BarChartChart}>
           <div className = {styles.BarChartChartHeader}>
             <h1>This Week&apos;s Summary</h1>
-            <p>(5/11/25 - 5/17/25)</p>
+            <p>{weekRange}</p>
           </div>
           <canvas ref={chartRef} />
         </div>
