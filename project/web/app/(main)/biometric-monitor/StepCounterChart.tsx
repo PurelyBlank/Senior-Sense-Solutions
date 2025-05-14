@@ -4,11 +4,25 @@ import { FaWalking } from "react-icons/fa";
 import { Chart, registerables } from "chart.js";
 import { useEffect, useRef, useState } from "react";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { useWearable } from '../context/WearableContext';
 
 import "./StepCounterChart.css";
+import { error } from "console";
 
 Chart.register(...registerables);
-
+/*switch to dynamic api calling for steps every 3 or so seconds. Could use a timer on frontend side to determine every hour add up
+Potentially for daily graph just show every hour worth add up that count for a final daily count so at least 3 variables.
+For weekly, monthly, 6M, and years gonna have to set up a hash list or somethign to store all daily counts for each month to
+display on each graph. Set up 4 compact sets. Week set list will have 7 at a time for each day. reset after 7th day.
+Monthly will have to hav a date definer to find out which month its on to get right amount of days that is set list size,
+6M will just be a set list size of 6 with the last 6 months step data
+Y will be a set list size of the entire year 12 months worth. will have to add in the steps of each month before deleting the data.
+3 variables - Current, Hourly, Temporary
+Current + temp to get Hourly, Hourly += Daily to get daily variable, Daily += itself to get the weekly amount after 7 days and then 
+also for the month, we can then combine the month steps to get yearly data variable.
+For all graphs will have to show from that day/week/month/year so for week graph itll start from the next day from last week to day of
+For month graph again show from last 30 days to day of, for 6month just the past 6 months from day of month, Y will be all months
+again from last month of day of to current month of day of.*/
 const generateData = (type: string) => {
     switch (type) {
       case "D":
@@ -33,8 +47,8 @@ const generateData = (type: string) => {
         };
       case "Y":
         return {
-          labels: Array.from({ length: 5 }, (_, i) => `${2020 + i}`),
-          data: Array.from({ length: 5 }, () => Math.floor(Math.random() * 1000000 + 300000)),
+          labels: ["J","F","M","A","M","J","J","A","S","O","N","D"],
+          data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 150000 + 50000)),
         };
       default:
         return { labels: [], data: [] };
@@ -42,6 +56,10 @@ const generateData = (type: string) => {
   };
 
   export default function StepCounterChart() {
+    const [stepCounting, setStepCounting] = useState('');
+    const [, setError] = useState('');
+
+    const { wearable_id } = useWearable();
     const [active, setActive] = useState("D");
     const [stepCount, setStepCount] = useState(3500); 
     const stepGoal = 10000;
@@ -49,7 +67,49 @@ const generateData = (type: string) => {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstanceRef = useRef<Chart | null>(null);
   
+    const fetchStepCounts = async() => {
+      setError("");
+
+      if (!wearable_id) {
+        setError("Wearable ID error");
+        return;
+      }
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) throw new Error("No auth token");
+
+        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = `${baseApiUrl}/step-count`;
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            wearable_id,  
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setStepCounting("");
+          
+          throw new Error(data.error || "Failed to fetch step count data.");
+        }
+  
+        setStepCounting(data.stepCounting);
+      } catch (err) {
+        console.error("Step Count fetch error:", err);
+      }
+    };
+
     useEffect(() => {
+      fetchStepCounts();
+      const intervalId = setInterval(fetchStepCounts, 3000);
+      
       const { labels, data } = generateData(active);
   
       if (chartInstanceRef.current) {
@@ -86,6 +146,7 @@ const generateData = (type: string) => {
           },
         });
       }
+      return () => clearInterval(intervalId);
     }, [active]);
   
     return (

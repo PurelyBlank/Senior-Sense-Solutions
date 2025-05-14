@@ -12,9 +12,6 @@ html, body {
   overflow: hidden;
 }
 
-p, span {
-  font-size: 16px !important;
-}
 
 .login-container {
   display: flex;
