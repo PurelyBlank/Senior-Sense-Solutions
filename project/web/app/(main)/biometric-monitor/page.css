@@ -13,6 +13,8 @@ input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
 }
 
 .cancel-button,
@@ -45,51 +47,55 @@ input {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1);
   text-align: center;
   width: 90%;
-  max-width: 500px;
+  max-width: 40rem;
   z-index: 999;
 }
 
 .title-bold {
   font-weight: 700;
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  margin-bottom: 0.625rem;
 }
 
 .subtext-gray {
   color: gray;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  margin-bottom: 1.25rem;
 }
 
 .content-container {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 30px;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 .right-container {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 40px;
+  gap: 2rem;
+  min-width: 280px;
 }
 
-.biometric-container{
-  padding: 20px;
+.biometric-container {
+  padding: 1.25rem;
   flex: 1;
+  width: 100%;
 }
 
 .biometric-charts {
   display: flex;
   justify-content: space-evenly;
-  flex: 1;
-  gap: 30px;
+  flex-wrap: wrap;
+  gap: 2rem;
+  width: 100%;
 }
 
 .heartrate-box,
@@ -97,35 +103,30 @@ input {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 30px;
-  border-radius: 15px;
+  padding: 2rem;
+  border-radius: 1rem;
   border: 1px solid lightgray;
   background-color: #FFFFFF;
-  min-height: 355px;
-  max-height: 500px;
   width: 100%;
-  min-width: 0;
-  max-width: 500px;
+  max-width: 90vw;
+  min-width: 250px;
 }
 
 .bloodoxygen-title,
 .heartrate-title {
-  font-size: 20px !important;
-  margin-top: 10px;
+  font-size: clamp(2rem, 2vw, 1.25rem);
+  margin-top: 0.625rem;
 }
 
-.heartrate-bpm {
-  font-size: 40px !important;
+.heartrate-bpm,
+.bloodoxygen-percentage {
+  font-size: clamp(4rem, 5vw, 2.5rem);
 }
 
 .bloodoxygen-summary,
 .heartrate-summary {
-  font-size: 14px !important;
-  max-width: 500px;
-}
-
-.bloodoxygen-percentage {
-  font-size: 40px !important;
+  font-size: clamp(1.5rem, 1.5vw, 1rem);
+  max-width: 100%;
 }
 
 .overlay {
@@ -137,14 +138,16 @@ input {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
-  
-.PatientInfoContainer{
+
+.PatientInfoContainer {
   display: block;
 }
 
 .patient-dropdown-container {
-  display: none;  
+  display: none;
 }
+
+/* === Media Queries === */
 
 @media (max-width: 1500px) {
   .content-container {
@@ -152,13 +155,29 @@ input {
   }
 
   .patient-dropdown-container {
-    display: block;  
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .PatientInfoContainer {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+
+  .right-container,
+  .biometric-container {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .biometric-charts {
+    flex-direction: column;
+    align-items: center;
   }
 }
