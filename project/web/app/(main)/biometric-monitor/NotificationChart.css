@@ -23,6 +23,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  border-radius: 15px;
   gap: clamp(0.5rem, 2vw, 1rem);
   padding: clamp(0.5rem, 2vw, 0.75rem);
   word-break: break-word;

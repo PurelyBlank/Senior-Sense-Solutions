@@ -1,3 +1,7 @@
+h1 {
+  padding-left: 2rem;
+}
+
 .content-container {
   display: flex;
   flex-direction: row;
@@ -45,18 +49,18 @@
 
 .bloodoxygen-title,
 .heartrate-title {
-  font-size: clamp(1.25rem, 1.8vw, 1.125rem);
+  font-size: clamp(1.25rem, 1.8vw, 1.125rem) !important;
   margin-top: 0.625rem;
 }
 
 .heartrate-bpm,
 .bloodoxygen-percentage {
-  font-size: clamp(1.75rem, 4.5vw, 2.25rem);
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
 }
 
 .bloodoxygen-summary,
 .heartrate-summary {
-  font-size: clamp(1.25rem, 1.25vw, 0.875rem);
+  font-size: clamp(1rem, 1vw, 0.5rem) !important;
   max-width: 100%;
 }
 
