@@ -113,19 +113,28 @@ export default function HeartRateChart() {
           },
           plugins: {
             legend: {
-              display: true,
+              display: false,
             },
           },  
         },   
       });
     };
 
+    let intervalId: NodeJS.Timeout;
+
+    // Fetch heart rate data and update chart every 1 second
     if (wearable_id) {
       updateChart();
+
+      intervalId = setInterval(updateChart, 1000);
     }
 
     // Cleanup function to destroy the chart instance
     return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -136,7 +145,7 @@ export default function HeartRateChart() {
     <div className={styles.BarChart}>
       {/* Header */}
       <div className={styles.BarChartHeader}>
-          <h1>Beats per Minute (BPM)</h1>
+          <h1>Heart Rate</h1>
       </div>
 
       {/* Divider */}
@@ -146,8 +155,8 @@ export default function HeartRateChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className = {styles.BarChartChartHeader}>
-            <h1>Heart Rate </h1>
-            <p>This Week&apos;s Summary (5/11/25 - 5/17/25)</p>
+            <h1>This Week&apos;s Summary</h1>
+            <p>(5/11/25 - 5/17/25)</p>
           </div>
           <canvas ref={chartRef} />
         </div>
