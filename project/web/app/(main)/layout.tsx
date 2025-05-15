@@ -144,9 +144,9 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
         <div className="flex flex-1">
           {/* Sidebar */}
           <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-            <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
+            {/* <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
               {collapsed ? "▸" : "◂"}
-            </button>
+            </button> */}
 
             {/* Navigation Links */}
             <nav className="nav-links">
@@ -169,7 +169,13 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
                   <IoLogInOutline size={34}/> {collapsed ? "" : "Sign Out"}
               </button>
             </nav>
+            {/* <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
+              {collapsed ? "▸" : "◂"}
+            </button> */}
           </div>
+          <button onClick={() => setCollapsed(!collapsed)} className="collapsible-button">
+              {collapsed ? "▸" : "◂"}
+          </button>
 
           {/* Main Content */}
           <div className="main-content">{children}</div>
