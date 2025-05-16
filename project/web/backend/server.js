@@ -488,6 +488,7 @@ app.post('/api/patient-heartrate-chart', async (req, res) => {
     res.status(500).json({ error: 'Server error.' });
   }
 });
+
 // Biometric monitor endpoint to retrieve patient fallen alert and location (POST request)
 app.post('/api/fall-alert', async (req, res) => {
   try {
