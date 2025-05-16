@@ -488,6 +488,135 @@ app.post('/api/patient-heartrate-chart', async (req, res) => {
     res.status(500).json({ error: 'Server error.' });
   }
 });
+// Biometric monitor endpoint to retrieve patient fallen alert and location (POST request)
+app.post('/api/fall-alert', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user_id = decoded.user_id;
+
+    if (!user_id) {
+      console.log("No user_id in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    }
+
+    const patientsQuery = await pool.query(
+      `
+        SELECT
+          c.user_id AS caretaker_id,
+          c.first_name AS caretaker_first_name,
+          p.patient_id,
+          p.first_name AS patient_first_name,
+          p.wearable_id
+        FROM caretaker c
+        JOIN patients p ON c.user_id = p.caretaker_id
+        WHERE c.user_id = $1;
+      `,
+      [user_id]
+    );
+
+    const notifications = [];
+    for (let patientRow of patientsQuery.rows) {
+      const patientId = patientRow.patient_id;
+      const wearableId = patientRow.wearable_id;
+
+      const fallData = await pool.query(
+        `SELECT timestamp, longitude, latitude FROM wearable_data
+         WHERE wearable_id = $1 AND num_falls > 0
+         ORDER BY timestamp DESC LIMIT 1`,
+        [wearableId]
+      );
+      if (fallData.rowCount > 0) {
+        const { timestamp, longitude, latitude } = fallData.rows[0];
+        notifications.push({
+          patient_name: patientRow.patient_first_name,
+          fall: true,
+          timestamp,
+          longitude,
+          latitude,
+        });
+      }
+    }
+    if (notifications.length > 0) {
+      return res.json({ falls: notifications });
+    } else {
+      return res.json({ falls: [], message: "No falls detected for any patient." });
+    }
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Biometric endpoint step count retrieval (POST request)
+app.post('/api/step-count', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here" });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT
+          wearable_id,
+          timestamp,
+          num_steps
+        FROM wearable_data 
+        WHERE wearable_id = $1 
+        ORDER BY timestamp DESC;
+      `,
+      [wearable_id]
+    );
+
+    const patient_data = result.rows[0];
+
+    if (!patient_data) {
+      console.log("patient_data not found for patient with wearable: ", wearable_id);
+
+      return res.status(404).json({ error: 'patient_data not found (number of steps)' });
+    }
+
+    res.json({ 
+      patientHeartRate: patient_data.heart_rate,
+    });
+
+  } catch (err) {
+    console.error('Biometric monitor error:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
 
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
 app.post('/api/caretaker-fullname', async (req, res) => {

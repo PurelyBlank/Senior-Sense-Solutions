@@ -10,14 +10,6 @@ html, body {
   background-color: #FFFFFF;
 }
 
-h1 {
-  font-size: 32px !important;
-}
-
-p {
-  font-size: 16px !important;
-}
-
 /* Top Bar - Fixed at the top */
 .top-bar {
   position: fixed;
@@ -134,7 +126,7 @@ p {
 
 /* Collapsed Sidebar */
 .sidebar.collapsed {
-  width: 60px;
+  width: 80px;
 }
 
 /* Collapsible Button */
