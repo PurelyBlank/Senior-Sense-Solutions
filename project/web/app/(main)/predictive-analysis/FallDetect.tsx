@@ -12,13 +12,9 @@ interface FallDetectProps{
 const FallDetect: React.FC<FallDetectProps> = ({date, location, setactivateFallDetect} ) => {
 
     // basic idea is that upon confirmation 
-    // dates the given date and location 
-    // and adds to the database
+    // given date and location  adds to the database 
     const handleUpdateDatabase = async () => {
         console.log("called handle update databse")
-
-        const query = ''
-
     }
 
     return(

@@ -19,9 +19,8 @@ export default function FallChart() {
   const [fallDate, setFallDate] = useState('')
   const [fallLocation, setFallLocation] = useState('')
 
-  // so the werable must've needed to had to call a request to add it to the databse 
-  // and then where we periodically check for the checkfall 
-    const checkFall = async () => {
+
+  const checkFall = async () => {
       const token = localStorage.getItem("authToken");
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -35,25 +34,25 @@ export default function FallChart() {
         },
         body: JSON.stringify({
           wearable_id: 1,  
-          since: new Date(Date.now() - 10020000).toISOString(),
+          since: new Date(Date.now() - 10020000).toISOString(), // checking falls from the last 2 hrs ish
         }),
       });
-
+      
+      // sets the fall date + location from what we retrived from the database
       const data = await response.json();
       if (data.fallDetected) {
-        console.log("fall detected!!!")
         setFallDate(data.fallDate);
-        setFallLocation("test location")
+        setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
         setDetectFall(true);
       }
     };
 
+   // periodically check for any potential new falls
    useEffect(() => {
       const interval = setInterval(() => {
         checkFall();
-      }, 5000); // every 10 seconds
+      }, 50000); // every 10 seconds currently 
 
-      return () => clearInterval(interval); // cleanup on unmount
   }, []);
 
 
