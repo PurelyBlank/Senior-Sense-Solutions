@@ -13,6 +13,7 @@ Chart.register(...registerables);
 
 export default function HeartRateChart() {
   const [weekRange, setWeekRange] = useState<string>("");
+  const [trendText, setTrendText] = useState<string>("");
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
@@ -99,12 +100,48 @@ export default function HeartRateChart() {
       // Fetch heart rate data
       const heartRateData = await fetchHeartRateData();
       if (!heartRateData) {
+        setTrendText("No data available.");
+
         return;
       }
 
+      // Trend analysis based on current patient's available heart rate data
+      const todayIdx = new Date().getDay();
+      const todayValue = parseFloat(heartRateData[todayIdx]);
+      const prevDays = heartRateData
+        .map((v: string, idx: number) => idx < todayIdx ? parseFloat(v) : null)
+        .filter((v: number | null): v is number => v !== null && !isNaN(v));
+
+      let trend = "";
+      if (prevDays.length === 0 || isNaN(todayValue)) {
+        trend = "Not enough data to analyze today's trend.";
+
+      } else {
+        const prevAvg = prevDays.reduce((a: number, b: number) => a + b, 0) / prevDays.length;
+
+        if (isNaN(prevAvg) || prevAvg === 0) {
+          trend = "Not enough data to analyze today's trend.";
+
+        } else {
+          const difference = todayValue - prevAvg;
+          const percentage = (difference / prevAvg) * 100;
+
+          if (Math.abs(percentage) < 0.1) {
+            trend = "Today's average heart rate is stable compared to previous days.";
+
+          } else if (percentage > 0) {
+            trend = `Trending up by ${percentage.toFixed(1)}% today.`;
+
+          } else {
+            trend = `Trending down by ${Math.abs(percentage).toFixed(1)}% today.`;
+          }
+        }
+      }
+      setTrendText(trend);
+
       // Clean up existing chart instance
       if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy(); 
+        chartInstanceRef.current.destroy();
       }
 
       // Create a new chart instance
@@ -194,7 +231,7 @@ export default function HeartRateChart() {
 
         {/* Description */}
         <div className={styles.BarChartDescription}>
-          <h1>Trending up by 5.2% today</h1>
+          <h1>{trendText}</h1>
           <p>Average heart rate measured in beats per minute (BPM)</p>
         </div>
       </div>
