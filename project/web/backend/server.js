@@ -662,6 +662,58 @@ app.post('/api/wearable_data/insert', async (req, res) => {
   }
 });
 
+
+app.post('/api/check-fall', authenticateToken, async (req, res) => {
+  const { wearable_id, since } = req.body;
+  console.log("Received wearable_id:", wearable_id);
+  console.log("Received since:", since);
+
+
+  if (!wearable_id) {
+    return res.status(400).json({ error: "Missing wearable_id" });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND num_falls > 0
+        AND timestamp > $2
+      ORDER BY timestamp DESC
+      LIMIT 1;
+      `,
+      [wearable_id, since || new Date(Date.now() - 10020000).toISOString()]
+    );
+
+
+    if (result.rows.length === 0) {
+      console.log("no data to return")
+      return res.json({ fallDetected: false });
+    }
+
+    const latest = result.rows[0];
+    console.log("returning sucessful data!")
+
+    res.json({
+      fallDetected: true,
+      fallDate: latest.timestamp,
+      fallLocation: {
+        latitude: latest.latitude,
+        longitude: latest.longitude
+      }
+    });
+
+
+  } catch (err) {
+    console.error("Check fall error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import styles from "./charts.module.css";
 import FallReport from "./FallReport";
+import FallDetect from "./FallDetect";
+import { useWearable } from "../context/WearableContext";
 
 Chart.register(...registerables);
 
@@ -13,11 +15,47 @@ export default function FallChart() {
   const [activateFallChart, setactivateFallChart] = useState(false); 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
+  const [, setError] = useState('');
+  const [fallDate, setFallDate] = useState('')
+  const [fallLocation, setFallLocation] = useState('')
 
-  // watch makes api request
-  // if proper data 
-  // then we set detectFall -> true 
-  // then go from there
+  // so the werable must've needed to had to call a request to add it to the databse 
+  // and then where we periodically check for the checkfall 
+    const checkFall = async () => {
+      const token = localStorage.getItem("authToken");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/check-fall`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id: 1,  
+          since: new Date(Date.now() - 10020000).toISOString(),
+        }),
+      });
+
+      const data = await response.json();
+      if (data.fallDetected) {
+        console.log("fall detected!!!")
+        setFallDate(data.fallDate);
+        setFallLocation("test location")
+        setDetectFall(true);
+      }
+    };
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        checkFall();
+      }, 5000); // every 10 seconds
+
+      return () => clearInterval(interval); // cleanup on unmount
+    }, []);
+
 
   useEffect(() => {
     if (chartRef.current) {
@@ -93,32 +131,20 @@ export default function FallChart() {
         </div>
       </div>
 
-      {/* Overlay for fall details */}
-      {activateFallChart && (
+      {detectFall && (
         <div className="overlay">
-          <div className="center-remove-box">
-            {!selectedDate ? (
-              <FallReport
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-                setactivateFallChart={setactivateFallChart}
-              />
-            ) : null}
-          </div>
+          <FallDetect date={fallDate} location={fallLocation}/>
         </div>
       )}
 
-      {detectFall && (
+      {/* Overlay for fall details */}
+      {activateFallChart && (
         <div className="overlay">
-          <div className="center-remove-box">
-            {!selectedDate ? (
-              <FallReport
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-                setactivateFallChart={setactivateFallChart}
-              />
-            ) : null}
-          </div>
+          <FallReport
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            setactivateFallChart={setactivateFallChart}
+          />
         </div>
       )}
 
