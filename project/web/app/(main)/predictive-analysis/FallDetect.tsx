@@ -5,9 +5,11 @@ import styles from "./charts.module.css";
 interface FallDetectProps{
   date: string | null;
   location : string | null; 
+  setactivateFallDetect: (active: boolean) => void;
+
 }
 
-const FallDetect: React.FC<FallDetectProps> = ({date, location} ) => {
+const FallDetect: React.FC<FallDetectProps> = ({date, location, setactivateFallDetect} ) => {
 
     // basic idea is that upon confirmation 
     // dates the given date and location 
@@ -38,7 +40,7 @@ const FallDetect: React.FC<FallDetectProps> = ({date, location} ) => {
 
           </div>
 
-        <button type='button' className='cancel-button' >Cancel</button>
+        <button type='button' className='cancel-button' onClick = {() => setactivateFallDetect(false)} >Cancel</button>
         <button type='button' className='save-button' onClick = {() => handleUpdateDatabase()}>Confirm</button>
         </div>
     )

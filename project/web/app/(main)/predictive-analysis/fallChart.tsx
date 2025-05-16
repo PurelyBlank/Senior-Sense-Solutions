@@ -48,13 +48,13 @@ export default function FallChart() {
       }
     };
 
-    useEffect(() => {
+   useEffect(() => {
       const interval = setInterval(() => {
         checkFall();
       }, 5000); // every 10 seconds
 
       return () => clearInterval(interval); // cleanup on unmount
-    }, []);
+  }, []);
 
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function FallChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className={styles.BarChartChartHeader}>
-            <h1>Fall Chart</h1>
+            <h1>Fall Chart</h1> h
             <p>Over six weeks</p>
           </div>
           <div className={styles.chartWrapper}>
@@ -133,7 +133,7 @@ export default function FallChart() {
 
       {detectFall && (
         <div className="overlay">
-          <FallDetect date={fallDate} location={fallLocation}/>
+          <FallDetect date={fallDate} location={fallLocation}setactivateFallDetect={setDetectFall}/>
         </div>
       )}
 
