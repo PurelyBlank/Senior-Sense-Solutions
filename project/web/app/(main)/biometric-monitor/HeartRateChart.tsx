@@ -20,7 +20,8 @@ export default function HeartRateChart(){
     setError("");  // Reset error before fetching
 
     if (!wearable_id) {
-      setError("Wearable ID error");
+      setError("Wearable ID error.");
+      
       return;
     }
   

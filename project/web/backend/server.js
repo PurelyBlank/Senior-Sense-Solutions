@@ -374,7 +374,7 @@ app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
+// Biometric Monitor page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -387,11 +387,9 @@ app.post('/api/patient-heartrate', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
-      return res.status(400).json({ error: "wearable_id not here" });
+      return res.status(400).json({ error: "wearable_id not here." });
     }
 
     const result = await pool.query(
@@ -416,11 +414,69 @@ app.post('/api/patient-heartrate', async (req, res) => {
     }
 
     res.json({ 
-      patientHeartRate: patient_data.heart_rate,
+      patientHeartRate: patient_data.heart_rate
     });
 
   } catch (err) {
-    console.error('Biometric monitor error:', err);
+    console.error('Error retrieving patient heart rate:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Predictive Analysis page endpoint to retrieve a patient's heart rate (POST request)
+app.post('/api/patient-heartrate-chart', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    // Query to calculate average heart rate for each day of the week
+    const result = await pool.query(
+      `
+        SELECT
+          EXTRACT(DOW FROM timestamp) AS day_of_week,
+          AVG(heart_rate) AS avg_heart_rate
+        FROM wearable_data
+        WHERE wearable_id = $1 
+        GROUP BY day_of_week
+        ORDER BY day_of_week;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No heart rate data found for the given wearable_id' });
+    }
+
+    // Map query results to array of avg. heart rates for each weekday
+    const heartRateData = Array(7).fill(null);
+    result.rows.forEach((row) => {
+      const dayOfWeek = parseInt(row.day_of_week, 10);
+      heartRateData[dayOfWeek] = parseFloat(row.avg_heart_rate);
+    });
+
+    res.json({ heartRateData });
+
+  } catch (err) {
+    console.error('Error retrieving patient heart rate data:', err);
 
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });
@@ -625,11 +681,9 @@ app.post('/api/battery-tracker', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
-      return res.status(400).json({ error: "wearable_id not here" });
+      return res.status(400).json({ error: "wearable_id not here." });
     }
 
     const result = await pool.query(
