@@ -131,14 +131,17 @@ html, body {
 /* Collapsible Button */
 .collapsible-button {
   position: fixed;
-  left: 90px;
+  left: 87px;
   top: 50%;
+  height: 100%;
   transform: translateY(-50%);
-  background-color: transparent;
-  color: #005686;
-  font-size: 30px;
+  background-color: #005686;
+  color: white;
+  font-size: 20px;
   cursor: pointer;
   border: 1px solid white;
+  z-index: 100; 
+  width: 15px;
 }
 
 .sidebar.collapsed ~ .collapsible-button {
@@ -241,6 +244,7 @@ html, body {
   padding: 20px;
   margin-top: 5.5rem; 
   overflow-y: auto; 
+  position: relative;
 }
 
 
