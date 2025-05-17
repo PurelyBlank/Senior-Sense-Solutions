@@ -489,7 +489,72 @@ app.post('/api/patient-heartrate-chart', async (req, res) => {
   }
 });
 
-// Biometric monitor endpoint to retrieve patient fallen alert and location (POST request)
+// Biometric monitor endpoint to retrieve patient heart rate alert (POST request)
+app.post('/api/heart-rate-alert', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user_id = decoded.user_id;
+    if (!user_id) {
+      console.log("No user_id in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    }
+
+    const patientsQuery = await pool.query(
+      `
+        SELECT p.patient_id, p.first_name, p.last_name, p.wearable_id
+        FROM patients p
+        WHERE p.caretaker_id = $1;
+      `,
+      [user_id]
+    );
+
+    const heartRateNotifications = [];
+    for (let patientRow of patientsQuery.rows) {
+      const heartRateResult = await pool.query(
+        `SELECT heart_rate, timestamp FROM wearable_data
+         WHERE wearable_id = $1
+         ORDER BY timestamp DESC LIMIT 1`,
+        [patientRow.wearable_id]
+      );
+      if (heartRateResult.rowCount > 0) {
+        const { heart_rate, timestamp } = heartRateResult.rows[0];
+
+        heartRateNotifications.push({
+          patient_name: `${patientRow.first_name} ${patientRow.last_name}`,
+          heart_rate,
+          timestamp,
+        });
+      }
+    }
+
+    res.json({ heartRates: heartRateNotifications });
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Biometric monitor endpoint to retrieve patient fall alert and location (POST request)
 app.post('/api/fall-alert', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -504,7 +569,6 @@ app.post('/api/fall-alert', async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const user_id = decoded.user_id;
-
     if (!user_id) {
       console.log("No user_id in decoded token");
       
@@ -529,7 +593,6 @@ app.post('/api/fall-alert', async (req, res) => {
 
     const notifications = [];
     for (let patientRow of patientsQuery.rows) {
-      const patientId = patientRow.patient_id;
       const wearableId = patientRow.wearable_id;
 
       const fallData = await pool.query(
