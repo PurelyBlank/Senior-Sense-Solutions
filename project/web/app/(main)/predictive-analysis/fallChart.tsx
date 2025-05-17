@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import styles from "./charts.module.css";
+import FallReport from "./FallReport";
+import FallDetect from "./FallDetect";
+import { useWearable } from "../context/WearableContext";
 
 Chart.register(...registerables);
 
@@ -11,6 +14,47 @@ export default function FallChart() {
 
   const [activateFallChart, setactivateFallChart] = useState(false); 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
+  const [, setError] = useState('');
+  const [fallDate, setFallDate] = useState('')
+  const [fallLocation, setFallLocation] = useState('')
+
+
+  const checkFall = async () => {
+      const token = localStorage.getItem("authToken");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/check-fall`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id: 1,  
+          since: new Date(Date.now() - 10020000).toISOString(), // checking falls from the last 2 hrs ish
+        }),
+      });
+      
+      // sets the fall date + location from what we retrived from the database
+      const data = await response.json();
+      if (data.fallDetected) {
+        setFallDate(data.fallDate);
+        setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
+        setDetectFall(true);
+      }
+    };
+
+   // periodically check for any potential new falls
+   useEffect(() => {
+      const interval = setInterval(() => {
+        checkFall();
+      }, 50000); // every 10 seconds currently 
+
+  }, []);
+
 
   useEffect(() => {
     if (chartRef.current) {
@@ -72,7 +116,7 @@ export default function FallChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className={styles.BarChartChartHeader}>
-            <h1>Fall Chart</h1>
+            <h1>Fall Chart</h1> h
             <p>Over six weeks</p>
           </div>
           <div className={styles.chartWrapper}>
@@ -82,70 +126,27 @@ export default function FallChart() {
 
         {/* Description */}
         <div className={styles.BarChartDescription}>
-          <h1>Trending down by 50% over the last 3 weeks</h1>
           <p>Showing total falls over the last six weeks</p>
         </div>
       </div>
 
+      {detectFall && (
+        <div className="overlay">
+          <FallDetect date={fallDate} location={fallLocation}setactivateFallDetect={setDetectFall}/>
+        </div>
+      )}
+
       {/* Overlay for fall details */}
       {activateFallChart && (
         <div className="overlay">
-          <div className="center-remove-box">
-            {!selectedDate ? (
-              <>
-                <p className="title-bold">Past Falls From 1/20–1/26</p>
-                <p>Click on a date to see more details about the event</p>
-
-                <div className={styles.fallDetailsContainer}>
-                  <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 22, 2025")}>
-                    January 22, 2025
-                  </h1>
-                  <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 24, 2025")}>
-                    January 24, 2025
-                  </h1>
-                </div>
-
-                <button type="button" className="cancel-button" onClick={() => setactivateFallChart(false)}>
-                  Exit
-                </button>
-              </>
-            ) : (
-              <>
-                <h1 className="title-bold mb-5">Detailed Fall Report for {selectedDate}</h1>
-
-                  <div>
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Date and Time: </p>
-                        </div>
-
-                        <div>
-                          <p> January 24, 2025 7:23 PM</p>
-                        </div>
-                    </div>
-
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Location: </p>
-                        </div>
-
-                        <div>
-                          <p> Aldrich Park, Irvine CA 92617</p>
-                        </div>
-                    </div>
-                    
-                  </div>
-                <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
-                  Back
-                </button>
-              </>
-            )}
-
-
-          </div>
+          <FallReport
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            setactivateFallChart={setactivateFallChart}
+          />
         </div>
       )}
+
     </div>
   );
 }
