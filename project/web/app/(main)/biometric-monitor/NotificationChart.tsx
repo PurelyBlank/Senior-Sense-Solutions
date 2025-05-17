@@ -8,20 +8,19 @@ import { useWearable } from '../context/WearableContext';
 import "./NotificationChart.css"
 
 export default function NotificationChart(){
-    const [patientHeartRate, setPatientHeartRate] = useState('');
-    const [, setError] = useState('');
-    const { wearable_id } = useWearable();
-    const [fallData, setFallData] = useState<
-    null | Array<{
-      patient_name: string,
-      timestamp: string,
-      longitude: number,
-      latitude: number
-    }>
-  >(null);
+  const [patientHeartRate, setPatientHeartRate] = useState('');
+  const [, setError] = useState('');
+  const { wearable_id } = useWearable();
+  const [fallData, setFallData] = useState<null | Array<{
+    patient_name: string,
+    timestamp: string,
+    longitude: number,
+    latitude: number
+  }>>(null);
 
-    const handleFetchPatientHeartRate = async () => {
-        setError("");  // Reset error before fetching
+  const handleFetchPatientHeartRate = async () => {
+    // Reset error before fetching
+    setError("");
   
     try {
       const token = localStorage.getItem("authToken");
@@ -65,7 +64,9 @@ export default function NotificationChart(){
   const fetchFallData = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) throw new Error("No auth token");
+      if (!token) {
+        throw new Error("No auth token");
+      }
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       const apiUrl = `${baseApiUrl}/fall-alert`;
@@ -83,6 +84,7 @@ export default function NotificationChart(){
       // If there are fall notifications, set the state
       if (data.falls && data.falls.length > 0) {
         setFallData(data.falls);
+
       } else {
         setFallData(null); // No fall alerts
       }
@@ -125,50 +127,50 @@ export default function NotificationChart(){
         summary: `Too high: ${heartRate} bpm, please check in with the patient.`,
       };
     }
+
     return null; // No alert if heart rate is normal
   };
 
   const heartRateAlertData = heartRateAlert();
 
-    return(
-        <div className="notifications-box">
-            <p className="fw-semibold">Notifications</p>
-            <p className="abnormality-text">Abnormality Alerts</p>
+  return (
+    <div className="notifications-box">
+      <p className="fw-semibold">Notifications</p>
+      <p className="abnormality-text">Abnormality Alerts</p>
 
-            { /*Notification Rows*/ }
-            <div className="notifications-details">
-
-                <div className="notifications-row">
-                    <FiBell size={20} />
-                    <div className="notifications-text">
-                        <span className="notifications-title">Missed Pill</span>
-                        <span className="notifications-summary">Medicine A at 2pm</span>
-                    </div>
-                </div>
-
-                {heartRateAlertData && (
-                    <div className="notifications-row">
-                        <IoPersonOutline size={20} />
-                        <div className="notifications-text">
-                        <span className="notifications-title">{heartRateAlertData.title}</span>
-                        <span className="notifications-summary">{heartRateAlertData.summary}</span>
-                        </div>
-                    </div>
-                )}
-
-                {fallData && fallData.length > 0 && fallData.map((fall, index) => (
-                  <div key={index} className="notifications-row">
-                    <IoPersonOutline size={20} />
-                    <div className="notifications-text">
-                      <span className="notifications-title">Fall Detected</span>
-                      <span className="notifications-summary">
-                        {fall.patient_name} has fallen at {new Date(fall.timestamp).toLocaleTimeString()}.<br />
-                        Location: ({fall.latitude.toFixed(4)}, {fall.longitude.toFixed(4)})
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
+      { /*Notification Rows*/ }
+      <div className="notifications-details">
+        <div className="notifications-row">
+          <FiBell size={20} />
+          <div className="notifications-text">
+            <span className="notifications-title">Missed Pill</span>
+            <span className="notifications-summary">Medicine A at 2pm</span>
+          </div>
         </div>
-    )
-}
+
+        {heartRateAlertData && (
+          <div className="notifications-row">
+            <IoPersonOutline size={20} />
+            <div className="notifications-text">
+              <span className="notifications-title">{heartRateAlertData.title}</span>
+              <span className="notifications-summary">{heartRateAlertData.summary}</span>
+            </div>
+          </div>
+        )}
+
+        {fallData && fallData.length > 0 && fallData.map((fall, index) => (
+          <div key={index} className="notifications-row">
+            <IoPersonOutline size={20} />
+            <div className="notifications-text">
+              <span className="notifications-title">Fall Detected</span>
+              <span className="notifications-summary">
+                {fall.patient_name} has fallen at {new Date(fall.timestamp).toLocaleTimeString()}.<br />
+                Location: ({fall.latitude.toFixed(4)}, {fall.longitude.toFixed(4)})
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};

@@ -518,6 +518,7 @@ app.post('/api/fall-alert', async (req, res) => {
           c.first_name AS caretaker_first_name,
           p.patient_id,
           p.first_name AS patient_first_name,
+          p.last_name AS patient_last_name,
           p.wearable_id
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
@@ -539,8 +540,9 @@ app.post('/api/fall-alert', async (req, res) => {
       );
       if (fallData.rowCount > 0) {
         const { timestamp, longitude, latitude } = fallData.rows[0];
+
         notifications.push({
-          patient_name: patientRow.patient_first_name,
+          patient_name: `${patientRow.patient_first_name} ${patientRow.patient_last_name}`,
           fall: true,
           timestamp,
           longitude,
@@ -550,13 +552,22 @@ app.post('/api/fall-alert', async (req, res) => {
     }
     if (notifications.length > 0) {
       return res.json({ falls: notifications });
+
     } else {
       return res.json({ falls: [], message: "No falls detected for any patient." });
     }
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
