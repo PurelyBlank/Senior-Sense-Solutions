@@ -63,7 +63,7 @@ export default function GaugeClient() {
     <div className="gaugeChartContainer">
       <Gauge
         className="gauge-responsive"
-        value={batteryLevel}
+        value={batteryLevel !== null ? Math.round(batteryLevel) : 0}
         valueMin={0}
         valueMax={100}
         width={355}
@@ -91,7 +91,7 @@ export default function GaugeClient() {
         color: '#33B7F7',
       }}>
       <div className="gauge-overlay">
-        <div className="gauge-percent">{`${batteryLevel}%`}</div>
+        <div className="gauge-percent">{`${batteryLevel !== null ? Math.round(batteryLevel) : 0}%`}</div>
         <div className="gauge-label">{`───────\n${rounded} hours\nRemaining`}</div>
       </div>
     </div>
