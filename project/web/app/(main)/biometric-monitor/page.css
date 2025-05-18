@@ -2,6 +2,14 @@ h1 {
   padding-left: 2rem;
 }
 
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 .content-container {
   display: flex;
   flex-direction: row;
