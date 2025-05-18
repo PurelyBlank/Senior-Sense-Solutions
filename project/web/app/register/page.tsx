@@ -73,7 +73,9 @@ export default function RegisterPage() {
       <div className="register-left"></div>
       <div className="register-center"></div>
       <div className="register-right">
-        <div className="title">Senior Sense Solutions</div>
+      <div className="logo">
+      <img src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
+      </div>
         <div className="welcome">Create a new account</div>
         <div className="sub-text">Create your account to continue</div>
 

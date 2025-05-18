@@ -65,7 +65,9 @@ export default function LoginPage() {
       <div className="login-left" />
       <div className="login-center" />
       <div className="login-right">
-        <h1 className="title">Senior Sense Solutions</h1>
+      <div className="logo">
+      <img src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
+      </div>
         <h2 className="welcome">Welcome back!</h2>
         <p className="sub-text">Log in to your account to continue</p>
 
