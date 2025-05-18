@@ -96,7 +96,7 @@ html, body {
   padding: 1rem 3rem 1rem !important;
   text-align: center !important;
   font-size: 16px !important;
-  color: red !important;
+  color: #ca2a30 !important;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -131,14 +131,19 @@ html, body {
 /* Collapsible Button */
 .collapsible-button {
   position: fixed;
-  left: 90px;
+  left: 85px;
   top: 50%;
+  width: 25px;
+  height: 100%;
   transform: translateY(-50%);
-  background-color: transparent;
-  color: #005686;
-  font-size: 30px;
+  background-color: #005686;
+  color: white;
+  font-size: 20px;
   cursor: pointer;
-  border: 1px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid #005686;
+  transition: left 0.3s ease;
+  z-index: 100;
 }
 
 .sidebar.collapsed ~ .collapsible-button {
@@ -205,7 +210,6 @@ html, body {
   border-bottom: 0.5px solid white;
 }
 
-
 .nav-button {
   background: none;
   /* border: none; */
@@ -241,8 +245,8 @@ html, body {
   padding: 20px;
   margin-top: 5.5rem; 
   overflow-y: auto; 
+  position: relative;
 }
-
 
 .flex {
   display: flex;
@@ -257,11 +261,9 @@ html, body {
   overflow: hidden;
 }
 
-
 .sidebar.collapsed + .main-content {
   margin-left: 0px;
 }
-
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {

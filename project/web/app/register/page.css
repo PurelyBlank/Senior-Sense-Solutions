@@ -180,3 +180,10 @@ p, span {
 .google:hover {
     background: #e6e6e6;
 }
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
