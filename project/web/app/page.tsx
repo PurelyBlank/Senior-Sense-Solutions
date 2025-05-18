@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -66,7 +67,7 @@ export default function LoginPage() {
       <div className="login-center" />
       <div className="login-right">
       <div className="logo">
-      <img src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
+      <Image src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
       </div>
         <h2 className="welcome">Welcome back!</h2>
         <p className="sub-text">Log in to your account to continue</p>
