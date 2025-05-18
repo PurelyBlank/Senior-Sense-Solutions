@@ -108,10 +108,9 @@ html, body {
 
 /* Sidebar - Starts below the top bar */
 .sidebar {
-  position: fixed;
   top: 3.5rem;
   left: 0;
-  width: 120px;
+  width: 90px;
   height: calc(100vh - 3.5rem); 
   background-color: #005686;
   transition: width 0.3s ease;
@@ -126,20 +125,29 @@ html, body {
 
 /* Collapsed Sidebar */
 .sidebar.collapsed {
-  width: 80px;
+  width: 30px;
 }
 
 /* Collapsible Button */
 .collapsible-button {
-  position: absolute;
-  left: 12px; 
+  position: fixed;
+  left: 85px;
   top: 50%;
+  width: 25px;
+  height: 100%;
   transform: translateY(-50%);
-  background-color: transparent;
+  background-color: #005686;
   color: white;
   font-size: 20px;
   cursor: pointer;
-  border: none;
+  border-left: 1px solid white;
+  border-right: 1px solid #005686;
+  transition: left 0.3s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed ~ .collapsible-button {
+  left: 30px;
 }
 
 /* Centered Arrow in the Sidebar */
@@ -153,24 +161,12 @@ html, body {
   color: white;
 }
 
-/* White Vertical Line to the Right of the Arrow */
-.sidebar::after {
-  content: "";
-  position: absolute;
-  left: 30px; 
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: white;
-}
-
 /* Navigation Links */
 .nav-links {
   display: flex;
   flex-direction: column;
   gap: 0;
   margin-top: 0;
-  padding-left: 30px; 
 }
 
 .nav-links a {
@@ -195,55 +191,37 @@ html, body {
   font-weight: bold;
 }
 
-/* Remove left arrows before links */
-.nav-links a::before {
-  content: "";
-}
-
 /* Default icon size */
 .nav-links a svg {
-  margin-bottom: 4px; 
   width: 34px; 
   height: 34px; 
 }
 
 /* Reduce icon size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a svg {
-  width: 12px; 
-  height: 12px; 
+  width: 17px; 
+  height: 17px; 
 }
 
 /* Reduce the horizontal line size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a {
-  padding-left: 8px; 
-  padding-right: 8px; 
-  font-size: 12px; 
-}
-
-.sidebar.collapsed .nav-links a svg {
-  width: 12px; 
-  height: 12px; 
-}
-
-.sidebar.collapsed .nav-links a {
-  border-bottom: 0.5px solid white; 
+  padding-right: 4px;
+  padding-left: 4px;
+  border-bottom: 0.5px solid white;
 }
 
 .nav-button {
   background: none;
-  border: none;
+  /* border: none; */
   color: white;
   font-size: 16px;
-  padding: 24px 24px;
+  padding: 18px 18px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: background-color 0.3s ease, font-weight 0.1s ease;
-  border-bottom: 1px solid white; 
-  cursor: pointer;
-  width: 100%; 
+  border: 1px solid transparent;
 }
 
 .nav-button:hover {
@@ -251,14 +229,14 @@ html, body {
 }
 
 .sidebar.collapsed .nav-button {
-  padding: 12px 0; 
-  font-size: 12px;
+  padding-right: 4px;
+  padding-left: 4px;
 }
 
 /* Adjust icon size when sidebar is collapsed */
 .sidebar.collapsed .nav-button svg {
-  width: 12px;
-  height: 12px;
+  width: 17px;
+  height: 17px;
 }
 
 /* Main Content */
@@ -267,8 +245,8 @@ html, body {
   padding: 20px;
   margin-top: 5.5rem; 
   overflow-y: auto; 
+  position: relative;
 }
-
 
 .flex {
   display: flex;
@@ -283,11 +261,9 @@ html, body {
   overflow: hidden;
 }
 
-
 .sidebar.collapsed + .main-content {
   margin-left: 0px;
 }
-
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
