@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   z-index: 100;
 }
 
@@ -17,9 +18,6 @@
   border: none;
   color: white;
   font-size: 20px;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
