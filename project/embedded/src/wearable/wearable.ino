@@ -10,10 +10,12 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
+#include "Display_ST77916.h"
 #include "BAT_driver.h"
 #include "I2C_Driver.h"
 #include "Gyro_QMI8658.h"
 #include "RTC_PCF85063.h"
+#include "LVGL_Driver.h"
 
 
 constexpr int FAILURE = 0;
@@ -28,9 +30,6 @@ constexpr int wearable_id = 1;
 // For WiFi
 // constexpr char* ssid = "<SSID>";
 // constexpr char* password = "<PASSWORD>";
-
-constexpr char* ssid = "UCInet Mobile Access";
-constexpr char* password = "";
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -117,10 +116,11 @@ void sendDataTask(void* parameter) {
     double batteryLevel = getBatteryPercentage();
     char timeStr[64];
     datetime_to_str(timeStr, datetime);
+    int hasFallen = FallDetection::getFallCount() > 0 ? 1 : 0;
 
     // Send POST Request to Website Endpoint
     int response = httpPostBiometricData(timeStr, heartRate, latitude, longitude, batteryLevel,
-                                         FallDetection::getFallCount(), StepDetection::getStepCount());
+                                         hasFallen, StepDetection::getStepCount());
     if (response == SUCCESS) {
       StepDetection::resetStepCount();
       FallDetection::resetFallCount();
@@ -282,14 +282,18 @@ void setup() {
   BAT_Init();
   I2C_Init();
   QMI8658_Init();
-  // calibrateGyroscope();  // Run this once
-  PCF85063_Init();
-  printf("Gyro Calibration Complete\n");
 
+  TCA9554PWR_Init(0x00);
+  PCF85063_Init();
+  LCD_Init();
+  Lvgl_Init();
+  
   // Start background tasks after everything is initialized
   printf("Starting system tasks...\n");
   Driver_Loop();
 }
 
 void loop() {
+  Lvgl_Loop();
+  vTaskDelay(pdMS_TO_TICKS(5));
 }
