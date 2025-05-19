@@ -456,7 +456,9 @@ app.post('/api/patient-heartrate-chart', async (req, res) => {
           EXTRACT(DOW FROM timestamp) AS day_of_week,
           AVG(heart_rate) AS avg_heart_rate
         FROM wearable_data
-        WHERE wearable_id = $1 
+        WHERE wearable_id = $1
+          AND timestamp >= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days') - INTERVAL '7 days'
+          AND timestamp <= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days')
         GROUP BY day_of_week
         ORDER BY day_of_week;
       `,

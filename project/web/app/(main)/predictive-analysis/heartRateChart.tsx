@@ -73,11 +73,12 @@ export default function HeartRateChart() {
 
     // Calculate the start dates of the current week
     const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - dayOfWeek);
+    const differenceToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+    startOfWeek.setDate(today.getDate() + differenceToMonday);
 
     // Calculate the end dates of the current week
-    const endOfWeek = new Date(today);
-    endOfWeek.setDate(today.getDate() + (6 - dayOfWeek));
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
 
     // Format the dates as MM/DD/YY
     const formatDate = (date: Date) => {
@@ -106,9 +107,16 @@ export default function HeartRateChart() {
       }
 
       // Trend analysis based on current patient's available heart rate data
-      const todayIdx = new Date().getDay();
-      const todayValue = parseFloat(heartRateData[todayIdx]);
-      const prevDays = heartRateData
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const reorderedData = [
+        heartRateData[1], heartRateData[2], heartRateData[3],
+        heartRateData[4], heartRateData[5], heartRateData[6], heartRateData[0]
+      ];
+
+      const todayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const todayValue = parseFloat(reorderedData[todayIdx]);
+      const prevDays = reorderedData
         .map((v: string, idx: number) => idx < todayIdx ? parseFloat(v) : null)
         .filter((v: number | null): v is number => v !== null && !isNaN(v));
 
@@ -148,11 +156,11 @@ export default function HeartRateChart() {
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: "line",
         data: {
-          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           datasets: [
             {
               label: "Average Beats per Minute (BPM)",
-              data: heartRateData,
+              data: reorderedData,
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
