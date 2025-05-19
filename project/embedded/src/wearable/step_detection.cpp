@@ -30,4 +30,11 @@ namespace StepDetection {
     }
   }
 
+  int getStepCount() {
+    return stepCount;
+  }
+
+  void resetStepCount() {
+    stepCount = 0;
+  }
 }

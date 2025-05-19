@@ -9,7 +9,8 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 p, span {
@@ -18,7 +19,7 @@ p, span {
 
 .register-container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
 }
 
@@ -179,4 +180,11 @@ p, span {
 
 .google:hover {
     background: #e6e6e6;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
 }

@@ -2,21 +2,25 @@
 
 import { useState } from "react";
 
-import "./PatientDropdown.css"
 import PatientInfo from "./PatientComponent";
+
+import "./PatientDropdown.css"
 
 export default function PatientDropdown() {
     const [collapsed, setCollapsed] = useState(true);
   
     return (
       <>
-        <div className="sidebarDropdown-toggle">
-          <button
-            onClick={() => setCollapsed(!collapsed)}
+        <div 
+          className="sidebarDropdown-toggle"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <span
             className="sidebarDropdown-collapsible-button"
+            aria-hidden="true"
           >
             {collapsed ? "▸" : "◂"}
-          </button>
+          </span>
         </div>
   
         {!collapsed && (

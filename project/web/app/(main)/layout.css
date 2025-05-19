@@ -10,14 +10,6 @@ html, body {
   background-color: #FFFFFF;
 }
 
-h1 {
-  font-size: 32px !important;
-}
-
-p {
-  font-size: 16px !important;
-}
-
 /* Top Bar - Fixed at the top */
 .top-bar {
   position: fixed;
@@ -62,12 +54,63 @@ p {
   opacity: 0.8; 
 }
 
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-container:hover .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-menu {
+  display: flex;
+  position: absolute;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: center !important;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 1rem !important;
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.dropdown-item-settings {
+  background: none;
+  border: none;
+  padding: 1rem 3rem 1rem !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  color: black !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dropdown-item-signout {
+  background: none;
+  border: none;
+  padding: 1rem 3rem 1rem !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  color: #ca2a30 !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dropdown-item-settings:hover,
+.dropdown-item-signout:hover {
+  background-color: #F0F0F0 !important;
+}
+
 /* Sidebar - Starts below the top bar */
 .sidebar {
-  position: fixed;
   top: 3.5rem;
   left: 0;
-  width: 120px;
+  width: 90px;
   height: calc(100vh - 3.5rem); 
   background-color: #005686;
   transition: width 0.3s ease;
@@ -82,20 +125,29 @@ p {
 
 /* Collapsed Sidebar */
 .sidebar.collapsed {
-  width: 60px;
+  width: 30px;
 }
 
 /* Collapsible Button */
 .collapsible-button {
-  position: absolute;
-  left: 12px; 
+  position: fixed;
+  left: 85px;
   top: 50%;
+  width: 25px;
+  height: 100%;
   transform: translateY(-50%);
-  background-color: transparent;
+  background-color: #005686;
   color: white;
   font-size: 20px;
   cursor: pointer;
-  border: none;
+  border-left: 1px solid white;
+  border-right: 1px solid #005686;
+  transition: left 0.3s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed ~ .collapsible-button {
+  left: 30px;
 }
 
 /* Centered Arrow in the Sidebar */
@@ -109,24 +161,12 @@ p {
   color: white;
 }
 
-/* White Vertical Line to the Right of the Arrow */
-.sidebar::after {
-  content: "";
-  position: absolute;
-  left: 30px; 
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: white;
-}
-
 /* Navigation Links */
 .nav-links {
   display: flex;
   flex-direction: column;
   gap: 0;
   margin-top: 0;
-  padding-left: 30px; 
 }
 
 .nav-links a {
@@ -151,55 +191,37 @@ p {
   font-weight: bold;
 }
 
-/* Remove left arrows before links */
-.nav-links a::before {
-  content: "";
-}
-
 /* Default icon size */
 .nav-links a svg {
-  margin-bottom: 4px; 
   width: 34px; 
   height: 34px; 
 }
 
 /* Reduce icon size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a svg {
-  width: 12px; 
-  height: 12px; 
+  width: 17px; 
+  height: 17px; 
 }
 
 /* Reduce the horizontal line size when sidebar is collapsed */
 .sidebar.collapsed .nav-links a {
-  padding-left: 8px; 
-  padding-right: 8px; 
-  font-size: 12px; 
-}
-
-.sidebar.collapsed .nav-links a svg {
-  width: 12px; 
-  height: 12px; 
-}
-
-.sidebar.collapsed .nav-links a {
-  border-bottom: 0.5px solid white; 
+  padding-right: 4px;
+  padding-left: 4px;
+  border-bottom: 0.5px solid white;
 }
 
 .nav-button {
   background: none;
-  border: none;
+  /* border: none; */
   color: white;
   font-size: 16px;
-  padding: 24px 24px;
+  padding: 18px 18px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: background-color 0.3s ease, font-weight 0.1s ease;
-  border-bottom: 1px solid white; 
-  cursor: pointer;
-  width: 100%; 
+  border: 1px solid transparent;
 }
 
 .nav-button:hover {
@@ -207,14 +229,14 @@ p {
 }
 
 .sidebar.collapsed .nav-button {
-  padding: 12px 0; 
-  font-size: 12px;
+  padding-right: 4px;
+  padding-left: 4px;
 }
 
 /* Adjust icon size when sidebar is collapsed */
 .sidebar.collapsed .nav-button svg {
-  width: 12px;
-  height: 12px;
+  width: 17px;
+  height: 17px;
 }
 
 /* Main Content */
@@ -223,8 +245,8 @@ p {
   padding: 20px;
   margin-top: 5.5rem; 
   overflow-y: auto; 
+  position: relative;
 }
-
 
 .flex {
   display: flex;
@@ -239,11 +261,9 @@ p {
   overflow: hidden;
 }
 
-
 .sidebar.collapsed + .main-content {
   margin-left: 0px;
 }
-
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
