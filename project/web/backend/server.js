@@ -709,49 +709,91 @@ app.post('/api/step-count', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    // Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired.' });
+      } else {
+        return res.status(401).json({ error: 'Invalid token.' });
+      }
+    }
 
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
-      return res.status(400).json({ error: "wearable_id not here" });
+      return res.status(400).json({ error: "wearable_id missing" });
     }
 
-    const result = await pool.query(
-      `
-        SELECT
-          wearable_id,
-          timestamp,
-          num_steps
-        FROM wearable_data 
-        WHERE wearable_id = $1 
-        ORDER BY timestamp DESC;
-      `,
-      [wearable_id]
-    );
+    const range = req.body.range || 'yearly';
 
-    const patient_data = result.rows[0];
+    // Setup SQL parts depending on range
+    let interval, groupBy, dateFormat;
 
-    if (!patient_data) {
-      console.log("patient_data not found for patient with wearable: ", wearable_id);
+    switch (range) {
+      case 'daily':
+        interval = "1 day";
+        groupBy = "date_trunc('hour', timestamp)";
+        dateFormat = 'YYYY-MM-DD HH24:00';
+        break;
 
-      return res.status(404).json({ error: 'patient_data not found (number of steps)' });
+      case 'weekly':
+        interval = "7 days";
+        groupBy = "date_trunc('day', timestamp)";
+        dateFormat = 'YYYY-MM-DD';
+        break;
+
+      case 'monthly':
+        interval = "1 month";
+        groupBy = "date_trunc('day', timestamp)";
+        dateFormat = 'YYYY-MM-DD';
+        break;
+
+      case '6M':
+        interval = "6 months";
+        groupBy = "date_trunc('month', timestamp)";
+        dateFormat = 'YYYY-MM';
+        break;
+
+      case 'yearly':
+      case 'Y':
+      default:
+        interval = "1 year";
+        groupBy = "date_trunc('month', timestamp)";
+        dateFormat = 'YYYY-MM';
+        break;
     }
 
-    res.json({ 
-      patientHeartRate: patient_data.heart_rate,
+    // Query to aggregate step counts grouped by the chosen time interval
+    const query = `
+      SELECT
+        to_char(${groupBy}, '${dateFormat}') AS period,
+        SUM(num_steps) AS total_steps
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND timestamp >= NOW() - INTERVAL '${interval}'
+      GROUP BY period
+      ORDER BY period ASC;
+    `;
+
+    const result = await pool.query(query, [wearable_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No step data found for this wearable.' });
+    }
+
+    // Return aggregated data
+    return res.json({
+      steps: result.rows.map(row => ({
+        period: row.period,
+        total_steps: Number(row.total_steps),
+      })),
     });
 
   } catch (err) {
-    console.error('Biometric monitor error:', err);
-
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token.' });
-    }
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired.' });
-    }
-    
-    res.status(500).json({ error: 'Server error.' });
+    console.error('Step count retrieval error:', err);
+    return res.status(500).json({ error: 'Server error.' });
   }
 });
 
