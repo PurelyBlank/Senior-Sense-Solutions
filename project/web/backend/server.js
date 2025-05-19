@@ -431,6 +431,66 @@ app.post('/api/patient-heartrate', async (req, res) => {
   }
 });
 
+// Predictive Analysis page endpoint to retrieve a patient's steps count (POST request)
+app.post('/api/patient-activity-chart', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    // Query to calculate average step count for each day of the week
+    const result = await pool.query(
+      `
+        SELECT
+          EXTRACT(DOW FROM timestamp) AS day_of_week,
+          AVG(num_steps) AS avg_num_steps
+        FROM wearable_data
+        WHERE wearable_id = $1
+          AND timestamp >= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days') - INTERVAL '7 days'
+          AND timestamp <= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days')
+        GROUP BY day_of_week
+        ORDER BY day_of_week;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No step data found for the given wearable_id' });
+    }
+
+    // Map query results to array of avg. step counts for each weekday
+    const stepData = Array(7).fill(null);
+    result.rows.forEach((row) => {
+      const dayOfWeek = parseInt(row.day_of_week, 10);
+      stepData[dayOfWeek] = parseFloat(row.avg_num_steps);
+    });
+
+    res.json({ stepData });
+
+  } catch (err) {
+    console.error('Error retrieving step data:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 // Predictive Analysis page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate-chart', async (req, res) => {
   try {
