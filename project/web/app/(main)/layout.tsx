@@ -23,6 +23,9 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   const [, setError] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+
+  
+
   // Ref for caretaker user dropdown
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
