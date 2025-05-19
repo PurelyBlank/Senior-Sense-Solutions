@@ -33,9 +33,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: clamp(1rem, 3vw, 2rem); /* Scales with container */
+  font-size: clamp(1rem, 3vw, 2rem); 
   color: #333;
-  pointer-events: none; /* optional: avoid capturing mouse events */
+  pointer-events: none; 
 }
 
 .step-stats {

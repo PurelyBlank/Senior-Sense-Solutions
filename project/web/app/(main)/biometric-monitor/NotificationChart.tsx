@@ -22,6 +22,11 @@ export default function NotificationChart(){
 
     const handleFetchPatientHeartRate = async () => {
         setError("");  // Reset error before fetching
+
+    if (!wearable_id) {
+      setError("Wearable ID error");
+      return;
+    }
   
     try {
       const token = localStorage.getItem("authToken");
@@ -46,12 +51,10 @@ export default function NotificationChart(){
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch caretaker name.");
+        setPatientHeartRate("");
+        
+        throw new Error(data.error || "Failed to fetch heart rate data.");
       }
-      if (!data.patientHeartRate) {
-        throw new Error("Caretaker first name not found in response.");
-      }
-
       setPatientHeartRate(data.patientHeartRate);
 
     } catch (err) {
@@ -94,6 +97,9 @@ export default function NotificationChart(){
 
 
   useEffect(() => {
+    if (wearable_id === -1) {
+       return;
+    }
     // Fetch heart rate 
     handleFetchPatientHeartRate();
     fetchFallData();
@@ -105,7 +111,7 @@ export default function NotificationChart(){
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, []); 
+  }, [wearable_id]);
 
   const heartRateAlert = () => {
     const heartRate = parseFloat(patientHeartRate); // Convert to number
