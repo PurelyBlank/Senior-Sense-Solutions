@@ -20,8 +20,8 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   const [collapsed, setCollapsed] = useState(false);
   const [caretakerFirstName, setCaretakerFirstName] = useState('');
   const [caretakerLastName, setCaretakerLastName] = useState('');
-  const [, setError] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [, setError] = useState('');
 
   // Ref for caretaker user dropdown
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -113,27 +113,38 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
             <span>
               {caretakerFirstName || "Caretaker"}{" "}{caretakerLastName || "User"}
             </span>
-            <div className="dropdown-container">
-              <button className="dropdown-toggle" style={{ fontSize: "1.5rem" }}></button>
-              <div className="dropdown-menu">
-                <button
-                  className="dropdown-item-settings"
-                  onClick={() => {
-                    router.push("/settings");
-                  }}
-                >
-                  Settings
-                </button>
-                <button
-                  className="dropdown-item-signout"
-                  onClick={() => {
-                    localStorage.removeItem("authToken");
-                    router.push("/");
-                  }}
-                >
-                  Sign Out
-                </button>
-              </div>
+            <div 
+              className="dropdown-container" 
+              ref={dropdownRef}
+              onMouseEnter={() => setDropdownOpen(true)}
+              onMouseLeave={() => setDropdownOpen(false)}
+            >
+              <button 
+                className="dropdown-toggle" 
+                style={{ fontSize: "1.5rem" }}
+                tabIndex={-1}
+              ></button>
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <button
+                    className="dropdown-item-settings"
+                    onClick={() => {
+                      router.push("/settings");
+                    }}
+                  >
+                    Settings
+                  </button>
+                  <button
+                    className="dropdown-item-signout"
+                    onClick={() => {
+                      localStorage.removeItem("authToken");
+                      router.push("/");
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -178,4 +189,4 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
       </div>
     </WearableProvider>
   );
-}
+};
