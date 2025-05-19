@@ -235,7 +235,7 @@ export default function StepCounterChart() {
           {
             label: "Steps",
             data,
-            backgroundColor: "#33B7F7",
+            backgroundColor: "rgba(75, 192, 192, 1)",
             borderRadius: 4,
           },
         ],
