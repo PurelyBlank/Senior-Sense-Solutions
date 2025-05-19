@@ -280,7 +280,7 @@ export default function StepCounterChart() {
               cy="40"
             />
             <circle
-              stroke="#33B7F7"
+              stroke="rgba(75, 192, 192, 1)"
               fill="transparent"
               strokeWidth="8"
               r="36"
