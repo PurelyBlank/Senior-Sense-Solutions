@@ -16,6 +16,7 @@
 #include "Gyro_QMI8658.h"
 #include "RTC_PCF85063.h"
 #include "LVGL_Driver.h"
+#include "LVGL_ui.h"
 
 
 constexpr int FAILURE = 0;
@@ -287,6 +288,9 @@ void setup() {
   PCF85063_Init();
   LCD_Init();
   Lvgl_Init();
+  
+  // Display custom UI
+  LVGL_display();
   
   // Start background tasks after everything is initialized
   printf("Starting system tasks...\n");
