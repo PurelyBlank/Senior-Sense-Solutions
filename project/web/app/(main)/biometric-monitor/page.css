@@ -14,9 +14,8 @@ a:hover {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 2rem;
   flex-wrap: wrap;
-  padding-bottom: 3rem;
+  padding-bottom: 1rem;
 }
 
 .right-container {
@@ -25,11 +24,6 @@ a:hover {
   flex: 1;
   gap: 2rem;
   min-width: 280px;
-}
-
-.biometric-container {
-  padding: 20px;
-  flex: 1;
 }
 
 .biometric-charts {
@@ -68,7 +62,7 @@ a:hover {
 
 .bloodoxygen-summary,
 .heartrate-summary {
-  font-size: clamp(1rem, 1vw, 0.5rem) !important;
+  font-size: clamp(1.25rem, 1.25vw, 0.75rem) !important;
   max-width: 100%;
 }
 
