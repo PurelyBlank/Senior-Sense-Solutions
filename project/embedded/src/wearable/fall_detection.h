@@ -5,7 +5,7 @@
 namespace FallDetection {
   inline constexpr float fallAccelThreshold = 2.5;
   inline constexpr float fallGyroThreshold = 10;
-  inline const float stillnessThreshold = 20;   // g
+  inline const float stillnessThreshold = 200;   // g
   inline constexpr int fallBufLen = 20;
   inline float fallBufAccel[fallBufLen];
   inline float fallBufGyro[fallBufLen];
@@ -18,4 +18,6 @@ namespace FallDetection {
   inline const unsigned long stillWindow = 2000;  // 2 seconds
 
   void hasFallen();
+  int getFallCount();
+  void resetFallCount();
 }
