@@ -114,7 +114,7 @@ input {
 
 .bloodoxygen-title,
 .heartrate-title {
-  font-size: clamp(2rem, 2vw, 1.25rem);
+  font-size: clamp(3rem, 2vw, 1.25rem);
   margin-top: 0.625rem;
 }
 
