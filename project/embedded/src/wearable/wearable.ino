@@ -285,7 +285,9 @@ void setup() {
   QMI8658_Init();
 
   TCA9554PWR_Init(0x00);
+  Backlight_Init();
   PCF85063_Init();
+  
   LCD_Init();
   Lvgl_Init();
   
