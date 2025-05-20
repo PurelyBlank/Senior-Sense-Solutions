@@ -8,45 +8,35 @@ import { useWearable } from "../context/WearableContext";
 
 Chart.register(...registerables);
 
-function generateFallChartLabels(): string[] {
-  const labels: string[] = [];
-  const now = new Date();
-
-  for (let i = 5; i >= 0; i--) {
-    const startOfWeek = new Date(now);
-    const day = startOfWeek.getDay() || 7; 
-    startOfWeek.setDate(startOfWeek.getDate() - day + 1 - (i * 7)); 
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); 
-
-    const label = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()} - ${endOfWeek.getMonth() + 1}/${endOfWeek.getDate()}`;
-    labels.push(label);
-  }
-
-  return labels;
-
-}
-
 export default function FallChart() {
+  const [trendText, setTrendText] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [detectFall, setDetectFall] = useState(false);
+  const [activateFallChart, setactivateFallChart] = useState(false);
+  const [fallDate, setFallDate] = useState('');
+  const [fallLocation, setFallLocation] = useState('');
+  const [, setError] = useState('');
+
+  const { wearable_id } = useWearable();
+
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
-  const [activateFallChart, setactivateFallChart] = useState(false); 
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
-  const [, setError] = useState('');
-  const [fallDate, setFallDate] = useState('')
-  const [fallLocation, setFallLocation] = useState('')
-  const { wearable_id } = useWearable();
-
-
   const fetchFallData = async () => {
-    if (!wearable_id) return;
+    // Reset error before fetching
+    setError("");
+
+    if (!wearable_id) {
+      setError("Wearable ID is not provided.");
+
+      return;
+    }
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) throw new Error("No auth token");
+      if (!token) {
+        throw new Error("No auth token");
+      }
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       const apiUrl = `${baseApiUrl}/patient-fall-chart`;
@@ -65,8 +55,10 @@ export default function FallChart() {
       const data = await response.json();
       if (!response.ok || !Array.isArray(data.falls)) {
         updateChart([], []);
-        throw new Error(data.error || "Failed to fetch patient data for fall chart");
-        return;
+
+        setTrendText("No data available.");
+
+        throw new Error(data.error || "Failed to fetch patient data.");
       }
 
       const labels = data.falls.map((entry: any) => {
@@ -82,10 +74,46 @@ export default function FallChart() {
 
       updateChart(labels, chartData);
 
+      // Trend analysis
+      if (chartData.length < 2) {
+        setTrendText("Not enough data to analyze weekly trend.");
+
+      } else {
+        const currentWeek = chartData[chartData.length - 1];
+        const prevWeeks = chartData.slice(0, chartData.length - 1);
+        const prevAvg: number = prevWeeks.reduce((a: number, b: number) => a + b, 0) / prevWeeks.length;
+
+        if (isNaN(currentWeek) || isNaN(prevAvg) || prevAvg === 0) {
+          setTrendText("Not enough data to analyze weekly trend.");
+
+        } else {
+          const difference = currentWeek - prevAvg;
+          const percentage = (difference / prevAvg) * 100;
+
+          let trend = "";
+          if (Math.abs(percentage) < 0.1) {
+            trend = "This week's fall count is stable compared to previous weeks.";
+
+          } else if (percentage > 0) {
+            trend = `Trending up by ${percentage.toFixed(1)}% in falls this week.`;
+
+          } else {
+            trend = `Trending down by ${Math.abs(percentage).toFixed(1)}% in falls this week.`;
+
+          }
+
+          setTrendText(trend);
+        };
+      };
+
     } catch (err) {
-      console.error("Fall count fetch error:", err);
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
+
       updateChart([], []);
 
+      setTrendText("No data available.");
     }
   };
 
@@ -93,8 +121,11 @@ export default function FallChart() {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
+
     const ctx = chartRef.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
       chartInstanceRef.current = new Chart(ctx, {
         type: "bar",
@@ -128,7 +159,6 @@ export default function FallChart() {
       },
     });
   };
-
 
   const checkFall = async () => {
       const token = localStorage.getItem("authToken");
@@ -171,7 +201,7 @@ export default function FallChart() {
    useEffect(() => {
       const interval = setInterval(() => {
         checkFall();
-      }, 50000); // every 10 seconds currently 
+      }, 10000); // every 10 seconds currently 
   }, []);
 
   return (
@@ -179,7 +209,7 @@ export default function FallChart() {
       
       {/* Header */}
       <div className={styles.BarChartHeader}>
-        <h1>Fall Chart</h1>
+        <h1>Fall Detection</h1>
       </div>
 
       <div className={styles.BarChartDivider}></div>
@@ -188,8 +218,7 @@ export default function FallChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className={styles.BarChartChartHeader}>
-            <h1>Fall Chart</h1>
-            <p>Over six weeks</p>
+            <h1>Week-by-week Summary</h1>
           </div>
           <div className={styles.chartWrapper}>
             <canvas ref={chartRef} />
@@ -198,7 +227,8 @@ export default function FallChart() {
 
         {/* Description */}
         <div className={styles.BarChartDescription}>
-          <p>Showing total falls over the last six weeks</p>
+          <h1>{trendText}</h1>
+          <p>Total detected falls per week</p>
         </div>
       </div>
 
@@ -218,7 +248,6 @@ export default function FallChart() {
           />
         </div>
       )}
-
     </div>
   );
-}
+};

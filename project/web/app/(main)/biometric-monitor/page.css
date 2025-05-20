@@ -62,7 +62,7 @@ a:hover {
 
 .bloodoxygen-summary,
 .heartrate-summary {
-  font-size: clamp(1.25rem, 1.25vw, 0.75rem) !important;
+  font-size: clamp(1rem, 1vw, 0.5rem) !important;
   max-width: 100%;
 }
 

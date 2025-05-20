@@ -157,7 +157,7 @@ export default function PatientActivity() {
           labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           datasets: [
             {
-              label: "# of Steps",
+              label: "Total Steps",
               data: reorderedData,
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
@@ -223,7 +223,7 @@ export default function PatientActivity() {
     <div className={styles.BarChart}>
       {/* Header */}
       <div className={styles.BarChartHeader}>
-        <h1>Patient Activity Chart</h1>
+        <h1>Patient Activity</h1>
       </div>
     
       {/* Divider */}
