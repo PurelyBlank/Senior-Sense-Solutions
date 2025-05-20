@@ -454,7 +454,7 @@ app.post('/api/patient-activity-chart', async (req, res) => {
       `
         SELECT
           EXTRACT(DOW FROM timestamp) AS day_of_week,
-          AVG(num_steps) AS avg_num_steps
+          SUM(num_steps) AS total_steps
         FROM wearable_data
         WHERE wearable_id = $1
           AND timestamp >= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days') - INTERVAL '7 days'
@@ -472,7 +472,7 @@ app.post('/api/patient-activity-chart', async (req, res) => {
     const stepData = Array(7).fill(null);
     result.rows.forEach((row) => {
       const dayOfWeek = parseInt(row.day_of_week, 10);
-      stepData[dayOfWeek] = parseFloat(row.avg_num_steps);
+      stepData[dayOfWeek] = parseFloat(row.total_steps);
     });
 
     res.json({ stepData });
