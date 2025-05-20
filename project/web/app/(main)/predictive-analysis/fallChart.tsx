@@ -2,8 +2,31 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import styles from "./charts.module.css";
+import FallReport from "./FallReport";
+import FallDetect from "./FallDetect";
+import { useWearable } from "../context/WearableContext";
 
 Chart.register(...registerables);
+
+function generateFallChartLabels(): string[] {
+  const labels: string[] = [];
+  const now = new Date();
+
+  for (let i = 5; i >= 0; i--) {
+    const startOfWeek = new Date(now);
+    const day = startOfWeek.getDay() || 7; 
+    startOfWeek.setDate(startOfWeek.getDate() - day + 1 - (i * 7)); 
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); 
+
+    const label = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()} - ${endOfWeek.getMonth() + 1}/${endOfWeek.getDate()}`;
+    labels.push(label);
+  }
+
+  return labels;
+
+}
 
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -11,21 +34,76 @@ export default function FallChart() {
 
   const [activateFallChart, setactivateFallChart] = useState(false); 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
+  const [, setError] = useState('');
+  const [fallDate, setFallDate] = useState('')
+  const [fallLocation, setFallLocation] = useState('')
+  const { wearable_id } = useWearable();
 
-  useEffect(() => {
-    if (chartRef.current) {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy(); 
+
+  const fetchFallData = async () => {
+    if (!wearable_id) return;
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No auth token");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patient-fall-chart`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.falls)) {
+        updateChart([], []);
+        throw new Error(data.error || "Failed to fetch patient data for fall chart");
+        return;
       }
 
-      chartInstanceRef.current = new Chart(chartRef.current, {
+      const labels = data.falls.map((entry: any) => {
+        const start = new Date(entry.week_start);
+        const end = new Date(entry.week_end);
+
+        const format = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
+
+        return `${format(start)} - ${format(end)}`;        
+      });
+
+      const chartData = data.falls.map((entry: any) => entry.fall_count);
+
+      updateChart(labels, chartData);
+
+    } catch (err) {
+      console.error("Fall count fetch error:", err);
+      updateChart([], []);
+
+    }
+  };
+
+  const updateChart = (labels: string[], data:number[]) => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+    const ctx = chartRef.current?.getContext("2d");
+    if (!ctx) return;
+
+      chartInstanceRef.current = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: ["1/13 - 1/19", "1/20 - 1/26", "1/27 - 2/2", "2/3 - 2/9", "2/10 - 2/16", "2/17 - 2/23"],
+          labels, 
           datasets: [
             {
               label: "# of Falls",
-              data: [0, 2, 1, 0, 0, 0],
+              data,
               backgroundColor: "rgba(75, 192, 192, 1.0)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
@@ -47,15 +125,53 @@ export default function FallChart() {
             y: { ticks: { precision: 0 }, grid: { display: true } },
           },
           plugins: { legend: { display: false } },
-        }
-      });
-    }
+      },
+    });
+  };
 
-    return () => {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
+
+  const checkFall = async () => {
+      const token = localStorage.getItem("authToken");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/check-fall`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id: 1,  
+          since: new Date(Date.now() - 10020000).toISOString(), // checking falls from the last 2 hrs ish
+        }),
+      });
+      
+      // sets the fall date + location from what we retrived from the database
+      const data = await response.json();
+      if (data.fallDetected) {
+        setFallDate(data.fallDate);
+        setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
+        setDetectFall(true);
       }
     };
+
+  useEffect(() => {
+    if (wearable_id === -1) {
+      return;
+    }
+    fetchFallData();
+    const intervalId = setInterval(fetchFallData, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [wearable_id]);
+
+   // periodically check for any potential new falls
+   useEffect(() => {
+      const interval = setInterval(() => {
+        checkFall();
+      }, 50000); // every 10 seconds currently 
   }, []);
 
   return (
@@ -82,70 +198,27 @@ export default function FallChart() {
 
         {/* Description */}
         <div className={styles.BarChartDescription}>
-          <h1>Trending down by 50% over the last 3 weeks</h1>
           <p>Showing total falls over the last six weeks</p>
         </div>
       </div>
 
+      {detectFall && (
+        <div className="overlay">
+          <FallDetect date={fallDate} location={fallLocation}setactivateFallDetect={setDetectFall}/>
+        </div>
+      )}
+
       {/* Overlay for fall details */}
       {activateFallChart && (
         <div className="overlay">
-          <div className="center-remove-box">
-            {!selectedDate ? (
-              <>
-                <p className="title-bold">Past Falls From 1/20–1/26</p>
-                <p>Click on a date to see more details about the event</p>
-
-                <div className={styles.fallDetailsContainer}>
-                  <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 22, 2025")}>
-                    January 22, 2025
-                  </h1>
-                  <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 24, 2025")}>
-                    January 24, 2025
-                  </h1>
-                </div>
-
-                <button type="button" className="cancel-button" onClick={() => setactivateFallChart(false)}>
-                  Exit
-                </button>
-              </>
-            ) : (
-              <>
-                <h1 className="title-bold mb-5">Detailed Fall Report for {selectedDate}</h1>
-
-                  <div>
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Date and Time: </p>
-                        </div>
-
-                        <div>
-                          <p> January 24, 2025 7:23 PM</p>
-                        </div>
-                    </div>
-
-
-                    <div className = {styles.detailedFallReport}>
-                        <div>
-                          <p>Location: </p>
-                        </div>
-
-                        <div>
-                          <p> Aldrich Park, Irvine CA 92617</p>
-                        </div>
-                    </div>
-                    
-                  </div>
-                <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
-                  Back
-                </button>
-              </>
-            )}
-
-
-          </div>
+          <FallReport
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            setactivateFallChart={setactivateFallChart}
+          />
         </div>
       )}
+
     </div>
   );
 }
