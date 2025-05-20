@@ -824,7 +824,7 @@ app.post('/api/patient-fall-chart', async (req, res) => {
       FROM wearable_data
       WHERE wearable_id = $1
         AND timestamp >= date_trunc('week', NOW()) - INTERVAL '5 weeks'
-      GROUP BY week_start
+      GROUP BY week_start, week_end
       ORDER BY week_start ASC;
       `,
       [wearable_id]
@@ -834,7 +834,7 @@ app.post('/api/patient-fall-chart', async (req, res) => {
     }
 
     return res.json({
-      Falls: result.rows.map(row => ({
+      falls: result.rows.map(row => ({
         week_start: row.week_start,
         week_end: row.week_end,
         fall_count: Number(row.fall_count)||0,
