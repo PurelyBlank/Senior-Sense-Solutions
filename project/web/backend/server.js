@@ -822,7 +822,7 @@ app.post('/api/patient-fall-chart', async (req, res) => {
         to_char(date_trunc('week', timestamp) + interval '6 days', 'YYYY-MM-DD') AS week_end,
         SUM(num_falls) AS fall_count
       FROM wearable_data
-      WHERE wearable_id = 3
+      WHERE wearable_id = $1
         AND timestamp >= date_trunc('week', NOW()) - INTERVAL '5 weeks'
       GROUP BY week_start
       ORDER BY week_start ASC;
