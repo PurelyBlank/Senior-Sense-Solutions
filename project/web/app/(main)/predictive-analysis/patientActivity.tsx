@@ -223,7 +223,7 @@ export default function PatientActivity() {
     <div className={styles.BarChart}>
       {/* Header */}
       <div className={styles.BarChartHeader}>
-        <h1>Patient Activity Chart</h1>
+        <h1>Patient Activity</h1>
       </div>
     
       {/* Divider */}

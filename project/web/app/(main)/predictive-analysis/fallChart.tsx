@@ -29,17 +29,17 @@ function generateFallChartLabels(): string[] {
 }
 
 export default function FallChart() {
-  const chartRef = useRef<HTMLCanvasElement | null>(null);
-  const chartInstanceRef = useRef<Chart | null>(null);
-
-  const [activateFallChart, setactivateFallChart] = useState(false); 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [detectFall, setDetectFall] = useState(false);  // set true when the watch detects a fall 
+  const [detectFall, setDetectFall] = useState(false);
+  const [activateFallChart, setactivateFallChart] = useState(false);
+  const [fallDate, setFallDate] = useState('');
+  const [fallLocation, setFallLocation] = useState('');
   const [, setError] = useState('');
-  const [fallDate, setFallDate] = useState('')
-  const [fallLocation, setFallLocation] = useState('')
+
   const { wearable_id } = useWearable();
 
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
 
   const fetchFallData = async () => {
     if (!wearable_id) return;
@@ -65,8 +65,8 @@ export default function FallChart() {
       const data = await response.json();
       if (!response.ok || !Array.isArray(data.falls)) {
         updateChart([], []);
+
         throw new Error(data.error || "Failed to fetch patient data for fall chart");
-        return;
       }
 
       const labels = data.falls.map((entry: any) => {
@@ -84,8 +84,8 @@ export default function FallChart() {
 
     } catch (err) {
       console.error("Fall count fetch error:", err);
-      updateChart([], []);
 
+      updateChart([], []);
     }
   };
 
@@ -93,8 +93,11 @@ export default function FallChart() {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
+
     const ctx = chartRef.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
       chartInstanceRef.current = new Chart(ctx, {
         type: "bar",
@@ -179,7 +182,7 @@ export default function FallChart() {
       
       {/* Header */}
       <div className={styles.BarChartHeader}>
-        <h1>Fall Chart</h1>
+        <h1>Fall Detection</h1>
       </div>
 
       <div className={styles.BarChartDivider}></div>
@@ -188,8 +191,7 @@ export default function FallChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className={styles.BarChartChartHeader}>
-            <h1>Fall Chart</h1>
-            <p>Over six weeks</p>
+            <h1>Week-by-week Summary</h1>
           </div>
           <div className={styles.chartWrapper}>
             <canvas ref={chartRef} />
@@ -198,7 +200,7 @@ export default function FallChart() {
 
         {/* Description */}
         <div className={styles.BarChartDescription}>
-          <p>Showing total falls over the last six weeks</p>
+          <p>Total detected falls per week</p>
         </div>
       </div>
 
