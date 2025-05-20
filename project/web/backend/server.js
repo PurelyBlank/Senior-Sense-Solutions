@@ -1089,8 +1089,6 @@ app.post('/api/wearable_data/insert', async (req, res) => {
 // CheckFall endpoint to check if a patient recently fell down for the caretaker to confirm (POST request)
 app.post('/api/check-fall', authenticateToken, async (req, res) => {
   const { wearable_id, since } = req.body;
-  console.log("Received wearable_id:", wearable_id);
-  console.log("Received since:", since);
 
   if (!wearable_id) {
     return res.status(400).json({ error: "Missing wearable_id" });
@@ -1117,7 +1115,6 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
     }
 
     const latest = result.rows[0];
-    console.log("returning sucessful data!")
 
     res.json({
       fallDetected: true,
