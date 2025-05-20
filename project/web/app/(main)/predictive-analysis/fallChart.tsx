@@ -8,6 +8,26 @@ import { useWearable } from "../context/WearableContext";
 
 Chart.register(...registerables);
 
+function generateFallChartLabels(): string[] {
+  const labels: string[] = [];
+  const now = new Date();
+
+  for (let i = 5; i >= 0; i--) {
+    const startOfWeek = new Date(now);
+    const day = startOfWeek.getDay() || 7; 
+    startOfWeek.setDate(startOfWeek.getDate() - day + 1 - (i * 7)); 
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); 
+
+    const label = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()} - ${endOfWeek.getMonth() + 1}/${endOfWeek.getDate()}`;
+    labels.push(label);
+  }
+
+  return labels;
+
+}
+
 export default function FallChart() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
@@ -18,6 +38,96 @@ export default function FallChart() {
   const [, setError] = useState('');
   const [fallDate, setFallDate] = useState('')
   const [fallLocation, setFallLocation] = useState('')
+  const { wearable_id } = useWearable();
+
+
+  const fetchFallData = async () => {
+    if (!wearable_id) return;
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No auth token");
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patient-fall-chart`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.falls)) {
+        updateChart([], []);
+        throw new Error(data.error || "Failed to fetch patient data for fall chart");
+        return;
+      }
+
+      const labels = data.falls.map((entry: any) => {
+        const start = new Date(entry.week_start);
+        const end = new Date(entry.week_end);
+
+        const format = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
+
+        return `${format(start)} - ${format(end)}`;        
+      });
+
+      const chartData = data.falls.map((entry: any) => entry.fall_count);
+
+      updateChart(labels, chartData);
+
+    } catch (err) {
+      console.error("Fall count fetch error:", err);
+      updateChart([], []);
+
+    }
+  };
+
+  const updateChart = (labels: string[], data:number[]) => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+    const ctx = chartRef.current?.getContext("2d");
+    if (!ctx) return;
+
+      chartInstanceRef.current = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels, 
+          datasets: [
+            {
+              label: "# of Falls",
+              data,
+              backgroundColor: "rgba(75, 192, 192, 1.0)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+              borderRadius: 7, 
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, element) => {
+            if (element.length > 0) {
+              setactivateFallChart(true);
+              setSelectedDate(null); // to resset selected date 
+            }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { ticks: { precision: 0 }, grid: { display: true } },
+          },
+          plugins: { legend: { display: false } },
+      },
+    });
+  };
 
 
   const checkFall = async () => {
@@ -47,59 +157,21 @@ export default function FallChart() {
       }
     };
 
+  useEffect(() => {
+    if (wearable_id === -1) {
+      return;
+    }
+    fetchFallData();
+    const intervalId = setInterval(fetchFallData, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [wearable_id]);
+
    // periodically check for any potential new falls
    useEffect(() => {
       const interval = setInterval(() => {
         checkFall();
       }, 50000); // every 10 seconds currently 
-
-  }, []);
-
-
-  useEffect(() => {
-    if (chartRef.current) {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy(); 
-      }
-
-      chartInstanceRef.current = new Chart(chartRef.current, {
-        type: "bar",
-        data: {
-          labels: ["1/13 - 1/19", "1/20 - 1/26", "1/27 - 2/2", "2/3 - 2/9", "2/10 - 2/16", "2/17 - 2/23"],
-          datasets: [
-            {
-              label: "# of Falls",
-              data: [0, 2, 1, 0, 0, 0],
-              backgroundColor: "rgba(75, 192, 192, 1.0)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1,
-              borderRadius: 7, 
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          onClick: (event, element) => {
-            if (element.length > 0) {
-              setactivateFallChart(true);
-              setSelectedDate(null); // to resset selected date 
-            }
-          },
-          scales: {
-            x: { grid: { display: false } },
-            y: { ticks: { precision: 0 }, grid: { display: true } },
-          },
-          plugins: { legend: { display: false } },
-        }
-      });
-    }
-
-    return () => {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-      }
-    };
   }, []);
 
   return (
@@ -116,7 +188,7 @@ export default function FallChart() {
         {/* Chart */}
         <div className={styles.BarChartChart}>
           <div className={styles.BarChartChartHeader}>
-            <h1>Fall Chart</h1> h
+            <h1>Fall Chart</h1>
             <p>Over six weeks</p>
           </div>
           <div className={styles.chartWrapper}>
