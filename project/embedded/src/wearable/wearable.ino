@@ -216,11 +216,16 @@ void DriverTask(void *parameter) {
   }
 }
 
-// void updateLVGLDisplay(void* parameter) {
-//   while(1){
-//     vTaskDelay(pdMS_TO_TICKS(10));
-//   }
-// }
+void updateLVGLDisplay(void* parameter) {
+  while(1){
+    double batteryPercent = getBatteryPercentage() * 100;
+    double heartRate = HeartRate::heart_rate();
+    int steps = StepDetection::getTotalStep();
+
+    update_screen_display(heartRate, batteryPercent, steps);
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
 
 void Driver_Loop() {
   // Create WiFi task on core 1 (usually safer for network tasks)
@@ -267,15 +272,15 @@ void Driver_Loop() {
   vTaskDelay(500 / portTICK_PERIOD_MS);
 
   // Create loop to update UI
-  // xTaskCreatePinnedToCore(
-  //   updateLVGLDisplay,
-  //   "updateLVGLDisplay",
-  //   4096,
-  //   NULL,
-  //   3,
-  //   NULL,
-  //   0
-  // );
+  xTaskCreatePinnedToCore(
+    updateLVGLDisplay,
+    "updateLVGLDisplay",
+    4096,
+    NULL,
+    3,
+    NULL,
+    0
+  );
 
   vTaskDelay(500 / portTICK_PERIOD_MS);
 

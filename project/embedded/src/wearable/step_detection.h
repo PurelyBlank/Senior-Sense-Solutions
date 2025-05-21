@@ -18,4 +18,6 @@ namespace StepDetection {
   void getStep();
   int getStepCount();
   void resetStepCount();
+  int getTotalStep();
+  void resetTotalStep();
 }

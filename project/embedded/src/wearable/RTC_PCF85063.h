@@ -1,7 +1,7 @@
 #pragma once
 
 #include "I2C_Driver.h"
-
+#include <string>
 
 //PCF85063_ADDRESS
 #define PCF85063_ADDRESS    (0x51)
@@ -92,6 +92,16 @@ void PCF85063_Read_Alarm(datetime_t *time);
 void datetime_to_str(char *datetime_str,datetime_t time);
     
 void output_current_time();
+uint16_t get_current_year();
+uint8_t get_current_month();
+std::string get_current_month_string();
+uint8_t get_current_day();
+std::string get_current_dow();
+std::string get_am_pm();
+uint8_t get_current_hour();
+uint8_t get_current_minute();
+uint8_t get_current_second();
+
 
 // weekday format
 // 0 - sunday
