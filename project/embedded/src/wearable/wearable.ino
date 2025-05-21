@@ -216,6 +216,12 @@ void DriverTask(void *parameter) {
   }
 }
 
+// void updateLVGLDisplay(void* parameter) {
+//   while(1){
+//     vTaskDelay(pdMS_TO_TICKS(10));
+//   }
+// }
+
 void Driver_Loop() {
   // Create WiFi task on core 1 (usually safer for network tasks)
   BaseType_t wifiTaskCreated = xTaskCreatePinnedToCore(
@@ -258,6 +264,22 @@ void Driver_Loop() {
     0
   );
 
+  vTaskDelay(500 / portTICK_PERIOD_MS);
+
+  // Create loop to update UI
+  // xTaskCreatePinnedToCore(
+  //   updateLVGLDisplay,
+  //   "updateLVGLDisplay",
+  //   4096,
+  //   NULL,
+  //   3,
+  //   NULL,
+  //   0
+  // );
+
+  vTaskDelay(500 / portTICK_PERIOD_MS);
+
+
   xTaskCreatePinnedToCore(
     sendDataTask,
     "sendDataTask",
@@ -290,10 +312,10 @@ void setup() {
   
   LCD_Init();
   Lvgl_Init();
-  
+
   // Display custom UI
   LVGL_display();
-  
+
   // Start background tasks after everything is initialized
   printf("Starting system tasks...\n");
   Driver_Loop();

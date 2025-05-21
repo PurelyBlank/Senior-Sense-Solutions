@@ -22,6 +22,7 @@ namespace StepDetection {
     if (accelerationMagnitude > (avgMagnitude + stepThreshold)) {
       if (!stepDetected && (currentMillis - lastStepTime) > debounceDelay) {
         stepCount++;
+        totalStepCount++;
         stepDetected = true;
         lastStepTime = currentMillis;
       }

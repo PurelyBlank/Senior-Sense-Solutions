@@ -73,9 +73,9 @@ void Lvgl_Init(void)
   lv_indev_drv_register( &indev_drv );
 
   /* Create simple label */
-  lv_obj_t *label = lv_label_create( lv_scr_act() );
-  lv_label_set_text( label, "Hello Ardino and LVGL!");
-  lv_obj_align( label, LV_ALIGN_CENTER, 0, 0 );
+  // lv_obj_t *label = lv_label_create( lv_scr_act() );
+  // lv_label_set_text( label, "Hello Arduino and LVGL!");
+  // lv_obj_align( label, LV_ALIGN_CENTER, 0, 0 );
 
   const esp_timer_create_args_t lvgl_tick_timer_args = {
     .callback = &example_increase_lvgl_tick,
