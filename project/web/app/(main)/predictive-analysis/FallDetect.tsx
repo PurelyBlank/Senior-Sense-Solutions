@@ -15,10 +15,24 @@ const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastNam
     console.log("Called handle update database.")
   }
 
+  // Format date retrieved from database to MM/DD/YY format
+  const formatDate = (isoString: string | null) => {
+    if (!isoString) {
+      return "";
+    }
+
+    const d = new Date(isoString);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yy = String(d.getFullYear()).slice(-2);
+
+    return `${mm}/${dd}/${yy}`;
+  };
+
   return (
     <div className="center-remove-box">
-      <p className="title-bold">New Fall Detected!</p>
-      <p>Please confirm the occurrence of this fall event.</p>
+      <p className={styles.fallTitle}>New Fall Detected!</p>
+      <p className={styles.fallText}>Please confirm the occurrence of this fall event.</p>
 
       <div className={styles.fallDetailsContainer}>
 
@@ -36,7 +50,7 @@ const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastNam
             <p>Date and Time: </p>
           </div>
           <div>
-            <p>{date}</p>
+            <p>{formatDate(date)}</p>
           </div>
         </div>
 
@@ -45,7 +59,7 @@ const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastNam
             <p>Location:</p>
           </div>
           <div>
-            <p>{location}</p>
+            <p>({location})</p>
           </div>
         </div>
       </div>
