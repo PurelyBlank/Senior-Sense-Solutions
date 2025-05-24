@@ -1086,7 +1086,7 @@ app.post('/api/wearable_data/insert', async (req, res) => {
   }
 });
 
-// CheckFall endpoint to check if a patient recently fell down for the caretaker to confirm (POST request)
+// Endpoint to check if a patient recently fell down for the caretaker to confirm (POST request)
 app.post('/api/check-fall', authenticateToken, async (req, res) => {
   const { wearable_id, since } = req.body;
 
@@ -1108,9 +1108,9 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
       [wearable_id, since || new Date(Date.now() - 10020000).toISOString()]
     );
 
-
     if (result.rows.length === 0) {
       console.log("no data to return")
+
       return res.json({ fallDetected: false });
     }
 
@@ -1125,13 +1125,11 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
       }
     });
 
-
   } catch (err) {
     console.error("Check fall error:", err);
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
 
 // Start server
 app.listen(port, () => {
