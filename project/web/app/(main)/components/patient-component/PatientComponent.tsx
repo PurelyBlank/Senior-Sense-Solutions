@@ -558,12 +558,19 @@ export default function PatientInfo() {
           ) : (
           <div className="add-patient-box">
             <h5>Add New Patient</h5>
-            <CgProfile/>
-            <input 
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+
+              <div className="add-detail-row">
+                <div className="add-detail-text">
+                  <span className="add-detail-label">Profile Picture</span>
+                </div>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ width: '150px' }} 
+
+                />
+             </div>
 
             {error && <div className="error-message" role="alert">{error}</div>}
             <div className="patient-details">
