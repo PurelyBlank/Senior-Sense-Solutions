@@ -6,7 +6,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const multer  = require('multer')
-
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const port = 5000;
 
@@ -22,6 +23,29 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+// storage defintion to store user uploads of images (in uploads folder of backend directory )
+const storage = multer.diskStorage({
+  destination: function (req, file, cb){
+
+    const uploadPath = path.join(__dirname, 'uploads');
+    if(!fs.existsSync(uploadPath)){
+      fs.mkdirSync(uploadPath);
+    }
+
+
+    cb(null, uploadPath);
+  },
+
+
+  filename: function (req, file,cb){
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 159);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: storage })
 
 // Test backend connection to PostgreSQL database
 pool.connect((err) => {
@@ -1135,32 +1159,10 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
   }
 });
 
-const fs = require('fs');
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb){
-
-    const uploadPath = path.join(__dirname, 'uploads');
-    if(!fs.existsSync(uploadPath)){
-      fs.mkdirSync(uploadPath);
-    }
-
-
-    cb(null, uploadPath);
-  },
-
-
-  filename: function (req, file,cb){
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 159);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-  }
-});
-
-const upload = multer({ storage: storage })
-const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// endpoint to create a image url to store later for the patient
 app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
 
   try {

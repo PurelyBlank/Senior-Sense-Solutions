@@ -127,8 +127,7 @@ export default function PatientInfo() {
     }
   };
 
-  // need to uplaod image to the databaes 
-  // retrive some link from it ? 
+  // Fetch request for uploading a new profile image
   const uploadImage = async () => {
     if (!selectedImage){
       console.warn("No image was selected to uplaod.");
@@ -136,7 +135,7 @@ export default function PatientInfo() {
     }
 
     try {
-      const token = localStorage.getItem("authToken") // to ensure we're signed in ? 
+      const token = localStorage.getItem("authToken")
       if (!token){
         throw new Error("No authentication token found. ");
       }
@@ -144,7 +143,8 @@ export default function PatientInfo() {
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       const apiUrl = `${baseApiUrl}/patient/profile`;
       
-      const formData = new FormData(); // creates a key value pair with (image, and then the File object)
+      // creates a key value pair with (image, File object) required by our multer depedency
+      const formData = new FormData(); 
       formData.append('avatar', selectedImage);
 
       // send out request to backend 
@@ -157,7 +157,6 @@ export default function PatientInfo() {
         body: formData, 
       });
 
-      // response from backend 
       const data = await response.json();
       if(!response.ok){
         throw new Error (data.error || "Failed to upload image")
