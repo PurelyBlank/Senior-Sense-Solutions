@@ -5,6 +5,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+const multer  = require('multer')
 
 const app = express();
 const port = 5000;
@@ -1130,6 +1131,49 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
     console.error("Check fall error:", err);
     res.status(500).json({ error: "Internal server error." });
   }
+});
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb){
+
+    const uploadPath = path.join(__dirname, 'uploads');
+    if(!fstat.existsSync(uploadPath)){
+      fs.mkdirSync(uploadPath);
+    }
+
+    cb(null, uploadPath);
+  },
+
+
+  filename: function (req, file,cb){
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 159);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: storage })
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
+
+  try {
+    if(!req.file){
+      return res.status(400).json({error: 'No file uploaded.'});
+    }
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+    res.status(200).json({imageUrl});
+  }
+
+  catch(error){
+    console.error('Error handling profile upload:', error);
+    res.status(500).json({error: 'Failed to upload profile image. '});
+  }
+
 });
 
 

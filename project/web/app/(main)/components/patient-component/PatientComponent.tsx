@@ -139,10 +139,10 @@ export default function PatientInfo() {
       }
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-      const apiUrl = `${baseApiUrl}/patients/uploadImage`;
+      const apiUrl = `${baseApiUrl}/patient/profile`;
       
       const formData = new FormData(); // creates a key value pair with (image, and then the File object)
-      formData.append('image', selectedImage);
+      formData.append('avatar', selectedImage);
 
       // send out request to backend 
       const response = await fetch(apiUrl, {
@@ -180,6 +180,9 @@ export default function PatientInfo() {
       if (!firstName || !lastName || !deviceId) {
         throw new Error("First name, last name, and device ID are required.");
       }
+      
+
+      const imageUrl = await uploadImage(); // wait to get our imageUrl before continueing
 
       // Define expected data fields in request body
       const patientData = {
@@ -190,6 +193,7 @@ export default function PatientInfo() {
         age: age ? parseInt(age) : null,
         height: height || null,
         weight: weight ? parseInt(weight) : null,
+        profile_image_url: imageUrl || null,
       };
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -690,6 +694,7 @@ export default function PatientInfo() {
           <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
+      
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
