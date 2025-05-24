@@ -1,13 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
 import { useWearable } from "../../context/WearableContext"; 
-
-import Link from "next/link";
-
 import { CgProfile } from "react-icons/cg";
-
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -60,62 +55,65 @@ export default function PatientInfo() {
     return heights;
   };
 
+  const fetchPatients = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch patients.");
+      }
+
+      //Fetching the selected Patient every time we change pages, using wearable_id
+      const patients: Patient[] = data.patients;
+      const selectedPatient = patients.find((p) => p.wearable_id === wearable_id);
+      if (selectedPatient) {
+        setPatient(selectedPatient.patient_id.toString());
+        setFirstName(selectedPatient.first_name);
+        setLastName(selectedPatient.last_name);
+        setGender(selectedPatient.gender || '');
+        setAge(selectedPatient.age?.toString() || '');
+        setHeight(selectedPatient.height || '');
+        setWeight(selectedPatient.weight?.toString() || '');
+        setProfilePictureUrl(selectedPatient.profile_picture || null); 
+      }
+
+      setPatients(data.patients);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Fetch patients error:", err);
+    }
+  }
+
+
   const { wearable_id } = useWearable();
+
   // Fetch Patient rows for Select dropdown upon mount
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          throw new Error("No authentication token found.");
-        }
-
-        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-        const apiUrl = `${baseApiUrl}/patients`;
-
-        const response = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch patients.");
-        }
-
-        //Fetching the selected Patient every time we change pages, using wearable_id
-        const patients: Patient[] = data.patients;
-        const selectedPatient = patients.find((p) => p.wearable_id === wearable_id);
-        if (selectedPatient) {
-          setPatient(selectedPatient.patient_id.toString());
-          setFirstName(selectedPatient.first_name);
-          setLastName(selectedPatient.last_name);
-          setGender(selectedPatient.gender || '');
-          setAge(selectedPatient.age?.toString() || '');
-          setHeight(selectedPatient.height || '');
-          setWeight(selectedPatient.weight?.toString() || '');
-          setProfilePictureUrl(selectedPatient.profile_picture || null);  // store the **URL**
-        }
-
-
-        setPatients(data.patients);
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred.");
-        console.error("Fetch patients error:", err);
-      }
-    };
-
     fetchPatients();
   }, []);
-
 
   // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
   const handleRemoveCancel = () => setIsRemovePatient(false);
-  const handleAddPatient = () => setIsAddPatient(true);
+  const handleAddPatient = () => {
+    clearForm();
+    setIsAddPatient(true);
+  }
   const handleCancel = () => {
     setIsAddPatient(false);
     clearForm();
@@ -225,15 +223,17 @@ export default function PatientInfo() {
         age: age ? parseInt(age) : undefined,
         height: height || undefined,
         weight: weight ? parseInt(weight) : undefined,
+        profile_picture: imageUrl || null,
       }]);
 
       // Clear the input fields
       setIsAddPatient(false);
-      clearForm();
+      setProfilePictureUrl(imageUrl || null);
+      await fetchPatients();
+      setIsAddPatient(false);
 
       // Upon successfully adding a patient, display Snackbar
       showSuccessSnackbar("Patient added successfully!");
-
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
@@ -354,6 +354,10 @@ export default function PatientInfo() {
       setWeight('');
       setIsRemovePatient(false);
       setError('');
+      setProfilePictureUrl('');
+      setFirstName('');
+      setLastName('');
+      setDeviceId('');
 
       // Upon successfully removing patient, display Snackbar
       showSuccessSnackbar("Patient removed successfully.");
@@ -374,6 +378,7 @@ export default function PatientInfo() {
     setWeight('');
     setDeviceId('');
     setError('');
+    setProfilePictureUrl('');
   };
 
   const { setWearable_id } = useWearable();
@@ -395,6 +400,7 @@ export default function PatientInfo() {
 
       setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : '');
       setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : '');
+      setProfilePictureUrl(selectedPatient.profile_picture || '');
       if (selectedPatient.wearable_id !== undefined) { 
         // Set wearable_id when user selects a patient in the dropdown
         setWearable_id(selectedPatient.wearable_id);
