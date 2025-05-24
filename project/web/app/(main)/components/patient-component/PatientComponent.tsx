@@ -40,6 +40,8 @@ export default function PatientInfo() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
 
   // Generate possible height options
   const generateHeightOptions = () => {
@@ -115,6 +117,57 @@ export default function PatientInfo() {
     setIsAddPatient(false);
     clearForm();
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
+  };
+
+  // need to uplaod image to the databaes 
+  // retrive some link from it ? 
+  const uploadImage = async () => {
+    if (!selectedImage){
+      console.warn("No image was selected to uplaod.");
+      return null; 
+    }
+
+    try {
+      const token = localStorage.getItem("authToken") // to ensure we're signed in ? 
+      if (!token){
+        throw new Error("No authentication token found. ");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/uploadImage`;
+      
+      const formData = new FormData(); // creates a key value pair with (image, and then the File object)
+      formData.append('image', selectedImage);
+
+      // send out request to backend 
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers:{
+          Authorization: `Bearer ${token}`
+  
+        },
+        body: formData, 
+      });
+
+      // response from backend 
+      const data = await response.json();
+      if(!response.ok){
+        throw new Error (data.error || "Failed to upload image")
+      }
+
+      return data.imageUrl; 
+    }
+    catch (error) {
+      console.log(error)
+      return null;
+    }
+  }
+
 
   // Fetch request for adding a new Patient row
   const handleSubmitPatient = async () => {
@@ -493,8 +546,13 @@ export default function PatientInfo() {
           ) : (
           <div className="add-patient-box">
             <h5>Add New Patient</h5>
-            <CgProfile className="patient-icon" size={95} />
-            <Link href="/biometric-monitor">Import Profile Picture</Link>
+            <CgProfile/>
+            <input 
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+
             {error && <div className="error-message" role="alert">{error}</div>}
             <div className="patient-details">
 
