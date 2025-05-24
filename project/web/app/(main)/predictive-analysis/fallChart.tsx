@@ -16,6 +16,8 @@ Chart.register(...registerables);
 export default function FallChart() {
   const [trendText, setTrendText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [patientFirstName, setPatientFirstName] = useState<string | null>(null);
+  const [patientLastName, setPatientLastName] = useState<string | null>(null);
   const [detectFall, setDetectFall] = useState(false);
   const [activateFallChart, setactivateFallChart] = useState(false);
   const [fallDate, setFallDate] = useState('');
@@ -220,6 +222,9 @@ export default function FallChart() {
     if (data.fallDetected && data.fallDate) {
       // Only display FallDetect component if this is a new fall (different timestamp)
       if (data.fallDate !== lastFallTimestamp) {
+        setPatientFirstName(data.patientFirstName || null);
+        setPatientLastName(data.patientLastName || null);
+
         setFallDate(data.fallDate);
         setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
 
@@ -287,6 +292,8 @@ export default function FallChart() {
       {detectFall && (
         <div className="overlay">
           <FallDetect 
+            patientFirstName={patientFirstName}
+            patientLastName={patientLastName}
             date={fallDate} 
             location={fallLocation}
             setactivateFallDetect={setDetectFall}

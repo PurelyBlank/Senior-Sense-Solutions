@@ -1091,10 +1091,11 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
   const { wearable_id, since } = req.body;
 
   if (!wearable_id) {
-    return res.status(400).json({ error: "Missing wearable_id" });
+    return res.status(400).json({ error: "Missing wearable_id." });
   }
 
   try {
+    // Query for the latest fall data for given wearable_id
     const result = await pool.query(
       `
       SELECT *
@@ -1107,14 +1108,25 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
       `,
       [wearable_id, since || new Date(Date.now() - 10020000).toISOString()]
     );
-
     if (result.rows.length === 0) {
-      console.log("no data to return")
+      console.log("No fall detected for wearable_id:", wearable_id);
 
       return res.json({ fallDetected: false });
     }
-
     const latest = result.rows[0];
+
+    // Query for the associated patient's first name and last name
+    const patientResult = await pool.query(
+      `
+      SELECT first_name, last_name FROM patients WHERE wearable_id = $1 LIMIT 1`,
+      [wearable_id]
+    );
+    let first_name = null;
+    let last_name = null;
+    if (patientResult.rows.length > 0) {
+      first_name = patientResult.rows[0].first_name;
+      last_name = patientResult.rows[0].last_name;
+    }
 
     res.json({
       fallDetected: true,
@@ -1122,7 +1134,9 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
       fallLocation: {
         latitude: latest.latitude,
         longitude: latest.longitude
-      }
+      },
+      patientFirstName: first_name,
+      patientLastName: last_name
     });
 
   } catch (err) {
