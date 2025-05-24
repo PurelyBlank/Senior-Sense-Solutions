@@ -184,6 +184,7 @@ app.post('/api/patients', async (req, res) => {
       age,
       height,
       weight,
+      profile_picture, 
     } = req.body;
 
     // Validate required input fields
@@ -211,10 +212,10 @@ app.post('/api/patients', async (req, res) => {
     // Insert new patient in Patient table
     const result = await pool.query(
       `INSERT INTO patients (
-        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING patient_id`,
-      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight]
+      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture]
     );
 
     const patient_id = result.rows[0].patient_id;
@@ -252,7 +253,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
@@ -267,6 +268,7 @@ app.get('/api/patients', async (req, res) => {
       age: patient.age,
       height: patient.height,
       weight: patient.weight,
+      profile_picture: patient.profile_picture,
     }));
 
     res.json({ patients });
@@ -1133,14 +1135,16 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
   }
 });
 
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb){
 
     const uploadPath = path.join(__dirname, 'uploads');
-    if(!fstat.existsSync(uploadPath)){
+    if(!fs.existsSync(uploadPath)){
       fs.mkdirSync(uploadPath);
     }
+
 
     cb(null, uploadPath);
   },
@@ -1154,7 +1158,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage })
-
+const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{

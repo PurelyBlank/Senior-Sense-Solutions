@@ -23,6 +23,7 @@ interface Patient {
   age?: number;
   height?: string;
   weight?: number;
+  profile_picture?: string;
 }
 
 export default function PatientInfo() {
@@ -41,6 +42,7 @@ export default function PatientInfo() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
 
 
   // Generate possible height options
@@ -94,6 +96,7 @@ export default function PatientInfo() {
           setAge(selectedPatient.age?.toString() || '');
           setHeight(selectedPatient.height || '');
           setWeight(selectedPatient.weight?.toString() || '');
+          setProfilePictureUrl(selectedPatient.profile_picture || null);  // store the **URL**
         }
 
 
@@ -193,7 +196,7 @@ export default function PatientInfo() {
         age: age ? parseInt(age) : null,
         height: height || null,
         weight: weight ? parseInt(weight) : null,
-        profile_image_url: imageUrl || null,
+        profile_picture: imageUrl || null,
       };
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -449,7 +452,13 @@ export default function PatientInfo() {
           {!isAddPatient ? (
             <div className="patient-box">
               {/* Profile Icon and Patient Name */}
-              <CgProfile className="patient-icon" size={95} />
+
+              {profilePictureUrl ? (
+                <img src={profilePictureUrl} alt="Profile" style={{ width: 100, height: 100 }} />
+              ) : (
+                <CgProfile className="patient-icon" size={95} />
+              )}
+
               <span className="patient-name">
                 {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Select a Patient"}
               </span>
