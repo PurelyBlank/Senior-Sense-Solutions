@@ -459,7 +459,16 @@ export default function PatientInfo() {
               {/* Profile Icon and Patient Name */}
 
               {profilePictureUrl ? (
-                <img src={profilePictureUrl} alt="Profile" style={{ width: 100, height: 100 }} />
+                <img 
+                  src={profilePictureUrl} 
+                  alt="Profile" 
+                  style={{ 
+                    width: 90, 
+                    height: 90,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                  }} 
+                />
               ) : (
                 <CgProfile className="patient-icon" size={95} />
               )}
