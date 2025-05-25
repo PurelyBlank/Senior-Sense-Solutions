@@ -116,7 +116,21 @@ export default function PatientInfo() {
   }
   const handleCancel = () => {
     setIsAddPatient(false);
-    clearForm();
+    
+    // Restore attributes of the selected patient after canceling Add Patient
+    const selectedPatient = patients.find((p) => `${p.patient_id}` === patient);
+    if (selectedPatient) {
+      setFirstName(selectedPatient.first_name || '');
+      setLastName(selectedPatient.last_name || '');
+      setGender(selectedPatient.gender || '');
+      setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
+      setHeight(selectedPatient.height || '');
+      setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+      setProfilePictureUrl(selectedPatient.profile_picture || '');
+      setDeviceId(selectedPatient.wearable_id ? selectedPatient.wearable_id.toString() : '');
+    }
+
+    setError('');
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
