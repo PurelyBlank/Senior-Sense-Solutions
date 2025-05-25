@@ -5,7 +5,9 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-
+const multer  = require('multer')
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const port = 5000;
 
@@ -21,6 +23,29 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+// storage defintion to store user uploads of images (in uploads folder of backend directory )
+const storage = multer.diskStorage({
+  destination: function (req, file, cb){
+
+    const uploadPath = path.join(__dirname, 'uploads');
+    if(!fs.existsSync(uploadPath)){
+      fs.mkdirSync(uploadPath);
+    }
+
+
+    cb(null, uploadPath);
+  },
+
+
+  filename: function (req, file,cb){
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 159);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: storage })
 
 // Test backend connection to PostgreSQL database
 pool.connect((err) => {
@@ -183,6 +208,7 @@ app.post('/api/patients', async (req, res) => {
       age,
       height,
       weight,
+      profile_picture, 
     } = req.body;
 
     // Validate required input fields
@@ -210,10 +236,10 @@ app.post('/api/patients', async (req, res) => {
     // Insert new patient in Patient table
     const result = await pool.query(
       `INSERT INTO patients (
-        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING patient_id`,
-      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight]
+      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture]
     );
 
     const patient_id = result.rows[0].patient_id;
@@ -251,7 +277,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
@@ -266,6 +292,7 @@ app.get('/api/patients', async (req, res) => {
       age: patient.age,
       height: patient.height,
       weight: patient.weight,
+      profile_picture: patient.profile_picture,
     }));
 
     res.json({ patients });
@@ -1144,6 +1171,30 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// endpoint to create a image url to store later for the patient
+app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
+
+  try {
+    if(!req.file){
+      return res.status(400).json({error: 'No file uploaded.'});
+    }
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+    res.status(200).json({imageUrl});
+  }
+
+  catch(error){
+    console.error('Error handling profile upload:', error);
+    res.status(500).json({error: 'Failed to upload profile image. '});
+  }
+
+});
+
 
 // Start server
 app.listen(port, () => {
