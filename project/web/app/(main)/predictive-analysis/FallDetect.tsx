@@ -6,9 +6,10 @@ interface FallDetectProps{
   date: string | null;
   location: string | null; 
   setactivateFallDetect: (active: boolean) => void;
+  phoneNumber?: string | null;
 }
 
-const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastName, date, location, setactivateFallDetect} ) => {
+const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastName, date, location, setactivateFallDetect, phoneNumber} ) => {
   // basic idea is that upon confirmation 
   // given date and location  adds to the database 
   const handleUpdateDatabase = async () => {
@@ -33,6 +34,7 @@ const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastNam
     <div className="center-remove-box">
       <p className={styles.fallTitle}>New Fall Detected!</p>
       <p className={styles.fallText}>Please confirm the occurrence of this fall event.</p>
+      <p className={styles.fallText}>Contact: {phoneNumber}</p>
 
       <div className={styles.fallDetailsContainer}>
 

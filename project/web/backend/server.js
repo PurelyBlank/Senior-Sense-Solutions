@@ -1145,14 +1145,16 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
     // Query for the associated patient's first name and last name
     const patientResult = await pool.query(
       `
-      SELECT first_name, last_name FROM patients WHERE wearable_id = $1 LIMIT 1`,
+      SELECT first_name, last_name, phone_number FROM patients WHERE wearable_id = $1 LIMIT 1`,
       [wearable_id]
     );
     let first_name = null;
     let last_name = null;
+    let phone_number = null;
     if (patientResult.rows.length > 0) {
       first_name = patientResult.rows[0].first_name;
       last_name = patientResult.rows[0].last_name;
+      phone_number = patientResult.rows[0].phone_number;
     }
 
     res.json({
@@ -1163,7 +1165,8 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
         longitude: latest.longitude
       },
       patientFirstName: first_name,
-      patientLastName: last_name
+      patientLastName: last_name,
+      phoneNumber: phone_number
     });
 
   } catch (err) {
