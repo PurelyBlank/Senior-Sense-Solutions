@@ -303,7 +303,7 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
       </div>
 
       {detectFall && (
-        <div className="overlay">
+        <div className="modal-overlay">
           <FallDetect 
             patientFirstName={patientFirstName}
             patientLastName={patientLastName}
