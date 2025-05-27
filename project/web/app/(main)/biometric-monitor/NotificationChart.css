@@ -19,6 +19,50 @@
   font-size: clamp(0.75rem, 1.5vw, 0.875rem) !important;
 }
 
+.notifications-row-hoverable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  padding: clamp(0.5rem, 2vw, 0.75rem);
+  word-break: break-word;
+  max-width: 100%;
+  position: relative;  
+  cursor: default;
+  border-radius: 0.5rem; 
+  transition: background-color 0.2s ease-in-out;
+}
+
+.notifications-row-hoverable:hover {
+  background-color: #f0f0f0;
+}
+
+.notifications-row-hoverable .clear {
+  position: absolute;
+  right: clamp(0.5rem, 2vw, 1rem);
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none; 
+  background-color: #007bff; 
+  color: white;
+  border: none;
+  border-radius: 9999px; 
+  padding: 0.25rem 0.75rem;
+  font-size: clamp(0.65rem, 1vw, 0.75rem);
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.notifications-row-hoverable:hover .clear {
+  opacity: 1;
+  pointer-events: auto; 
+}
+
+.notifications-row-hoverable .clear:hover {
+  background-color: #0056b3;
+}
+
 .notifications-row {
   display: flex;
   flex-wrap: wrap;
