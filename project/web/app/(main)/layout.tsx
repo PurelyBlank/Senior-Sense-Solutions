@@ -1,10 +1,9 @@
 "use client";
 
-import { WearableProvider } from "./context/WearableContext";
+import { useState, useEffect, useRef } from "react";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-
-import { useState, useEffect, useRef } from "react";
 
 import { BiUser } from "react-icons/bi";
 import { AiOutlineHome } from "react-icons/ai";
@@ -12,6 +11,10 @@ import { TbActivityHeartbeat } from "react-icons/tb";
 import { LuBatteryCharging } from "react-icons/lu";
 import { FaRegMap } from "react-icons/fa";
 import { IoLogInOutline } from "react-icons/io5";
+
+import FallDetect from "./predictive-analysis/FallDetect";
+
+import { WearableProvider } from "./context/WearableContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./layout.css";
@@ -21,10 +24,15 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   const [caretakerFirstName, setCaretakerFirstName] = useState('');
   const [caretakerLastName, setCaretakerLastName] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [patientFirstName, setPatientFirstName] = useState<string | null>(null);
+  const [patientLastName, setPatientLastName] = useState<string | null>(null);
+  const [detectFall, setDetectFall] = useState(false);
+  const [fallDate, setFallDate] = useState('');
+  const [fallLocation, setFallLocation] = useState('');
+  const [lastFallTimestamps, setLastFallTimestamps] = useState<{ [wearable_id: string]: string }>({});
   const [, setError] = useState('');
-
-
-  
 
   // Ref for caretaker user dropdown
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -65,9 +73,11 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch caretaker first name and last name.");
       }
+
       if (!data.caretakerFirstName) {
         throw new Error("Caretaker first name not found in response.");
       }
+
       if (!data.caretakerLastName) {
         throw new Error("Caretaker last name not found in response.");
       }
@@ -80,6 +90,88 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
       setError(errorMessage);
       console.error(err);
     }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No auth token");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      setPatients(data.patients || []);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
+
+      setPatients([]);
+    }
+  };
+
+  const fetchPatientFalls = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      throw new Error("No auth token");
+    }
+
+    const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+    const apiUrl = `${baseApiUrl}/check-fall`;
+
+    // Catch falls within wide window
+    const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString();
+
+    for (const patient of patients) {
+      const wearable_id = patient.wearable_id;
+      if (!wearable_id) {
+        continue;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id,
+          since,
+        }),
+      });
+    
+      const data = await response.json();
+      if (data.fallDetected && data.fallDate) {
+        // Only display FallDetect component if this is a new fall (different timestamp)
+        if (lastFallTimestamps[wearable_id] !== data.fallDate) {
+          setPhoneNumber(data.phoneNumber || null);
+          setPatientFirstName(data.patientFirstName || null);
+          setPatientLastName(data.patientLastName || null);
+          setFallDate(data.fallDate);
+          setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
+          setDetectFall(true);
+
+          // Update the last fall timestamp for this patient
+          setLastFallTimestamps(prev => ({
+            ...prev,
+            [wearable_id]: data.fallDate
+          }));
+
+          break;
+        };
+      };
+    };
   };
   
   // Call the function on component mount or as needed
@@ -101,6 +193,23 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  useEffect(() => {
+    if (!patients.length) {
+      return;
+    }
+
+    // Check for all patient falls every 10 seconds
+    const interval = setInterval(() => {
+      fetchPatientFalls();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [patients, lastFallTimestamps]);
   
   return (
     <WearableProvider> 
@@ -192,6 +301,19 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
           <div className="main-content">{children}</div>
         </div>
       </div>
+
+      {detectFall && (
+        <div className="overlay">
+          <FallDetect 
+            patientFirstName={patientFirstName}
+            patientLastName={patientLastName}
+            date={fallDate} 
+            location={fallLocation}
+            setactivateFallDetect={setDetectFall}
+            phoneNumber={phoneNumber}
+          />
+        </div>
+      )}
     </WearableProvider>
   );
 };
