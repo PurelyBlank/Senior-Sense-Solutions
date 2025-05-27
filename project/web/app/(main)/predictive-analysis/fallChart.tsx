@@ -14,6 +14,7 @@ import styles from "./charts.module.css";
 Chart.register(...registerables);
 
 export default function FallChart() {
+  const [patients, setPatients] = useState<any[]>([]);
   const [trendText, setTrendText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
@@ -23,7 +24,7 @@ export default function FallChart() {
   const [activateFallChart, setactivateFallChart] = useState(false);
   const [fallDate, setFallDate] = useState('');
   const [fallLocation, setFallLocation] = useState('');
-  const [lastFallTimestamp, setLastFallTimestamp] = useState<string | null>(null);
+  const [lastFallTimestamps, setLastFallTimestamps] = useState<{ [wearable_id: string]: string }>({});
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
@@ -191,11 +192,27 @@ export default function FallChart() {
     });
   };
 
-  const checkFall = async () => {
-    if (!wearable_id) {
-      return;
-    }
+  const fetchPatients = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const response = await fetch(`${baseApiUrl}/patients`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setPatients(data.patients || []);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+      console.error(err);
 
+      setPatients([]);
+    }
+  };
+
+  const fetchPatientFalls = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       throw new Error("No auth token");
@@ -207,33 +224,43 @@ export default function FallChart() {
     // Catch falls within wide window
     const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString();
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        wearable_id,
-        since,
-      }),
-    });
+    for (const patient of patients) {
+      const wearable_id = patient.wearable_id;
+      if (!wearable_id) {
+        continue;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id,
+          since,
+        }),
+      });
     
-    const data = await response.json();
-    if (data.fallDetected && data.fallDate) {
-      // Only display FallDetect component if this is a new fall (different timestamp)
-      if (data.fallDate !== lastFallTimestamp) {
-        setPhoneNumber(data.phoneNumber || null);
+      const data = await response.json();
+      if (data.fallDetected && data.fallDate) {
+        // Only display FallDetect component if this is a new fall (different timestamp)
+        if (lastFallTimestamps[wearable_id] !== data.fallDate) {
+          setPhoneNumber(data.phoneNumber || null);
+          setPatientFirstName(data.patientFirstName || null);
+          setPatientLastName(data.patientLastName || null);
+          setFallDate(data.fallDate);
+          setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
+          setDetectFall(true);
 
-        setPatientFirstName(data.patientFirstName || null);
-        setPatientLastName(data.patientLastName || null);
+          // Update the last fall timestamp for this patient
+          setLastFallTimestamps(prev => ({
+            ...prev,
+            [wearable_id]: data.fallDate
+          }));
 
-        setFallDate(data.fallDate);
-        setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
-
-        setDetectFall(true);
-
-        setLastFallTimestamp(data.fallDate);
+          break;
+        };
       };
     };
   };
@@ -242,6 +269,8 @@ export default function FallChart() {
     if (!wearable_id) {
       return;
     }
+
+    fetchPatients();
 
     fetchFallData();
 
@@ -252,17 +281,17 @@ export default function FallChart() {
 
    // Periodically check for any potential new falls
    useEffect(() => {
-    if (!wearable_id) {
+    if (!patients.length) {
       return;
     }
 
-    // Check for falls every 10 seconds
+    // Check for all patient falls every 10 seconds
     const interval = setInterval(() => {
-      checkFall();
+      fetchPatientFalls();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [wearable_id, lastFallTimestamp]);
+  }, [patients, lastFallTimestamps]);
 
   return (
     <div className={styles.DoubleBarChart}>
