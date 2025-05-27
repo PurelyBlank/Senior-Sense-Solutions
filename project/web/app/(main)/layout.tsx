@@ -31,6 +31,7 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
   const [detectFall, setDetectFall] = useState(false);
   const [fallDate, setFallDate] = useState('');
   const [fallLocation, setFallLocation] = useState('');
+  const [fallWearableId, setFallWearableId] = useState<string | number | null>(null);
   const [lastFallTimestamps, setLastFallTimestamps] = useState<{ [wearable_id: string]: string }>({});
   const [, setError] = useState('');
 
@@ -159,7 +160,8 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
           setPatientFirstName(data.patientFirstName || null);
           setPatientLastName(data.patientLastName || null);
           setFallDate(data.fallDate);
-          setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`)
+          setFallLocation(`${data.fallLocation.latitude}, ${data.fallLocation.longitude}`);
+          setFallWearableId(wearable_id);
           setDetectFall(true);
 
           // Update the last fall timestamp for this patient
@@ -311,6 +313,7 @@ export default function BiometricLayout({ children }: { children: React.ReactNod
             location={fallLocation}
             setactivateFallDetect={setDetectFall}
             phoneNumber={phoneNumber}
+            wearable_id={fallWearableId}
           />
         </div>
       )}

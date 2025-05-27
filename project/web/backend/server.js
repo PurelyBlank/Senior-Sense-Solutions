@@ -1175,12 +1175,34 @@ app.post('/api/check-fall', authenticateToken, async (req, res) => {
   }
 });
 
+// Endpoint to update num_falls after cancellation of fall alert (PATCH request)
+app.patch('/api/cancel-fall', async (req, res) => {
+  const { wearable_id, timestamp } = req.body;
+  if (!wearable_id || !timestamp) {
+    return res.status(400).json({ error: "Missing wearable_id or timestamp." });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE wearable_data SET num_falls = 0 WHERE wearable_id = $1 AND timestamp = $2 RETURNING *;`,
+      [wearable_id, timestamp]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "No matching wearable_data row found." });
+    }
+
+    res.json({ message: "Fall data cancelled successfully." });
+
+  } catch (err) {
+    console.error("Cancel fall error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// endpoint to create a image url to store later for the patient
+// Endpoint to create a image url to store later for the patient
 app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
-
   try {
     if(!req.file){
       return res.status(400).json({error: 'No file uploaded.'});
@@ -1189,15 +1211,11 @@ app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
     const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 
     res.status(200).json({imageUrl});
-  }
-
-  catch(error){
+  } catch(error){
     console.error('Error handling profile upload:', error);
     res.status(500).json({error: 'Failed to upload profile image. '});
   }
-
 });
-
 
 // Start server
 app.listen(port, () => {

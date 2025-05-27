@@ -7,14 +7,57 @@ interface FallDetectProps{
   location: string | null; 
   setactivateFallDetect: (active: boolean) => void;
   phoneNumber?: string | null;
+  wearable_id?: string | number | null;
 }
 
-const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastName, date, location, setactivateFallDetect, phoneNumber} ) => {
-  // basic idea is that upon confirmation 
-  // given date and location  adds to the database 
-  const handleUpdateDatabase = async () => {
-    console.log("Called handle update database.")
-  }
+const FallDetect: React.FC<FallDetectProps> = ({
+  patientFirstName, 
+  patientLastName, 
+  date, 
+  location, 
+  setactivateFallDetect, 
+  phoneNumber,
+  wearable_id,
+} ) => {
+  // Helper function to set num_falls in wearable_data to 0 upon cancellation of fall(s)
+  const cancelFallData = async () => {
+    if (!wearable_id || !date) {
+      alert("Error: Missing wearable_id or timestamp.");
+
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/cancel-fall`;
+  
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id,
+          timestamp: date,
+        }),
+      });
+      if (response.ok) {
+        setactivateFallDetect(false);
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to cancel fall(s).");
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Format date retrieved from database to MM/DD/YY format
   const formatDate = (isoString: string | null) => {
@@ -69,15 +112,15 @@ const FallDetect: React.FC<FallDetectProps> = ({patientFirstName, patientLastNam
       <div className={styles.buttonRow}>
         <button 
           type='button' 
-          className={styles.cancelButton} 
-          onClick={() => setactivateFallDetect(false)}
+          className={styles.cancelButton}
+          onClick={() => cancelFallData()}
         >
           Cancel
         </button>
         <button 
           type='button' 
           className={styles.saveButton} 
-          onClick={() => handleUpdateDatabase()}
+          onClick={() => setactivateFallDetect(false)}
         >
           Confirm
         </button>
