@@ -882,6 +882,69 @@ app.post('/api/patient-fall-chart', async (req, res) => {
   }
 });
 
+app.post('/api/patient-fall-chart-week', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    const week_start = req.body.week_start;
+    if (!week_start) {
+      return res.status(400).json({ error: "week_start not here." });
+    }
+
+    const week_end = req.body.week_end;
+    if (!week_end) {
+      return res.status(400).json({ error: "week_end not here." });
+    }
+
+    // Query to calculate average heart rate for each day of the week
+    const result = await pool.query(
+      `
+      SELECT 
+        timestamp,
+        latitude,
+        longitude
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND timestamp >= $2
+        AND timestamp <= $3
+        AND num_falls = 1
+      ORDER BY timestamp ASC;
+      `,
+      [wearable_id, week_start, week_end]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No data found for the given wearable_id, week_start and week_end' });
+    }
+
+    return res.json({ falls: result.rows });
+
+  } catch (err) {
+    console.error('Error retrieving patient fall data for a specific week:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
 app.post('/api/caretaker-fullname', async (req, res) => {
   try {
