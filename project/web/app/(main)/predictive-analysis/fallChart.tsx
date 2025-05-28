@@ -22,9 +22,9 @@ export default function FallChart() {
   const [trendText, setTrendText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activateFallChart, setactivateFallChart] = useState(false);
-  const [, setError] = useState('');
   const [parsedSelectedWeek, setParsedSelectedWeek] = useState<string | null>(null);
   const [falls, setFalls] = useState<Fall[]>([]);
+  const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
 
@@ -85,6 +85,7 @@ export default function FallChart() {
   
   const stringToDate = (str: string) => {
     const [year, month, day] = str.split('-').map(Number);
+    
     return new Date(year, month - 1, day);
   };
 
@@ -133,9 +134,10 @@ export default function FallChart() {
         fall_count: number;
       };
 
-      const labels = data.falls.map((entry: FallEntry) => {
-        const start = new Date(entry.week_start);
-        const end = new Date(entry.week_end);
+      const labels = data.falls.map((entry: FallEntry) => entry.week_start + " - " + entry.week_end);
+      const parsedLabels = data.falls.map((entry: FallEntry) => {
+        const start = stringToDate(entry.week_start); 
+        const end = stringToDate(entry.week_end); 
 
         const format = (d: Date) => `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
 
@@ -214,26 +216,38 @@ export default function FallChart() {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          onClick: (event, element, chart) => {
-            if (element.length > 0) {
-              const clicked = element[0];
-              const bar = clicked.index;
-              const parsedSelectedWeek = parsedLabels[bar]; 
-              const selectedWeek = labels[bar];
-              
-              setactivateFallChart(true);
-              setSelectedDate(null); // to reset selected date 
-              setParsedSelectedWeek(parsedSelectedWeek);
-              //Fetch for a specific week, everytime we click
-              fetchWeekData(selectedWeek);
-            }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        onClick: (event, element, chart) => {
+          if (element.length > 0) {
+            const clicked = element[0];
+            const bar = clicked.index;
+            const parsedSelectedWeek = parsedLabels[bar]; 
+            const selectedWeek = labels[bar];
+            
+            setactivateFallChart(true);
+
+            // Reset selected date 
+            setSelectedDate(null);
+            setParsedSelectedWeek(parsedSelectedWeek);
+
+            // Fetch for a specific week, everytime we click
+            fetchWeekData(selectedWeek);
+          }
+        },
+        scales: {
+          x: { 
+            grid: { 
+              display: false 
+            } 
           },
-          scales: {
-            x: { grid: { display: false } },
-            y: { ticks: { precision: 0 }, grid: { display: true } },
+          y: { 
+            ticks: { 
+              precision: 0 
+            }, grid: { 
+              display: true 
+            } 
           },
         },
         plugins: { 
