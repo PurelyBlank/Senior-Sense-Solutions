@@ -12,7 +12,7 @@ interface FallReportProps {
   setSelectedDate: (date: string | null) => void;
   setactivateFallChart: (active: boolean) => void;
   selectedWeek: (string | null);
-  falls: Fall[];
+  falls?: Fall[];
 }
 
 const FallReport: React.FC<FallReportProps> = ({
@@ -20,14 +20,14 @@ const FallReport: React.FC<FallReportProps> = ({
   setSelectedDate,
   setactivateFallChart,
   selectedWeek,
-  falls,
+  falls = [],
 }) => {
   return (
     <div className="center-remove-box">
       {!selectedDate ? (
         <>
-          <p className="title-bold">Past Falls From {selectedWeek || "..."}</p>
-          <p>Click on a date to see more details about the event</p>
+          <p className="title-bold">Detected Falls During {selectedWeek || "..."}</p>
+          <p>Click on an entry to view specific details about the event.</p>
 
           <div className={styles.fallDetailsContainer}>
             {falls.map((fall, index) => {
@@ -39,13 +39,13 @@ const FallReport: React.FC<FallReportProps> = ({
                 minute: "2-digit",
               });
               return (
-                <h1
+                <p
                   key={index}
                   className={styles.fallButton}
                   onClick={() => setSelectedDate(fall.timestamp)}
                 >
                   {date}
-                </h1>
+                </p>
               );
             })}
           </div>
@@ -79,9 +79,9 @@ const FallReport: React.FC<FallReportProps> = ({
           const longitude = selectedFall.longitude;
           return (
             <>
-              <h1 className="title-bold mb-5">Detailed Fall Report for {shortDate}</h1>
+              <p className="fall-report-title mb-5">Detailed Fall Report for {shortDate}</p>
 
-              <div>
+              <div className="mb-5">
                 <div className={styles.detailedFallReport}>
                   <div><p>Date and Time: </p></div>
                   <div><p>{fullDate}</p></div>
@@ -89,7 +89,7 @@ const FallReport: React.FC<FallReportProps> = ({
 
                 <div className={styles.detailedFallReport}>
                   <div><p>Location: </p></div>
-                  <div><p>{latitude}, {longitude}</p></div>
+                  <div><p>({latitude}, {longitude})</p></div>
                 </div>
               </div>
 
