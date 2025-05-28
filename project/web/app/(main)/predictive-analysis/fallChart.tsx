@@ -12,16 +12,82 @@ import styles from "./charts.module.css";
 
 Chart.register(...registerables);
 
+interface Fall {
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+}
+
 export default function FallChart() {
   const [trendText, setTrendText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activateFallChart, setactivateFallChart] = useState(false);
+  const [parsedSelectedWeek, setParsedSelectedWeek] = useState<string | null>(null);
+  const [falls, setFalls] = useState<Fall[]>([]);
   const [, setError] = useState('');
 
   const { wearable_id } = useWearable();
 
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
+
+
+  const fetchWeekData = async (selectedWeek: string) => {
+    setError("");  // Reset error before fetching
+
+    if (!wearable_id) {
+      setError("Wearable ID error.");
+      
+      return;
+    }
+
+    if (!selectedWeek) {
+      setError("Selected week is missing.");
+
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patient-fall-chart-week`;
+
+      const [week_start, week_end] = selectedWeek.split(" - ");
+
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          wearable_id,  
+          week_start,
+          week_end,
+        }),
+      });
+
+      const data = await response.json();
+      setFalls(data.falls)
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
+
+      console.error(err);
+    }
+  };
+  
+  const stringToDate = (str: string) => {
+    const [year, month, day] = str.split('-').map(Number);
+    
+    return new Date(year, month - 1, day);
+  };
 
   const fetchFallData = async () => {
     // Reset error before fetching
@@ -55,7 +121,7 @@ export default function FallChart() {
 
       const data = await response.json();
       if (!response.ok || !Array.isArray(data.falls)) {
-        updateChart([], []);
+        updateChart([], [], []);
 
         setTrendText("No data available.");
 
@@ -68,18 +134,19 @@ export default function FallChart() {
         fall_count: number;
       };
 
-      const labels = data.falls.map((entry: FallEntry) => {
-        const start = new Date(entry.week_start);
-        const end = new Date(entry.week_end);
+      const labels = data.falls.map((entry: FallEntry) => entry.week_start + " - " + entry.week_end);
+      const parsedLabels = data.falls.map((entry: FallEntry) => {
+        const start = stringToDate(entry.week_start); 
+        const end = stringToDate(entry.week_end); 
 
-        const format = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
+        const format = (d: Date) => `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
 
         return `${format(start)} - ${format(end)}`;        
       });
 
       const chartData = data.falls.map((entry: FallEntry) => entry.fall_count);
 
-      updateChart(labels, chartData);
+      updateChart(labels, parsedLabels, chartData);
 
       // Trend analysis
       if (chartData.length < 2) {
@@ -118,13 +185,13 @@ export default function FallChart() {
       setError(errorMessage);
       console.error(err);
 
-      updateChart([], []);
+      updateChart([], [], []);
 
       setTrendText("No data available.");
     }
   };
 
-  const updateChart = (labels: string[], data:number[]) => {
+  const updateChart = (labels: string[], parsedLabels: string[], data:number[]) => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
@@ -134,29 +201,39 @@ export default function FallChart() {
       return;
     }
 
-    chartInstanceRef.current = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels, 
-        datasets: [
-          {
-            label: "# of Falls",
-            data,
-            backgroundColor: "rgba(75, 192, 192, 1.0)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 1,
-            borderRadius: 7, 
-          },
-        ],
-      },
+      chartInstanceRef.current = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: parsedLabels, 
+          datasets: [
+            {
+              label: "# of Falls",
+              data,
+              backgroundColor: "rgba(75, 192, 192, 1.0)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+              borderRadius: 7, 
+            },
+          ],
+        },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        onClick: (event, element) => {
+        onClick: (event, element, chart) => {
           if (element.length > 0) {
+            const clicked = element[0];
+            const bar = clicked.index;
+            const parsedSelectedWeek = parsedLabels[bar]; 
+            const selectedWeek = labels[bar];
+            
             setactivateFallChart(true);
 
+            // Reset selected date 
             setSelectedDate(null);
+            setParsedSelectedWeek(parsedSelectedWeek);
+
+            // Fetch for a specific week, everytime we click
+            fetchWeekData(selectedWeek);
           }
         },
         scales: {
@@ -168,8 +245,7 @@ export default function FallChart() {
           y: { 
             ticks: { 
               precision: 0 
-            }, 
-            grid: { 
+            }, grid: { 
               display: true 
             } 
           },
@@ -229,6 +305,8 @@ export default function FallChart() {
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             setactivateFallChart={setactivateFallChart}
+            selectedWeek={parsedSelectedWeek}
+            falls={falls}
           />
         </div>
       )}

@@ -1,31 +1,54 @@
 import React from 'react';
+
 import styles from "./charts.module.css";
+
+interface Fall {
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+}
 
 interface FallReportProps {
   selectedDate: string | null;
   setSelectedDate: (date: string | null) => void;
   setactivateFallChart: (active: boolean) => void;
+  selectedWeek: (string | null);
+  falls?: Fall[];
 }
 
 const FallReport: React.FC<FallReportProps> = ({
   selectedDate,
   setSelectedDate,
   setactivateFallChart,
+  selectedWeek,
+  falls = [],
 }) => {
   return (
     <div className="center-remove-box">
       {!selectedDate ? (
         <>
-          <p className="title-bold">Past Falls From 1/20–1/26</p>
-          <p>Click on a date to see more details about the event</p>
+          <p className="title-bold">Detected Falls During {selectedWeek || "..."}</p>
+          <p>Click on an entry to view specific details about the event.</p>
 
           <div className={styles.fallDetailsContainer}>
-            <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 22, 2025")}>
-              January 22, 2025
-            </h1>
-            <h1 className={styles.fallButton} onClick={() => setSelectedDate("January 24, 2025")}>
-              January 24, 2025
-            </h1>
+            {falls.map((fall, index) => {
+              const date = new Date(fall.timestamp).toLocaleString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              return (
+                <p
+                  key={index}
+                  className={styles.fallButton}
+                  onClick={() => setSelectedDate(fall.timestamp)}
+                >
+                  {date}
+                </p>
+              );
+            })}
           </div>
 
           <button type="button" className="cancel-button" onClick={() => setactivateFallChart(false)}>
@@ -33,25 +56,50 @@ const FallReport: React.FC<FallReportProps> = ({
           </button>
         </>
       ) : (
-        <>
-          <h1 className="title-bold mb-5">Detailed Fall Report for {selectedDate}</h1>
+        (() => {
+          const selectedFall = falls.find(fall => fall.timestamp === selectedDate);
+          if (!selectedFall) {
+            return null
+          }
+          const shortDate = new Date(selectedFall.timestamp).toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          });
 
-          <div>
-            <div className={styles.detailedFallReport}>
-              <div><p>Date and Time: </p></div>
-              <div><p>January 24, 2025 7:23 PM</p></div>
-            </div>
+          const fullDate = new Date(selectedFall.timestamp).toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
 
-            <div className={styles.detailedFallReport}>
-              <div><p>Location: </p></div>
-              <div><p>Aldrich Park, Irvine CA 92617</p></div>
-            </div>
-          </div>
+          const latitude = selectedFall.latitude;
+          const longitude = selectedFall.longitude;
+          return (
+            <>
+              <p className="fall-report-title mb-5">Detailed Fall Report for {shortDate}</p>
 
-          <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
-            Back
-          </button>
-        </>
+              <div className="mb-5">
+                <div className={styles.detailedFallReport}>
+                  <div><p>Date and Time: </p></div>
+                  <div><p>{fullDate}</p></div>
+                </div>
+
+                <div className={styles.detailedFallReport}>
+                  <div><p>Location: </p></div>
+                  <div><p>({latitude}, {longitude})</p></div>
+                </div>
+              </div>
+
+              <button type="button" className="cancel-button" onClick={() => setSelectedDate(null)}>
+                Back
+              </button>
+            </>
+          );
+        })()
       )}
     </div>
   );
