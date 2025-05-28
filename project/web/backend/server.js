@@ -204,6 +204,8 @@ app.post('/api/patients', async (req, res) => {
       wearable_id,
       first_name,
       last_name,
+      phone_number,
+      address,
       gender,
       age,
       height,
@@ -236,10 +238,10 @@ app.post('/api/patients', async (req, res) => {
     // Insert new patient in Patient table
     const result = await pool.query(
       `INSERT INTO patients (
-        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        caretaker_id, wearable_id, first_name, last_name, phone_number, address, gender, age, height, weight, profile_picture
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING patient_id`,
-      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture]
+      [caretaker_id, wearable_id, first_name, last_name, phone_number, address, gender, age, height, weight, profile_picture]
     );
 
     const patient_id = result.rows[0].patient_id;
@@ -277,7 +279,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
+      `SELECT patient_id, wearable_id, first_name, last_name, phone_number, address, gender, age, height, weight, profile_picture
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
@@ -288,6 +290,8 @@ app.get('/api/patients', async (req, res) => {
       wearable_id: patient.wearable_id,
       first_name: patient.first_name,
       last_name: patient.last_name,
+      phone_number: patient.phone_number,
+      address: patient.address,
       gender: patient.gender,
       age: patient.age,
       height: patient.height,
@@ -315,7 +319,7 @@ app.get('/api/patients', async (req, res) => {
 app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const caretaker_id = req.user.user_id;
-  const { gender, age, height, weight } = req.body;
+  const { phone_number, address, gender, age, height, weight } = req.body;
 
   try {
     // Verify Patient exists and belongs to current user
@@ -332,6 +336,14 @@ app.patch('/api/patients/:id', authenticateToken, async (req, res) => {
     const values = [];
     let index = 1;
 
+    if (phone_number !== undefined) {
+      fields.push(`phone_number = $${index++}`);
+      values.push(phone_number);
+    }
+    if (address !== undefined) {
+      fields.push(`address = $${index++}`);
+      values.push(address);
+    }
     if (gender !== undefined) {
       fields.push(`gender = $${index++}`);
       values.push(gender);
