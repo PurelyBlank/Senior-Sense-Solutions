@@ -841,7 +841,7 @@ app.post('/api/patient-fall-chart', async (req, res) => {
       return res.status(400).json({ error: "wearable_id not here." });
     }
 
-    // Query to calculate average heart rate for each day of the week
+    // Query to calculate the number of falls of each week, over the last 6 weeks
     const result = await pool.query(
       `
       SELECT 
@@ -909,7 +909,7 @@ app.post('/api/patient-fall-chart-week', async (req, res) => {
       return res.status(400).json({ error: "week_end not here." });
     }
 
-    // Query to calculate average heart rate for each day of the week
+    // Query to calculate falls for a specific week
     const result = await pool.query(
       `
       SELECT 
@@ -919,7 +919,7 @@ app.post('/api/patient-fall-chart-week', async (req, res) => {
       FROM wearable_data
       WHERE wearable_id = $1
         AND timestamp >= $2
-        AND timestamp <= $3
+        AND timestamp < ($3::date + INTERVAL '1 day')
         AND num_falls = 1
       ORDER BY timestamp ASC;
       `,
