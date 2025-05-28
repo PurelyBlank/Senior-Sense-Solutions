@@ -14,6 +14,8 @@ interface Patient {
   wearable_id?: number;
   first_name: string;
   last_name: string;
+  phone_number: string;
+  address: string;
   gender?: string;
   age?: number;
   height?: string;
@@ -28,6 +30,8 @@ export default function PatientInfo() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
@@ -39,6 +43,7 @@ export default function PatientInfo() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
 
+  const { wearable_id } = useWearable();
 
   // Generate possible height options
   const generateHeightOptions = () => {
@@ -84,6 +89,8 @@ export default function PatientInfo() {
         setPatient(selectedPatient.patient_id.toString());
         setFirstName(selectedPatient.first_name);
         setLastName(selectedPatient.last_name);
+        setPhoneNumber(selectedPatient.phone_number || '');
+        setAddress(selectedPatient.address || '');
         setGender(selectedPatient.gender || '');
         setAge(selectedPatient.age?.toString() || '');
         setHeight(selectedPatient.height || '');
@@ -98,9 +105,6 @@ export default function PatientInfo() {
       console.error("Fetch patients error:", err);
     }
   }
-
-
-  const { wearable_id } = useWearable();
 
   // Fetch Patient rows for Select dropdown upon mount
   useEffect(() => {
@@ -122,6 +126,8 @@ export default function PatientInfo() {
     if (selectedPatient) {
       setFirstName(selectedPatient.first_name || '');
       setLastName(selectedPatient.last_name || '');
+      setPhoneNumber(selectedPatient.phone_number || '');
+      setAddress(selectedPatient.address || '');
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
@@ -178,10 +184,10 @@ export default function PatientInfo() {
     }
     catch (error) {
       console.log(error)
+
       return null;
     }
   }
-
 
   // Fetch request for adding a new Patient row
   const handleSubmitPatient = async () => {
@@ -194,15 +200,17 @@ export default function PatientInfo() {
       if (!firstName || !lastName || !deviceId) {
         throw new Error("First name, last name, and device ID are required.");
       }
-      
 
-      const imageUrl = await uploadImage(); // wait to get our imageUrl before continueing
+      // Wait to get our imageUrl before continuing
+      const imageUrl = await uploadImage();
 
       // Define expected data fields in request body
       const patientData = {
         wearable_id: parseInt(deviceId),
         first_name: firstName,
         last_name: lastName,
+        phone_number: phoneNumber || '',
+        address: address || '',
         gender: gender || null,
         age: age ? parseInt(age) : null,
         height: height || null,
@@ -233,6 +241,8 @@ export default function PatientInfo() {
         wearable_id: parseInt(deviceId),
         first_name: firstName,
         last_name: lastName,
+        phone_number: phoneNumber || '',
+        address: address || '',
         gender: gender || undefined,
         age: age ? parseInt(age) : undefined,
         height: height || undefined,
@@ -246,8 +256,11 @@ export default function PatientInfo() {
       await fetchPatients();
       setIsAddPatient(false);
 
+      setError('');
+
       // Upon successfully adding a patient, display Snackbar
       showSuccessSnackbar("Patient added successfully!");
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
@@ -275,6 +288,8 @@ export default function PatientInfo() {
       }
 
       const patientData = {
+        phone_number: phoneNumber || '',
+        address: address || '',
         gender: gender || null,
         age: age ? parseInt(age) : null,
         height: height || null,
@@ -306,6 +321,8 @@ export default function PatientInfo() {
             wearable_id: p.wearable_id,
             first_name: p.first_name,
             last_name: p.last_name,
+            phone_number: patientData.phone_number ?? '',
+            address: patientData.address ?? '',
             gender: patientData.gender ?? undefined,
             age: patientData.age ?? undefined,
             height: patientData.height ?? undefined,
@@ -362,6 +379,8 @@ export default function PatientInfo() {
       // Remove patient from dropdown
       setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
       setPatient('');
+      setPhoneNumber('');
+      setAddress('');
       setGender('');
       setAge('');
       setHeight('');
@@ -386,6 +405,8 @@ export default function PatientInfo() {
   const clearForm = () => {
     setFirstName('');
     setLastName('');
+    setPhoneNumber('');
+    setAddress('');
     setGender('');
     setAge('');
     setHeight('');
@@ -407,6 +428,8 @@ export default function PatientInfo() {
 
     if (selectedPatient) {
       setPatient(`${selectedPatient.patient_id}`);
+      setPhoneNumber(selectedPatient.phone_number || '');
+      setAddress(selectedPatient.address || '');
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
@@ -421,12 +444,16 @@ export default function PatientInfo() {
       }
     } else {
       // Clear Patient attribute fields if no Patient is selected
+      setPhoneNumber('');
+      setAddress('');
       setGender('');
       setAge('');
       setHeight('');
       setWeight('');
     }
   };
+  const handlePhoneNumberChange = (event: SelectChangeEvent) => setPhoneNumber(event.target.value as string);
+  const handleAddressChange = (event: SelectChangeEvent) => setAddress(event.target.value as string);
   const handleGenderChange = (event: SelectChangeEvent) => setGender(event.target.value as string);
   const handleAgeChange = (event: SelectChangeEvent) => setAge(event.target.value as string);
   const handleHeightChange = (event: SelectChangeEvent) => setHeight(event.target.value as string);
@@ -495,6 +522,36 @@ export default function PatientInfo() {
 
               {/* Patient Details Rows */}
               <div className="patient-details">
+                {/* Phone Number */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Phone Number</span>
+                    <span className="detail-value">{phoneNumber || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-age-slot"
+                    placeholder="Edit"
+                    type="text"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="detail-row">
+                  <div className="detail-text">
+                    <span className="detail-label">Address</span>
+                    <span className="detail-value">{address || "None specified"}</span>
+                  </div>
+                  <input
+                    className="edit-age-slot"
+                    placeholder="Edit"
+                    type="text"
+                    value={address}
+                    onChange={handleAddressChange}
+                  />
+                </div>
+
                 {/* Gender */}
                 <div className="detail-row">
                   <div className="detail-text">
@@ -592,12 +649,12 @@ export default function PatientInfo() {
                 <div className="add-detail-text">
                   <span className="add-detail-label">Profile Picture</span>
                 </div>
+
                 <input 
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   style={{ width: '150px' }} 
-
                 />
              </div>
 
@@ -627,6 +684,32 @@ export default function PatientInfo() {
                   placeholder="Enter here"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div className="add-detail-row">
+                <div className="add-detail-text">
+                  <span className="add-detail-label">Phone Number</span>
+                </div>
+                <input
+                  className="last-name"
+                  placeholder="Enter here"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                />
+              </div>
+
+              {/* Address */}
+              <div className="add-detail-row">
+                <div className="add-detail-text">
+                  <span className="add-detail-label">Address</span>
+                </div>
+                <input
+                  className="last-name"
+                  placeholder="Enter here"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
 
