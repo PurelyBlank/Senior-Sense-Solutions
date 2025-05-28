@@ -10,10 +10,13 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
+#include "Display_ST77916.h"
 #include "BAT_driver.h"
 #include "I2C_Driver.h"
 #include "Gyro_QMI8658.h"
 #include "RTC_PCF85063.h"
+#include "LVGL_Driver.h"
+#include "LVGL_ui.h"
 
 
 constexpr int FAILURE = 0;
@@ -25,15 +28,9 @@ constexpr int UNREACHED = -1;
 constexpr int wearable_id = 1;
 
 //-----------------------------------------------------------------//
-// For detecting increments of 1 second
-unsigned long previousSecond = 0;
-constexpr int milliseconds = 5000;
-//-----------------------------------------------------------------//
-
-//-----------------------------------------------------------------//
 // For WiFi
-constexpr char* ssid = "<SSID>";
-constexpr char* password = "<PASSWORD>";
+// constexpr char* ssid = "<SSID>";
+// constexpr char* password = "<PASSWORD>";
 
 constexpr int WIFI_TIMEOUT_MS = 5000;        // 5 second WiFi connection timeout
 constexpr int WIFI_RECOVER_TIME_MS = 10000;  // Wait 10 seconds after a failed connection attempt
@@ -52,7 +49,10 @@ constexpr char* locationURL = "http://ip-api.com/json/";
 
 //-----------------------------------------------------------------//
 // For endpoint
-constexpr char* serverName = "http://<IP>/<ENDPOINT>";
+constexpr char* serverName = "<ENDPOINT URL>";
+
+unsigned int previousDataSendTime = 0;
+constexpr int dataSendTimeout = 3000;   // Do not go under 3 milliseconds as location uses API which we must be polite towards
 //-----------------------------------------------------------------//
 
 std::pair<String, String> getCurrentLocation() {
@@ -75,22 +75,21 @@ std::pair<String, String> getCurrentLocation() {
   return std::make_pair(latitude, longitude);
 }
 
-// *IN PROGRESS...
-int httpPostBiometricData(double heartRate) {  // add additional arguments as needed
+int httpPostBiometricData(String timeStr, double heartRate, String latitude, String longitude, double batteryLevel, int numFalls, int numSteps) {
   if (WiFi.status() == WL_CONNECTED) {
     http.begin(serverName);
     http.addHeader("Content-Type", "application/json");
 
     StaticJsonDocument<200> data;
     data["wearable_id"] = wearable_id;
-    data["timestamp"] = NULL;
-    data["battery_level"] = NULL;
-    data["heart_rate"] = NULL;
-    data["blood_oxygen"] = -1;
-    data["longitude"] = NULL;
-    data["latitude"] = NULL;
-    data["num_falls"] = NULL;
-    data["num_steps"] = NULL;
+    data["timestamp"] = timeStr;
+    data["battery_level"] = batteryLevel;
+    data["heart_rate"] = heartRate;
+    data["blood_oxygen"] = -1;    // not implemented
+    data["longitude"] = longitude;
+    data["latitude"] = latitude;
+    data["num_falls"] = numFalls;
+    data["num_steps"] = numSteps;
 
     String requestBody;
     serializeJson(data, requestBody);
@@ -104,10 +103,37 @@ int httpPostBiometricData(double heartRate) {  // add additional arguments as ne
 
       return SUCCESS;
     }
+    return FAILURE;
   }
 
   return UNREACHED;
 }
+
+
+void sendDataTask(void* parameter) {
+  while(1) {
+    double heartRate = HeartRate::heart_rate();
+    auto [latitude, longitude] = getCurrentLocation();
+    double batteryLevel = getBatteryPercentage();
+    char timeStr[64];
+    datetime_to_str(timeStr, datetime);
+    int hasFallen = FallDetection::getFallCount() > 0 ? 1 : 0;
+
+    // Send POST Request to Website Endpoint
+    int response = httpPostBiometricData(timeStr, heartRate, latitude, longitude, batteryLevel,
+                                         hasFallen, StepDetection::getStepCount());
+    if (response == SUCCESS) {
+      StepDetection::resetStepCount();
+      FallDetection::resetFallCount();
+      printf("Successfully sent data!\n");
+    } else {
+      printf("Unable to send data to endpoint.\n");
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(dataSendTimeout));
+  }
+}
+
 
 // WiFi task with improved error handling
 void keepWiFiAlive(void* parameter) {
@@ -155,47 +181,48 @@ void keepWiFiAlive(void* parameter) {
   }
 }
 
-
 void retrieveBiometricData(void* parameter) {
   while (1) {
-    // Get heart rate
+    // Get heart rate, must run continuosly or data retrieval will be inaccurate
     double heartRate = HeartRate::heart_rate();
     // printf("%.2lf\n", heartRate);
 
     // Continuously loop to get steps
-    StepDetection::getStep();
+    // StepDetection::getStep();
     // printf("%d\n", StepDetection::stepCount);
 
     // Continuously monitor fall detection
-    FallDetection::hasFallen();
+    // FallDetection::hasFallen();
     // printf("%d\n", FallDetection::fallCount);
+    // vTaskDelay(pdMS_TO_TICKS(100));
+
+    // output_current_time();
   }
-  // unsigned long currentSecond = millis();
-  // if (currentSecond - previousSecond >= milliseconds) {
-  //     previousSecond = currentSecond;
-  //     double heartRate = heart_rate();
-  //     getCurrentLocation();
-
-  //     Serial.println(heartRate);
-  //     Serial.print(latitude.c_str());
-  //     Serial.print(" ");
-  //     Serial.println(longitude.c_str());
-
-  //     // Send POST Request to Website Endpoint
-  // }
 }
 
 void DriverTask(void *parameter) {
   while(1){    
     // Own sensors
-    HeartRate::heart_rate();
+    StepDetection::getStep();
+    FallDetection::hasFallen();
 
     // Other sensors
     // PWR_Loop();
     BAT_Get_Volts();
     RTC_Loop();
-    QMI8658_Loop(); 
+    QMI8658_Loop();
     // Psram_Inquiry();
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+
+void updateLVGLDisplay(void* parameter) {
+  while(1){
+    double batteryPercent = getBatteryPercentage() * 100;
+    double heartRate = HeartRate::heart_rate();
+    int steps = StepDetection::getTotalStep();
+
+    update_screen_display(heartRate, batteryPercent, steps);
     vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
@@ -242,6 +269,32 @@ void Driver_Loop() {
     0
   );
 
+  vTaskDelay(500 / portTICK_PERIOD_MS);
+
+  // Create loop to update UI
+  xTaskCreatePinnedToCore(
+    updateLVGLDisplay,
+    "updateLVGLDisplay",
+    4096,
+    NULL,
+    3,
+    NULL,
+    0
+  );
+
+  vTaskDelay(500 / portTICK_PERIOD_MS);
+
+
+  xTaskCreatePinnedToCore(
+    sendDataTask,
+    "sendDataTask",
+    4096,
+    NULL,
+    4,
+    NULL,
+    1
+  );
+
 }
 
 void setup() {
@@ -257,9 +310,16 @@ void setup() {
   BAT_Init();
   I2C_Init();
   QMI8658_Init();
-  // calibrateGyroscope();  // Run this once
+
+  TCA9554PWR_Init(0x00);
+  Backlight_Init();
   PCF85063_Init();
-  printf("Gyro Calibration Complete\n");
+  
+  LCD_Init();
+  Lvgl_Init();
+
+  // Display custom UI
+  LVGL_display();
 
   // Start background tasks after everything is initialized
   printf("Starting system tasks...\n");
@@ -267,4 +327,6 @@ void setup() {
 }
 
 void loop() {
+  Lvgl_Loop();
+  vTaskDelay(pdMS_TO_TICKS(5));
 }

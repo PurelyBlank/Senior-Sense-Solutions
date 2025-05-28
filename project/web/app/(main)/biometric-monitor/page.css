@@ -1,10 +1,21 @@
+.biometric-container h1 {
+  padding-left: 2rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 .content-container {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 2rem;
   flex-wrap: wrap;
-  padding-bottom: 3rem;
+  padding-bottom: 1rem;
 }
 
 .right-container {
@@ -13,11 +24,6 @@
   flex: 1;
   gap: 2rem;
   min-width: 280px;
-}
-
-.biometric-container {
-  padding: 20px;
-  flex: 1;
 }
 
 .biometric-charts {
@@ -45,18 +51,18 @@
 
 .bloodoxygen-title,
 .heartrate-title {
-  font-size: clamp(1.25rem, 1.8vw, 1.125rem);
+  font-size: clamp(1.25rem, 1.8vw, 1.125rem) !important;
   margin-top: 0.625rem;
 }
 
 .heartrate-bpm,
 .bloodoxygen-percentage {
-  font-size: clamp(1.75rem, 4.5vw, 2.25rem);
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
 }
 
 .bloodoxygen-summary,
 .heartrate-summary {
-  font-size: clamp(1.25rem, 1.25vw, 0.875rem);
+  font-size: clamp(1rem, 1vw, 0.5rem) !important;
   max-width: 100%;
 }
 

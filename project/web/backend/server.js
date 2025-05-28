@@ -5,7 +5,9 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-
+const multer  = require('multer')
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const port = 5000;
 
@@ -21,6 +23,29 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+// storage defintion to store user uploads of images (in uploads folder of backend directory )
+const storage = multer.diskStorage({
+  destination: function (req, file, cb){
+
+    const uploadPath = path.join(__dirname, 'uploads');
+    if(!fs.existsSync(uploadPath)){
+      fs.mkdirSync(uploadPath);
+    }
+
+
+    cb(null, uploadPath);
+  },
+
+
+  filename: function (req, file,cb){
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 159);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: storage })
 
 // Test backend connection to PostgreSQL database
 pool.connect((err) => {
@@ -183,6 +208,7 @@ app.post('/api/patients', async (req, res) => {
       age,
       height,
       weight,
+      profile_picture, 
     } = req.body;
 
     // Validate required input fields
@@ -210,10 +236,10 @@ app.post('/api/patients', async (req, res) => {
     // Insert new patient in Patient table
     const result = await pool.query(
       `INSERT INTO patients (
-        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING patient_id`,
-      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight]
+      [caretaker_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture]
     );
 
     const patient_id = result.rows[0].patient_id;
@@ -251,7 +277,7 @@ app.get('/api/patients', async (req, res) => {
 
     // Query for all Patient rows assigned to user's caretaker_id
     const result = await pool.query(
-      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight
+      `SELECT patient_id, wearable_id, first_name, last_name, gender, age, height, weight, profile_picture
        FROM patients WHERE caretaker_id = $1`,
       [caretaker_id]
     );
@@ -266,6 +292,7 @@ app.get('/api/patients', async (req, res) => {
       age: patient.age,
       height: patient.height,
       weight: patient.weight,
+      profile_picture: patient.profile_picture,
     }));
 
     res.json({ patients });
@@ -374,7 +401,7 @@ app.delete("/api/patients/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Biometric monitor page endpoint to retrieve a patient's heart rate (POST request)
+// Biometric Monitor page endpoint to retrieve a patient's heart rate (POST request)
 app.post('/api/patient-heartrate', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -387,11 +414,9 @@ app.post('/api/patient-heartrate', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
-      return res.status(400).json({ error: "wearable_id not here" });
+      return res.status(400).json({ error: "wearable_id not here." });
     }
 
     const result = await pool.query(
@@ -416,11 +441,11 @@ app.post('/api/patient-heartrate', async (req, res) => {
     }
 
     res.json({ 
-      patientHeartRate: patient_data.heart_rate,
+      patientHeartRate: patient_data.heart_rate
     });
 
   } catch (err) {
-    console.error('Biometric monitor error:', err);
+    console.error('Error retrieving patient heart rate:', err);
 
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });
@@ -433,7 +458,192 @@ app.post('/api/patient-heartrate', async (req, res) => {
   }
 });
 
-// Biometric monitor endpoint to retrieve patient fallen alert and location (POST request)
+// Predictive Analysis page endpoint to retrieve a patient's steps count (POST request)
+app.post('/api/patient-activity-chart', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    // Query to calculate average step count for each day of the week
+    const result = await pool.query(
+      `
+        SELECT
+          EXTRACT(DOW FROM timestamp) AS day_of_week,
+          SUM(num_steps) AS total_steps
+        FROM wearable_data
+        WHERE wearable_id = $1
+          AND timestamp >= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days') - INTERVAL '7 days'
+          AND timestamp <= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days')
+        GROUP BY day_of_week
+        ORDER BY day_of_week;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No step data found for the given wearable_id' });
+    }
+
+    // Map query results to array of avg. step counts for each weekday
+    const stepData = Array(7).fill(null);
+    result.rows.forEach((row) => {
+      const dayOfWeek = parseInt(row.day_of_week, 10);
+      stepData[dayOfWeek] = parseFloat(row.total_steps);
+    });
+
+    res.json({ stepData });
+
+  } catch (err) {
+    console.error('Error retrieving step data:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Predictive Analysis page endpoint to retrieve a patient's heart rate (POST request)
+app.post('/api/patient-heartrate-chart', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    // Query to calculate average heart rate for each day of the week
+    const result = await pool.query(
+      `
+        SELECT
+          EXTRACT(DOW FROM timestamp) AS day_of_week,
+          AVG(heart_rate) AS avg_heart_rate
+        FROM wearable_data
+        WHERE wearable_id = $1
+          AND timestamp >= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days') - INTERVAL '7 days'
+          AND timestamp <= (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days')
+        GROUP BY day_of_week
+        ORDER BY day_of_week;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No heart rate data found for the given wearable_id' });
+    }
+
+    // Map query results to array of avg. heart rates for each weekday
+    const heartRateData = Array(7).fill(null);
+    result.rows.forEach((row) => {
+      const dayOfWeek = parseInt(row.day_of_week, 10);
+      heartRateData[dayOfWeek] = parseFloat(row.avg_heart_rate);
+    });
+
+    res.json({ heartRateData });
+
+  } catch (err) {
+    console.error('Error retrieving patient heart rate data:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Biometric monitor endpoint to retrieve patient heart rate alert (POST request)
+app.post('/api/heart-rate-alert', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user_id = decoded.user_id;
+    if (!user_id) {
+      console.log("No user_id in decoded token");
+      
+      return res.status(400).json({ error: 'Invalid token: user_id not found.' });
+    }
+
+    const patientsQuery = await pool.query(
+      `
+        SELECT p.patient_id, p.first_name, p.last_name, p.wearable_id
+        FROM patients p
+        WHERE p.caretaker_id = $1;
+      `,
+      [user_id]
+    );
+
+    const heartRateNotifications = [];
+    for (let patientRow of patientsQuery.rows) {
+      const heartRateResult = await pool.query(
+        `SELECT heart_rate, timestamp FROM wearable_data
+         WHERE wearable_id = $1
+         ORDER BY timestamp DESC LIMIT 1`,
+        [patientRow.wearable_id]
+      );
+      if (heartRateResult.rowCount > 0) {
+        const { heart_rate, timestamp } = heartRateResult.rows[0];
+
+        heartRateNotifications.push({
+          patient_name: `${patientRow.first_name} ${patientRow.last_name}`,
+          heart_rate,
+          timestamp,
+        });
+      }
+    }
+
+    res.json({ heartRates: heartRateNotifications });
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Biometric monitor endpoint to retrieve patient fall alert and location (POST request)
 app.post('/api/fall-alert', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -448,7 +658,6 @@ app.post('/api/fall-alert', async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const user_id = decoded.user_id;
-
     if (!user_id) {
       console.log("No user_id in decoded token");
       
@@ -462,6 +671,7 @@ app.post('/api/fall-alert', async (req, res) => {
           c.first_name AS caretaker_first_name,
           p.patient_id,
           p.first_name AS patient_first_name,
+          p.last_name AS patient_last_name,
           p.wearable_id
         FROM caretaker c
         JOIN patients p ON c.user_id = p.caretaker_id
@@ -472,7 +682,6 @@ app.post('/api/fall-alert', async (req, res) => {
 
     const notifications = [];
     for (let patientRow of patientsQuery.rows) {
-      const patientId = patientRow.patient_id;
       const wearableId = patientRow.wearable_id;
 
       const fallData = await pool.query(
@@ -483,8 +692,9 @@ app.post('/api/fall-alert', async (req, res) => {
       );
       if (fallData.rowCount > 0) {
         const { timestamp, longitude, latitude } = fallData.rows[0];
+
         notifications.push({
-          patient_name: patientRow.patient_first_name,
+          patient_name: `${patientRow.patient_first_name} ${patientRow.patient_last_name}`,
           fall: true,
           timestamp,
           longitude,
@@ -494,13 +704,22 @@ app.post('/api/fall-alert', async (req, res) => {
     }
     if (notifications.length > 0) {
       return res.json({ falls: notifications });
+
     } else {
       return res.json({ falls: [], message: "No falls detected for any patient." });
     }
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
@@ -605,6 +824,127 @@ app.post('/api/step-count', async (req, res) => {
   }
 });
 
+app.post('/api/patient-fall-chart', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    // Query to calculate the number of falls of each week, over the last 6 weeks
+    const result = await pool.query(
+      `
+      SELECT 
+        to_char(date_trunc('week', timestamp), 'YYYY-MM-DD') AS week_start,
+        to_char(date_trunc('week', timestamp) + interval '6 days', 'YYYY-MM-DD') AS week_end,
+        SUM(num_falls) AS fall_count
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND timestamp >= date_trunc('week', NOW()) - INTERVAL '5 weeks'
+      GROUP BY week_start, week_end
+      ORDER BY week_start ASC;
+      `,
+      [wearable_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No data found for the given wearable_id, fall chart' });
+    }
+
+    return res.json({
+      falls: result.rows.map(row => ({
+        week_start: row.week_start,
+        week_end: row.week_end,
+        fall_count: Number(row.fall_count)||0,
+      })),
+    });
+
+  } catch (err) {
+    console.error('Error retrieving patient fall chart data:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+app.post('/api/patient-fall-chart-week', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Malformed token.' });
+    }
+
+    const wearable_id = req.body.wearable_id;
+    if (!wearable_id) {
+      return res.status(400).json({ error: "wearable_id not here." });
+    }
+
+    const week_start = req.body.week_start;
+    if (!week_start) {
+      return res.status(400).json({ error: "week_start not here." });
+    }
+
+    const week_end = req.body.week_end;
+    if (!week_end) {
+      return res.status(400).json({ error: "week_end not here." });
+    }
+
+    // Query to calculate falls for a specific week
+    const result = await pool.query(
+      `
+      SELECT 
+        timestamp,
+        latitude,
+        longitude
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND timestamp >= $2
+        AND timestamp < ($3::date + INTERVAL '1 day')
+        AND num_falls = 1
+      ORDER BY timestamp ASC;
+      `,
+      [wearable_id, week_start, week_end]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No data found for the given wearable_id, week_start and week_end' });
+    }
+
+    return res.json({ falls: result.rows });
+
+  } catch (err) {
+    console.error('Error retrieving patient fall data for a specific week:', err);
+
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired.' });
+    }
+    
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 // Layout endpoint to retrieve caretaker user's first and last names (POST request)
 app.post('/api/caretaker-fullname', async (req, res) => {
   try {
@@ -667,11 +1007,9 @@ app.post('/api/battery-tracker', async (req, res) => {
       return res.status(401).json({ error: 'Malformed token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
     const wearable_id = req.body.wearable_id;
     if (!wearable_id) {
-      return res.status(400).json({ error: "wearable_id not here" });
+      return res.status(400).json({ error: "wearable_id not here." });
     }
 
     const result = await pool.query(
@@ -785,9 +1123,14 @@ app.get('/api/patients/:wearable_id', authenticateToken, async (req, res) => {
 app.post('/api/wearable_data/insert', async (req, res) => {
   try {
     body = req.body;
+    
+    unparsed = body["timestamp"];
+    const parts = unparsed.split('.').map(Number);
+    const [year,month,day,dayOfWeek,hour,minute,second] = parts;
+    const parsed = new Date(year,month-1,day,hour,minute,second);
 
     wearable_id = body["wearable_id"];
-    timestamp = new Date().toISOString(); // get current timestamp according to database timestamp type
+    timestamp = parsed.toISOString(); // get current timestamp according to database timestamp type
     battery_level = body["battery_level"];
     heart_rate = body["heart_rate"];
     blood_oxygen = body["blood_oxygen"];
@@ -830,6 +1173,110 @@ app.post('/api/wearable_data/insert', async (req, res) => {
   } catch (err) {
     console.error("Unable to Insert Wearable Data Error", err);
     res.status(400).send("Unable to Insert Wearable Data Error");
+  }
+});
+
+// Endpoint to check if a patient recently fell down for the caretaker to confirm (POST request)
+app.post('/api/check-fall', authenticateToken, async (req, res) => {
+  const { wearable_id, since } = req.body;
+
+  if (!wearable_id) {
+    return res.status(400).json({ error: "Missing wearable_id." });
+  }
+
+  try {
+    // Query for the latest fall data for given wearable_id
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM wearable_data
+      WHERE wearable_id = $1
+        AND num_falls > 0
+        AND timestamp > $2
+      ORDER BY timestamp DESC
+      LIMIT 1;
+      `,
+      [wearable_id, since || new Date(Date.now() - 10020000).toISOString()]
+    );
+    if (result.rows.length === 0) {
+      console.log("No fall detected for wearable_id:", wearable_id);
+
+      return res.json({ fallDetected: false });
+    }
+    const latest = result.rows[0];
+
+    // Query for the associated patient's first name and last name
+    const patientResult = await pool.query(
+      `
+      SELECT first_name, last_name, phone_number FROM patients WHERE wearable_id = $1 LIMIT 1`,
+      [wearable_id]
+    );
+    let first_name = null;
+    let last_name = null;
+    let phone_number = null;
+    if (patientResult.rows.length > 0) {
+      first_name = patientResult.rows[0].first_name;
+      last_name = patientResult.rows[0].last_name;
+      phone_number = patientResult.rows[0].phone_number;
+    }
+
+    res.json({
+      fallDetected: true,
+      fallDate: latest.timestamp,
+      fallLocation: {
+        latitude: latest.latitude,
+        longitude: latest.longitude
+      },
+      patientFirstName: first_name,
+      patientLastName: last_name,
+      phoneNumber: phone_number
+    });
+
+  } catch (err) {
+    console.error("Check fall error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Endpoint to update num_falls after cancellation of fall alert (PATCH request)
+app.patch('/api/cancel-fall', async (req, res) => {
+  const { wearable_id, timestamp } = req.body;
+  if (!wearable_id || !timestamp) {
+    return res.status(400).json({ error: "Missing wearable_id or timestamp." });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE wearable_data SET num_falls = 0 WHERE wearable_id = $1 AND timestamp = $2 RETURNING *;`,
+      [wearable_id, timestamp]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "No matching wearable_data row found." });
+    }
+
+    res.json({ message: "Fall data cancelled successfully." });
+
+  } catch (err) {
+    console.error("Cancel fall error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Endpoint to create a image url to store later for the patient
+app.post('/api/patient/profile', upload.single('avatar'), (req,res) =>{
+  try {
+    if(!req.file){
+      return res.status(400).json({error: 'No file uploaded.'});
+    }
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+    res.status(200).json({imageUrl});
+  } catch(error){
+    console.error('Error handling profile upload:', error);
+    res.status(500).json({error: 'Failed to upload profile image. '});
   }
 });
 

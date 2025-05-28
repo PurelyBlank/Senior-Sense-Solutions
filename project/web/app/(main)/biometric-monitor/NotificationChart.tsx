@@ -2,12 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
-import { FiBell } from "react-icons/fi";
-import { IoPersonOutline } from "react-icons/io5";
 import { CgDanger } from "react-icons/cg";
 import { MdOutlineMonitorHeart } from "react-icons/md";
-
-import { useWearable } from '../context/WearableContext';
 
 import "./NotificationChart.css"
 

@@ -1,4 +1,5 @@
 #include "RTC_PCF85063.h"
+#include <string>
 
 datetime_t datetime= {0};
 
@@ -28,10 +29,10 @@ void PCF85063_Init()
   datetime_t Now_datetime= {0};
   Now_datetime.year = 2025;
   Now_datetime.month = 5;
-  Now_datetime.day = 9;
-  Now_datetime.dotw = 5;
-  Now_datetime.hour = 7;
-  Now_datetime.minute = 46;
+  Now_datetime.day = 12;
+  Now_datetime.dotw = 1;
+  Now_datetime.hour = 1;
+  Now_datetime.minute = 24;
   Now_datetime.second = 0;
   PCF85063_Set_All(Now_datetime);
 }
@@ -225,13 +226,82 @@ Info:
 ******************************************************************************/
 void datetime_to_str(char *datetime_str,datetime_t time)
 {
-	sprintf(datetime_str, " %d.%d.%d  %d %d:%d:%d ", time.year, time.month, 
+	sprintf(datetime_str, "%d.%d.%d.%d.%d.%d.%d ", time.year, time.month, 
 			time.day, time.dotw, time.hour, time.minute, time.second);
-} 
+}
 
 void output_current_time()
 {
     char timeStr[64];
     datetime_to_str(timeStr, datetime);
     printf("Time: %s\n", timeStr);
+}
+
+uint16_t get_current_year()
+{
+	return datetime.year;
+}
+
+uint8_t get_current_month()
+{
+	return datetime.month;
+}
+
+std::string get_current_month_string() {
+		uint8_t month = get_current_month();
+    if (month >= 1 && month <= 12) {
+        return std::string((const char*)MonthStr[datetime.month - 1]);
+		}
+		return "ERR";
+}
+
+uint8_t get_current_day()
+{
+	return datetime.day;
+}
+
+std::string get_current_dow()
+{
+	switch(datetime.dotw) {
+		case 0:
+			return "Sunday";
+		case 1:
+			return "Monday";
+		case 2:
+			return "Tuesday";
+		case 3:
+			return "Wednesday";
+		case 4:
+			return "Thursday";
+		case 5:
+			return "Friday";
+		case 6:
+			return "Saturday";
+	}
+}
+
+std::string get_am_pm() {
+		uint8_t hour = get_current_hour();
+    if (hour >= 0 && hour < 12) {
+        return "AM";
+    } else if (hour >= 12 && hour < 24) {
+        return "PM";
+    } else {
+        return ""; // Or handle an invalid hour value
+    }
+}
+
+uint8_t get_current_hour() 
+{
+	return datetime.hour;
+}
+
+uint8_t get_current_minute()
+{
+	return datetime.minute;
+}
+
+uint8_t get_current_second()
+{
+	return datetime.second;
 }
