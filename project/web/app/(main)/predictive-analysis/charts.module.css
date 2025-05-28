@@ -2,20 +2,71 @@
   width: 100%;
   margin: 0 auto;
   border: 1px solid lightgray;
-  border-radius: 11.26px;
+  border-radius: 12px;
   padding: 10px;
   box-sizing: border-box;
 }
 
-.fallDetailsContainer{
-  display:flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 40px;
+.fallTitle,
+.fallText {
+  color: #ca2a30;
 }
 
-.fallDetailsContainer{
-  font-size : 25px;
+.fallDetailsContainer {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.fallDetailsContainer {
+  font-size : 16px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.cancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ca2a30;
+  color: white;
+  border: 1px solid #ca2a30;
+  border-radius: 12px;
+  font-size: 16px !important;
+  width: 25%;
+  min-height: 35px;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background-color: #d55559;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0F172A;
+  color: white;
+  border: 1px solid #0F172A;
+  border-radius: 12px;
+  font-size: 16px !important;
+  width: 25%;
+  min-height: 35px;
+  cursor: pointer;
+}
+
+.saveButton:hover {
+  background-color: #1e2b4e;
 }
 
 .fallButton {
@@ -65,7 +116,6 @@
   min-width: 620px;  
 }
 
-
 /* limits the height / width of the charts*/
 .chartWrapper {
     position: relative;
@@ -111,8 +161,6 @@
 .BarChartDescription p {
     font-size: 13px !important;
 }
-
-
 
 @media (max-width: 600px) {
   .BarChart {
