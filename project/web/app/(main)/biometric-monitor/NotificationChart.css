@@ -1,47 +1,68 @@
 .notifications-box {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: 100%;
-    max-width: none;
-    background-color: #FFFFFF;
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid lightgray;
-    max-height: 350px;
-  }
-  
-  .abnormality-text {
-    color: gray;
-    margin-top: -15px;
-    font-size: 14px !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  background-color: #FFFFFF;
+  padding: clamp(1rem, 2vw, 1.25rem);
+  border-radius: 1rem;
+  border: 1px solid lightgray;
+  max-height: 22rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.abnormality-text {
+  color: gray;
+  margin-top: -0.9rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem) !important;
+}
+
+.notifications-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  border-radius: 15px;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  padding: clamp(0.5rem, 2vw, 0.75rem);
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.notifications-row:hover {
+  background-color: #F4F4F5;
+}
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+}
+
+.notifications-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.notifications-title {
+  display: block;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem) !important;
+}
+
+.notifications-summary {
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem) !important;
+  color: gray;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 768px) {
+  .notifications-box {
+    padding: clamp(0.75rem, 4vw, 1rem);
   }
 
   .notifications-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 10px;
-  }
-  
-  .notifications-header {
-    display: flex;
-    align-items: center;
-  }
-  
-  .notifications-text {
-    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    flex: 1;
   }
-  
-  .notifications-title {
-    display: block;
-    font-size: 14px !important;
-  }
-  
-  .notifications-summary {
-    font-size: 14px !important;
-    color: gray;
-  }
+}

@@ -1,14 +1,29 @@
 "use client"
 
-import { FaHeartbeat } from "react-icons/fa";
 import { useState, useEffect } from 'react';
+
+import { FaHeartbeat } from "react-icons/fa";
+
+import { useWearable } from '../context/WearableContext';
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./page.css";
 
 export default function HeartRateChart(){
   const [patientHeartRate, setPatientHeartRate] = useState('');
   const [, setError] = useState('');
 
+  const { wearable_id } = useWearable();
+  const { setWearable_id } = useWearable();
+
   const handleFetchPatientHeartRate = async () => {
     setError("");  // Reset error before fetching
+
+    if (!wearable_id) {
+      setError("Wearable ID error.");
+      
+      return;
+    }
   
     try {
       const token = localStorage.getItem("authToken");
@@ -25,15 +40,16 @@ export default function HeartRateChart(){
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          wearable_id,  
+        }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch caretaker name.");
-      }
-      if (!data.patientHeartRate) {
-        throw new Error("Caretaker first name not found in response.");
+        setPatientHeartRate("");
+        
+        throw new Error(data.error || "Failed to fetch heart rate data.");
       }
 
       setPatientHeartRate(data.patientHeartRate);
@@ -47,6 +63,10 @@ export default function HeartRateChart(){
   };
 
   useEffect(() => {
+    if (wearable_id === -1) {
+      return;
+    }
+    
     // Fetch heart rate 
     handleFetchPatientHeartRate();
 
@@ -54,7 +74,7 @@ export default function HeartRateChart(){
     const intervalId = setInterval(handleFetchPatientHeartRate, 3000);
 
     return () => clearInterval(intervalId);
-  }, []); 
+  }, [wearable_id]); 
 
   return(
     <div className="heartrate-box">
@@ -63,8 +83,7 @@ export default function HeartRateChart(){
       <p className="heartrate-bpm fw-semibold">{patientHeartRate || "..."} BPM</p>
       <p className="heartrate-summary fw-semibold">
         <em>
-          *Note: This heart rate reading shows the patient&apos;s pulse right now. To understand what a healthy heart rate range is, please refer to the guidelines
-          Please consult the guidelines <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">link/reference</a> for proper interpretation.
+          *Note: This heart rate reading shows the patient&apos;s current pulse. To understand what a healthy heart rate range is, please consult these <a href="https://www.ncbi.nlm.nih.gov/books/NBK593193/table/ch1survey.T.normal_heart_rate_by_age/" target="_blank">guidelines</a> for proper interpretation.
         </em>
       </p>
     </div>

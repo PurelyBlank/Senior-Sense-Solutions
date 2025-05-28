@@ -3,9 +3,13 @@
 import { Gauge, gaugeClasses } from '@mui/x-charts';
 import { useState, useEffect } from 'react';
 
+import { useWearable } from '../context/WearableContext';
+
 export default function GaugeClient() {
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [, setError] = useState('');
+
+  const { wearable_id } = useWearable();
 
   const handleFetchBatteryLevel = async () => {
     setError("");
@@ -25,16 +29,12 @@ export default function GaugeClient() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          wearable_id,  
+        }),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch caretaker name.");
-      }
-      if (!data.batteryLevel) {
-        throw new Error("Caretaker battery level? not found.");
-      }
 
       setBatteryLevel(data.batteryLevel);
 
@@ -54,7 +54,7 @@ export default function GaugeClient() {
     const intervalId = setInterval(handleFetchBatteryLevel, 60000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [wearable_id]);
 
   const hours = batteryLevel !== null ? (batteryLevel / 100) * 24 : 0;
   const rounded = Math.round(hours * 2) / 2;  
@@ -63,7 +63,7 @@ export default function GaugeClient() {
     <div className="gaugeChartContainer">
       <Gauge
         className="gauge-responsive"
-        value={batteryLevel}
+        value={batteryLevel !== null ? Math.round(batteryLevel) : 0}
         valueMin={0}
         valueMax={100}
         width={355}
@@ -91,7 +91,7 @@ export default function GaugeClient() {
         color: '#33B7F7',
       }}>
       <div className="gauge-overlay">
-        <div className="gauge-percent">{`${batteryLevel}%`}</div>
+        <div className="gauge-percent">{`${batteryLevel !== null ? Math.round(batteryLevel) : 0}%`}</div>
         <div className="gauge-label">{`───────\n${rounded} hours\nRemaining`}</div>
       </div>
     </div>

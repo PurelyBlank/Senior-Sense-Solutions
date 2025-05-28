@@ -19,13 +19,18 @@ p, span {
 .google-maps {
     display: flex;
     position: absolute;
-    width: calc(100vw - 120px);
-    height: calc(100vh - 5.5rem);
-    top: 5.5rem;
-    left: auto;
-    right: 0;
+    /* width: calc(100vw - 50px);
+    height: calc(100vh - 5.5rem); */
+    /* top: 5.5rem; */
+    top: 0;
+    left: 12px;
+    /* right: 50px; */
+    /* left: auto;
+    right: auto; */
+    width: 100%;
+    height: 100%;
     bottom: 0;
-    flex: 1;
+    flex: 1; 
 }
 
 /* Map container */
@@ -58,4 +63,8 @@ p, span {
 /* Remove close button of InfoWindow tab */
 button.gm-ui-hover-effect {
     visibility: hidden;
+}
+
+.location-patient-dropdown-container{
+    padding: 15px;
 }

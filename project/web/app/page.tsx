@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch POST request to handle login attempt
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -64,7 +66,9 @@ export default function LoginPage() {
       <div className="login-left" />
       <div className="login-center" />
       <div className="login-right">
-        <h1 className="title">Senior Sense Solutions</h1>
+      <div className="logo">
+      <Image src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
+      </div>
         <h2 className="welcome">Welcome back!</h2>
         <p className="sub-text">Log in to your account to continue</p>
 
@@ -119,9 +123,8 @@ export default function LoginPage() {
           <button 
             type="submit" 
             className="login" 
-            disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Logging in" : "Login"}
           </button>
         </form>
 

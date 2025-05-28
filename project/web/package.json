@@ -19,6 +19,7 @@
     "@react-google-maps/api": "^2.20.6",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.8",
+    "multer": "^2.0.0",
     "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

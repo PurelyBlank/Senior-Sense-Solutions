@@ -3,13 +3,14 @@
 import { useState } from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./register.css";
+import "./page.css";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,8 +57,9 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // On success, redirect to Login page
+      // On success, redirect to Login page & send success parameter
       router.push("/");
+      router.push("/?registered=true");
 
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
@@ -72,7 +74,9 @@ export default function RegisterPage() {
       <div className="register-left"></div>
       <div className="register-center"></div>
       <div className="register-right">
-        <div className="title">Senior Sense Solutions</div>
+      <div className="logo">
+      <Image src="/images/SSS_Logo.png" alt="Senior Sense Solutions Logo" width={217} height={145} />
+      </div>
         <div className="welcome">Create a new account</div>
         <div className="sub-text">Create your account to continue</div>
 

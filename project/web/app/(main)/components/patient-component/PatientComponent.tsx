@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
+import { useWearable } from "../../context/WearableContext"; 
 import { CgProfile } from "react-icons/cg";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import Link from "next/link";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PatientComponent.css";
@@ -19,6 +18,7 @@ interface Patient {
   age?: number;
   height?: string;
   weight?: number;
+  profile_picture?: string;
 }
 
 export default function PatientInfo() {
@@ -33,7 +33,12 @@ export default function PatientInfo() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
+
 
   // Generate possible height options
   const generateHeightOptions = () => {
@@ -50,49 +55,133 @@ export default function PatientInfo() {
     return heights;
   };
 
+  const fetchPatients = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients`;
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch patients.");
+      }
+
+      //Fetching the selected Patient every time we change pages, using wearable_id
+      const patients: Patient[] = data.patients;
+      const selectedPatient = patients.find((p) => p.wearable_id === wearable_id);
+      if (selectedPatient) {
+        setPatient(selectedPatient.patient_id.toString());
+        setFirstName(selectedPatient.first_name);
+        setLastName(selectedPatient.last_name);
+        setGender(selectedPatient.gender || '');
+        setAge(selectedPatient.age?.toString() || '');
+        setHeight(selectedPatient.height || '');
+        setWeight(selectedPatient.weight?.toString() || '');
+        setProfilePictureUrl(selectedPatient.profile_picture || null); 
+      }
+
+      setPatients(data.patients);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Fetch patients error:", err);
+    }
+  }
+
+
+  const { wearable_id } = useWearable();
+
   // Fetch Patient rows for Select dropdown upon mount
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          throw new Error("No authentication token found.");
-        }
-
-        const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-        const apiUrl = `${baseApiUrl}/patients`;
-
-        const response = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch patients.");
-        }
-
-        setPatients(data.patients);
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred.");
-        console.error("Fetch patients error:", err);
-      }
-    };
-
     fetchPatients();
   }, []);
 
   // Setters
   const handleRemovePatient = () => setIsRemovePatient(true);
   const handleRemoveCancel = () => setIsRemovePatient(false);
-  const handleAddPatient = () => setIsAddPatient(true);
+  const handleAddPatient = () => {
+    clearForm();
+    setIsAddPatient(true);
+  }
   const handleCancel = () => {
     setIsAddPatient(false);
-    clearForm();
+    
+    // Restore attributes of the selected patient after canceling Add Patient
+    const selectedPatient = patients.find((p) => `${p.patient_id}` === patient);
+    if (selectedPatient) {
+      setFirstName(selectedPatient.first_name || '');
+      setLastName(selectedPatient.last_name || '');
+      setGender(selectedPatient.gender || '');
+      setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
+      setHeight(selectedPatient.height || '');
+      setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+      setProfilePictureUrl(selectedPatient.profile_picture || '');
+      setDeviceId(selectedPatient.wearable_id ? selectedPatient.wearable_id.toString() : '');
+    }
+
+    setError('');
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
+  };
+
+  // Fetch request for uploading a new profile image
+  const uploadImage = async () => {
+    if (!selectedImage){
+      console.warn("No image was selected to uplaod.");
+      return null; 
+    }
+
+    try {
+      const token = localStorage.getItem("authToken")
+      if (!token){
+        throw new Error("No authentication token found. ");
+      }
+
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patient/profile`;
+      
+      // creates a key value pair with (image, File object) required by our multer depedency
+      const formData = new FormData(); 
+      formData.append('avatar', selectedImage);
+
+      // send out request to backend 
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers:{
+          Authorization: `Bearer ${token}`
+  
+        },
+        body: formData, 
+      });
+
+      const data = await response.json();
+      if(!response.ok){
+        throw new Error (data.error || "Failed to upload image")
+      }
+
+      return data.imageUrl; 
+    }
+    catch (error) {
+      console.log(error)
+      return null;
+    }
+  }
+
 
   // Fetch request for adding a new Patient row
   const handleSubmitPatient = async () => {
@@ -105,6 +194,9 @@ export default function PatientInfo() {
       if (!firstName || !lastName || !deviceId) {
         throw new Error("First name, last name, and device ID are required.");
       }
+      
+
+      const imageUrl = await uploadImage(); // wait to get our imageUrl before continueing
 
       // Define expected data fields in request body
       const patientData = {
@@ -115,6 +207,7 @@ export default function PatientInfo() {
         age: age ? parseInt(age) : null,
         height: height || null,
         weight: weight ? parseInt(weight) : null,
+        profile_picture: imageUrl || null,
       };
 
       const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -144,12 +237,17 @@ export default function PatientInfo() {
         age: age ? parseInt(age) : undefined,
         height: height || undefined,
         weight: weight ? parseInt(weight) : undefined,
+        profile_picture: imageUrl || null,
       }]);
 
       // Clear the input fields
       setIsAddPatient(false);
-      clearForm();
+      setProfilePictureUrl(imageUrl || null);
+      await fetchPatients();
+      setIsAddPatient(false);
 
+      // Upon successfully adding a patient, display Snackbar
+      showSuccessSnackbar("Patient added successfully!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Add patient error:", err);
@@ -170,7 +268,7 @@ export default function PatientInfo() {
       }
 
       const selectedPatient = patients.find(
-        (p) => `${p.first_name} ${p.last_name}` === patient
+        (p) => `${p.patient_id}` === patient
       );
       if (!selectedPatient) {
         throw new Error('Selected patient not found.')
@@ -217,11 +315,72 @@ export default function PatientInfo() {
       ));
 
       setError('');
+
+      // Upon successfully saving changes, display Snackbar
+      showSuccessSnackbar("Patient changes saved!");
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred.");
       console.error("Update patient error:", err);
     }
   }
+
+  const handleConfirmRemovePatient = async () => {
+    if (!patient) {
+      setError("Please select a patient to remove.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+      
+      const selectedPatient = patients.find(
+        (p) => `${p.patient_id}` === patient
+      );
+      if (!selectedPatient) {
+        throw new Error("Selected patient not found.");
+      }
+  
+      const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const apiUrl = `${baseApiUrl}/patients/${selectedPatient.patient_id}`;
+  
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete patient.");
+      }
+  
+      // Remove patient from dropdown
+      setPatients(patients.filter((p) => p.patient_id !== selectedPatient.patient_id));
+      setPatient('');
+      setGender('');
+      setAge('');
+      setHeight('');
+      setWeight('');
+      setIsRemovePatient(false);
+      setError('');
+      setProfilePictureUrl('');
+      setFirstName('');
+      setLastName('');
+      setDeviceId('');
+
+      // Upon successfully removing patient, display Snackbar
+      showSuccessSnackbar("Patient removed successfully.");
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+      console.error("Remove patient error:", err);
+    }
+  };
 
   // Helper function to clear all input fields in Add Patient form
   const clearForm = () => {
@@ -233,23 +392,33 @@ export default function PatientInfo() {
     setWeight('');
     setDeviceId('');
     setError('');
+    setProfilePictureUrl('');
   };
+
+  const { setWearable_id } = useWearable();
 
   // Handle displaying of Patient attributes depending on selected Patient in dropdown
   const handlePatientChange = (event: SelectChangeEvent) => {
-    const selectedFullName = event.target.value as string;
-    setPatient(selectedFullName);
+    const selectedId = Number(event.target.value);
 
-    // Find the selected patient
     const selectedPatient = patients.find(
-      (p) => `${p.first_name} ${p.last_name}` === selectedFullName
+      (p) => p.patient_id === selectedId
     );
 
     if (selectedPatient) {
+      setPatient(`${selectedPatient.patient_id}`);
       setGender(selectedPatient.gender || '');
       setAge(selectedPatient.age ? selectedPatient.age.toString() : '');
       setHeight(selectedPatient.height || '');
       setWeight(selectedPatient.weight ? selectedPatient.weight.toString() : '');
+
+      setFirstName(selectedPatient.first_name ? selectedPatient.first_name.toString() : '');
+      setLastName(selectedPatient.last_name ? selectedPatient.last_name.toString() : '');
+      setProfilePictureUrl(selectedPatient.profile_picture || '');
+      if (selectedPatient.wearable_id !== undefined) { 
+        // Set wearable_id when user selects a patient in the dropdown
+        setWearable_id(selectedPatient.wearable_id);
+      }
     } else {
       // Clear Patient attribute fields if no Patient is selected
       setGender('');
@@ -264,6 +433,15 @@ export default function PatientInfo() {
   const handleWeightChange = (event: SelectChangeEvent) => setWeight(event.target.value as string);
   const handleDeviceIdChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeviceId(e.target.value);
 
+  const showSuccessSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <div className="p-3">
       {isRemovePatient && <div className="overlay"></div>}
@@ -271,31 +449,47 @@ export default function PatientInfo() {
         <div className="patient-container container pt-4">
 
         <div className="dropdown-wrapper">
-          <p className="dropdown-label">Select Patient</p>
-            <FormControl fullWidth size="small" style={{ width: 430 }}>
-              <InputLabel id="select-patient">Select</InputLabel>
-              <Select
-                labelId="select-patient-label"
-                id="select-patient"
-                label="Patient"
-                value={patient}
-                onChange={handlePatientChange}
-              >
-                {patients.map((p) => (
-                  <MenuItem key={p.patient_id} value={p.first_name + " " + p.last_name}>
-                    {p.first_name + " " + p.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+          <FormControl fullWidth size="small" style={{ width: 435 }}>
+            <InputLabel id="select-patient">Select</InputLabel>
+            <Select
+              labelId="select-patient-label"
+              id="select-patient"
+              label="Patient"
+              value={patient}
+              onChange={handlePatientChange}
+            >
+              {patients.map((p) => (
+                <MenuItem key={p.patient_id} value={p.patient_id}>
+                  {p.first_name + " " + p.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
 
           {/* Patient Box */}
           {!isAddPatient ? (
             <div className="patient-box">
               {/* Profile Icon and Patient Name */}
-              <CgProfile className="patient-icon" size={95} />
-              <span className="patient-name">{patient || "Select a patient"}</span>
+
+              {profilePictureUrl ? (
+                <img 
+                  src={profilePictureUrl} 
+                  alt="Profile" 
+                  style={{ 
+                    width: 90, 
+                    height: 90,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                  }} 
+                />
+              ) : (
+                <CgProfile className="patient-icon" size={95} />
+              )}
+
+              <span className="patient-name">
+                {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Select a Patient"}
+              </span>
               <span className="patient-info">Patient Info</span>
               {error && <div className="error-message" role="alert">{error}</div>}
 
@@ -393,8 +587,20 @@ export default function PatientInfo() {
           ) : (
           <div className="add-patient-box">
             <h5>Add New Patient</h5>
-            <CgProfile className="patient-icon" size={95} />
-            <Link href="/biometric-monitor">Import Profile Picture</Link>
+
+              <div className="add-detail-row">
+                <div className="add-detail-text">
+                  <span className="add-detail-label">Profile Picture</span>
+                </div>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ width: '150px' }} 
+
+                />
+             </div>
+
             {error && <div className="error-message" role="alert">{error}</div>}
             <div className="patient-details">
 
@@ -529,9 +735,25 @@ export default function PatientInfo() {
           <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
 
           {/* Continue button */}
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
+          <button type='button' className='save-button' onClick={handleConfirmRemovePatient}>Continue</button>
         </div>
       )}
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={handleSnackbarClose}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity="success" 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

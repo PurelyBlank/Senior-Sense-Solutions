@@ -6,19 +6,15 @@ import NotificationChart from './NotificationChart';
 import StepCounterChart from './StepCounterChart';
 import HeartRateChart from './HeartRateChart';
 import PatientInfo from '../components/patient-component/PatientComponent';
-import PatientDropdown from '../components/patient-component/patient-dropdown';
+import PatientDropdown from '../components/patient-component/PatientDropdown';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./homepage.css";
+import "./page.css";
 
 export default function HomePage() {
-  const [isRemovePatient, setIsRemovePatient] = useState(false);
   const [caretakerName, setCaretakerName] = useState('');
   const [, setError] = useState('');
 
-  const handleRemoveCancel = () => {
-    setIsRemovePatient(false);
-  }
 
   // Fetch user's first name for "Welcome back, ..." text
   const handleFetchCaretakerName = async () => {
@@ -66,7 +62,6 @@ export default function HomePage() {
 
   return (
     <div className="biometric-container">
-      {isRemovePatient && <div className="overlay"></div>}
       <h1 className="display-7 fw-semibold">Welcome back, {caretakerName || "Caretaker"}.</h1>
 
       {/* Main Content */}
@@ -88,14 +83,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {isRemovePatient && (
-        <div className="center-remove-box">
-          <p className="title-bold">Are you sure?</p>
-          <p className="subtext-gray">This action cannot be undone. This will permanently delete the patient and all associated data.</p>
-          <button type='button' className='cancel-button' onClick={handleRemoveCancel}>Cancel</button>
-          <button type='button' className='save-button' onClick={handleRemoveCancel}>Continue</button>
-        </div>
-      )}
+      
     </div>
   );
 }

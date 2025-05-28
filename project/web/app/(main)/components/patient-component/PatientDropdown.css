@@ -1,6 +1,6 @@
 .sidebarDropdown-toggle {
   position: fixed;
-  top: 3.5rem;
+  top: 5.5rem;
   right: 0;
   width: 30px;
   height: 100%;
@@ -13,24 +13,23 @@
 
 /* styling for the button */
 .sidebarDropdown-collapsible-button {
+  width: 100%;           
+  height: 100%;          
   background: transparent;
   border: none;
   color: white;
   font-size: 20px;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 /* sidebar dropdown content container  */
-.sidebarDropdown-panel {  
+.sidebarDropdown-panel, .location-patient-dropdown-panel {  
   position: fixed;
-  top: 3.5rem;
+  top: 5.5rem;
   right: 30px; /* sits literally next to the sidebar toggle button */
-  width: calc(100% - 30px - 120px); /* full width minus the sidebar + the toggle button */
   height: calc(100vh - 3.5rem);
   background-color: #ffffff;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
@@ -39,6 +38,17 @@
   flex-direction: column;
   overflow-y: auto;
 }
+
+
+.sidebarDropdown-panel{
+  width: calc(100% - 30px - 120px); /* full width minus the sidebar + the toggle button */
+}
+
+.location-patient-dropdown-panel{
+  width: 550px;
+}
+
+
 
 .patient-dropdown-content {
   display: flex;
